@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -31,8 +31,8 @@ import com.webratio.ide.model.IEntity;
 
 /**
  * WizardSelectEntityPage: Clase que genera los elementos visuales que se
- * muestran en la página que permite seleccionar la entidad sobre la que se
- * generará el CRUD
+ * muestran en la pï¿½gina que permite seleccionar la entidad sobre la que se
+ * generarï¿½ el CRUD
  */
 public class WizardSelectEntityPage extends WizardPage {
 	private Composite container = null;
@@ -89,17 +89,24 @@ public class WizardSelectEntityPage extends WizardPage {
 		});
 
 	}
-
 	@Override
 	public IWizardPage getNextPage() {
 		
-		WizardCRUDPreviaPage crud = (WizardCRUDPreviaPage) this.getWizard()
-				.getPage("wizardCRUDPreviaPage");
+		// Guardo arbol modificado en projectParameter
+		//ProjectParameters.setArbolPaginaAlta(arbol);
+		//ProjectParameters.setlistaSiteViewArea(listaSiteViewArea);
+		
+		//Cambiado para que vaya a pagina intermedia
+		WizardCRUDPage crud = (WizardCRUDPage) this.getWizard().getPage(
+				"wizardCRUDPage");
+		
+		crud.setEntity((IEntity) this.getSelectedElement());
+		
+		crud.initialize();
 
-		crud.changeEntity((IEntity) this.getSelectedElement());
-		// crud.initialize();
 		return crud;
 	}
+
 
 	public IMFElement getSelectedElement() {
 

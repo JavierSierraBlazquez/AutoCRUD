@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -58,7 +58,7 @@ import com.webratio.ide.model.ISiteView;
  */
 /**
  * WizardCRUDPage: Clase que genera los elementos visuales que se muestran en la
- * página que permite seleccionar las opciones para generar el CRUD
+ * pï¿½gina que permite seleccionar las opciones para generar el CRUD
  */
 public class WizardCRUDPage extends WizardPage {
 	private Map<String, IAttribute> atributosRelacion;
@@ -166,8 +166,7 @@ public class WizardCRUDPage extends WizardPage {
 	 * @param editor
 	 * @return
 	 */
-	private CCombo addAtributesToCombo(CCombo combo, IRelationshipRole role,
-			TableEditor editor) {
+	private CCombo addAtributesToCombo(CCombo combo, IRelationshipRole role, TableEditor editor) {
 		IEntity entidad;
 		IRelationship relation = (IRelationship) role.getParentElement();
 		if (relation.getTargetEntity() == this.entidad) {
@@ -182,8 +181,7 @@ public class WizardCRUDPage extends WizardPage {
 
 		while (iteratorAtributos.hasNext()) {
 			atributo = iteratorAtributos.next();
-			texto = Utilities.getAttribute(atributo, "name") + " ("
-					+ Utilities.getAttribute(role, "name") + ")";
+			texto = Utilities.getAttribute(atributo, "name") + " (" + Utilities.getAttribute(role, "name") + ")";
 			combo.add(Utilities.getAttribute(atributo, "name"));
 			this.atributosRelacion.put(texto, atributo);
 		}
@@ -194,8 +192,7 @@ public class WizardCRUDPage extends WizardPage {
 	 * 
 	 */
 	// (Detalle)
-	private void addAttributes(Table tabla, List<TableItem> list,
-			Boolean esDataUnit) {
+	private void addAttributes(Table tabla, List<TableItem> list, Boolean esDataUnit) {
 		Iterator<IAttribute> iteratorAttribute;
 		if (tabla == this.tableIndexUpdate)
 			iteratorAttribute = this.listaAtributosSinDerivados.iterator();
@@ -205,14 +202,10 @@ public class WizardCRUDPage extends WizardPage {
 		while (iteratorAttribute.hasNext()) {
 			atributo = iteratorAttribute.next();
 			// Se elimina oid de los Data Unit
-			if (!(esDataUnit
-					&& Utilities.getAttribute(atributo, "key").equals("true") && ("oid"
-					.equals(Utilities.getAttribute(atributo, "name")) || "OID"
-					.equals(Utilities.getAttribute(atributo, "name"))))) {
+			if (!(esDataUnit && Utilities.getAttribute(atributo, "key").equals("true") && ("oid".equals(Utilities.getAttribute(atributo,
+					"name")) || "OID".equals(Utilities.getAttribute(atributo, "name"))))) {
 				list.add(new TableItem(tabla, SWT.NONE));
-				list.get(list.size() - 1).setText(
-						Utilities.getAttribute(atributo, "name") + " ("
-								+ atributo.getFinalId() + ")");
+				list.get(list.size() - 1).setText(Utilities.getAttribute(atributo, "name") + " (" + atributo.getFinalId() + ")");
 			}
 
 		}
@@ -245,19 +238,17 @@ public class WizardCRUDPage extends WizardPage {
 		for (int i = numAtributos; i < items.length; i++) {
 			TableEditor editor = new TableEditor(tabla);
 			Text text = new Text(tabla, SWT.NONE);
-			text.setText(Utilities.getAttribute(
-					this.entidadesRelacionadas.get(i - numAtributos), "name"));
+			text.setText(Utilities.getAttribute(this.entidadesRelacionadas.get(i - numAtributos), "name"));
 			editor.grabHorizontal = true;
 			editor.setEditor(text, items[i], 0);
 			editor = new TableEditor(tabla);
 			CCombo combo = new CCombo(tabla, SWT.NONE);
-			combo = this.addAtributesToCombo(combo,
-					this.entidadesRelacionadas.get(i - numAtributos), editor);
+			combo = this.addAtributesToCombo(combo, this.entidadesRelacionadas.get(i - numAtributos), editor);
 			combo.select(0);
-			Integer posicion = new Integer(i);//  se añade posicion que ocupa
+			Integer posicion = new Integer(i);// se aï¿½ade posicion que ocupa
 												// el combo, sera igual a la del
 												// editor asociado a dicho combo
-			combo.setData(posicion);// se añade posicion que ocupa el combo,
+			combo.setData(posicion);// se aï¿½ade posicion que ocupa el combo,
 									// sera igual a la del editor asociado a
 									// dicho combo
 			combo.addSelectionListener(new SelectionAdapter() {
@@ -332,8 +323,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	private void crearActualizar() {
 		this.composite3 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite3Layout = new FillLayout(
-				org.eclipse.swt.SWT.HORIZONTAL);
+		FillLayout composite3Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 
 		composite3Layout.marginHeight = 5;
 		composite3Layout.marginWidth = 5;
@@ -349,15 +339,14 @@ public class WizardCRUDPage extends WizardPage {
 		// this.tableSiteViewUpdate = new Table(this.group6, SWT.CHECK
 		// | SWT.V_SCROLL);
 
-		this.arbolUpdate = new Tree(this.group6, SWT.MULTI | SWT.CHECK
-				| SWT.BORDER);
+		this.arbolUpdate = new Tree(this.group6, SWT.MULTI | SWT.CHECK | SWT.BORDER);
 		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
 		// SWT.BORDER)
 		listaSiteAreaToArbol(this.arbolUpdate);
 
 		arbolUpdate.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
-				//  Ver si el motivo de la seleccion ha sido el check
+				// Ver si el motivo de la seleccion ha sido el check
 				if (event.detail == SWT.CHECK) {
 					TreeItem item = (TreeItem) event.item;
 					boolean checked = item.getChecked();
@@ -370,36 +359,28 @@ public class WizardCRUDPage extends WizardPage {
 
 		});
 
-
-
 		this.group10 = new Group(this.composite3, SWT.NONE);
 		GridLayout groupArbolLayout = new GridLayout();
 		groupArbolLayout.numColumns = 1;
 		this.group10.setLayout(groupArbolLayout);
 		this.group10.setText("Power Index Unit");
 
-
 		this.tableShowUpdate = new Table(this.group10, SWT.CHECK | SWT.V_SCROLL);
-
 
 		GridData gridData = new GridData(160, 120);
 		tableShowUpdate.setLayoutData(gridData);
 
-
 		// boton select all y deselect all
 		Button buttonSelectPower = new Button(this.group10, SWT.PUSH);
 		buttonSelectPower.setText("(Select/Deselect) All");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END,
-				GridData.CENTER, false, false);
+		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
 		gridDataButtonSelectPower.horizontalSpan = 3;
 		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
 		buttonSelectPower.setSelection(Boolean.FALSE);
 
 		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexRead
-						&& null != tableShowUpdate.getItems()
-						&& tableShowUpdate.getItems().length > 0) {
+				if (null != tableIndexRead && null != tableShowUpdate.getItems() && tableShowUpdate.getItems().length > 0) {
 					Boolean hayCheckeados = Boolean.FALSE;
 
 					for (int i = 0; i < tableShowUpdate.getItems().length; i++) {
@@ -427,7 +408,7 @@ public class WizardCRUDPage extends WizardPage {
 		});
 		this.group10.setVisible(true);
 
-		// fin  boton select all y deselect all
+		// fin boton select all y deselect all
 
 		this.group7 = new Group(this.composite3, SWT.NONE);
 		FillLayout group7Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
@@ -441,10 +422,8 @@ public class WizardCRUDPage extends WizardPage {
 			}
 		});
 
-		this.addAttributes(this.tableIndexUpdate, this.checkIndexUpdate,
-				Boolean.FALSE);
-		this.addAttributes(this.tableShowUpdate, this.checkShowUpdate,
-				Boolean.FALSE);
+		this.addAttributes(this.tableIndexUpdate, this.checkIndexUpdate, Boolean.FALSE);
+		this.addAttributes(this.tableShowUpdate, this.checkShowUpdate, Boolean.FALSE);
 		this.addRelationships(this.tableIndexUpdate, this.listaCombosUpdate);
 
 		this.composite3.layout();
@@ -456,8 +435,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	private void crearBorrado() {
 		this.composite4 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite4Layout = new FillLayout(
-				org.eclipse.swt.SWT.HORIZONTAL);
+		FillLayout composite4Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 
 		composite4Layout.spacing = 10;
 		composite4Layout.marginWidth = 5;
@@ -473,8 +451,7 @@ public class WizardCRUDPage extends WizardPage {
 		// this.tableSiteViewDelete = new Table(this.group8, SWT.CHECK
 		// | SWT.V_SCROLL);
 
-		this.arbolDelete = new Tree(this.group8, SWT.MULTI | SWT.CHECK
-				| SWT.BORDER);
+		this.arbolDelete = new Tree(this.group8, SWT.MULTI | SWT.CHECK | SWT.BORDER);
 		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
 		// SWT.BORDER)
 		listaSiteAreaToArbol(this.arbolDelete);
@@ -494,7 +471,6 @@ public class WizardCRUDPage extends WizardPage {
 
 		});
 
-
 		this.group9 = new Group(this.composite4, SWT.NONE);
 		GridLayout groupArbolLayout = new GridLayout();
 		groupArbolLayout.numColumns = 1;
@@ -503,62 +479,53 @@ public class WizardCRUDPage extends WizardPage {
 
 		this.tableIndexDelete = new Table(this.group9, SWT.CHECK | SWT.V_SCROLL);
 
-
 		GridData gridData = new GridData(180, 120);
 		tableIndexDelete.setLayoutData(gridData);
-
 
 		// boton select all y deselect all
 		Button buttonSelectPowerIndexBorrado = new Button(this.group9, SWT.PUSH);
 		buttonSelectPowerIndexBorrado.setText("(Select/Deselect) All Prueba");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END,
-				GridData.CENTER, false, false);
+		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
 		gridDataButtonSelectPower.horizontalSpan = 3;
 		buttonSelectPowerIndexBorrado.setLayoutData(gridDataButtonSelectPower);
 		buttonSelectPowerIndexBorrado.setSelection(Boolean.FALSE);
 
-		buttonSelectPowerIndexBorrado
-				.addSelectionListener(new SelectionAdapter() {
-					public void widgetSelected(SelectionEvent e) {
-						if (null != tableIndexDelete
-								&& null != tableIndexDelete.getItems()
-								&& tableIndexDelete.getItems().length > 0) {
-							Boolean hayCheckeados = Boolean.FALSE;
+		buttonSelectPowerIndexBorrado.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableIndexDelete && null != tableIndexDelete.getItems() && tableIndexDelete.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
 
-							for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
-								if (tableIndexDelete.getItems()[i].getChecked()) {
-									hayCheckeados = Boolean.TRUE;
-								}
-							}
-
-							if (hayCheckeados) {
-								// si hay elementos seleccionados: deselecciono
-								// all
-								// tableIndexRead.deselectAll();
-								for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
-									tableIndexDelete.getItems()[i]
-											.setChecked(false);
-
-								}
-							} else {
-								// si no hay elementos seleccionados: selecciono
-								// all
-								// tableIndexRead.selectAll();
-								for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
-									tableIndexDelete.getItems()[i]
-											.setChecked(true);
-								}
-							}
+					for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
+						if (tableIndexDelete.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
 						}
 					}
-				});
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono
+						// all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
+							tableIndexDelete.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono
+						// all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
+							tableIndexDelete.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
 		this.group9.setVisible(true);
 
-		// fin  boton select all y deselect all
+		// fin boton select all y deselect all
 
 		// this.addSiteViews(this.tableSiteViewDelete, this.checkSiteDelete);
-		this.addAttributes(this.tableIndexDelete, this.checkIndexDelete,
-				Boolean.FALSE);
+		this.addAttributes(this.tableIndexDelete, this.checkIndexDelete, Boolean.FALSE);
 
 		this.composite4.layout();
 	}
@@ -570,8 +537,7 @@ public class WizardCRUDPage extends WizardPage {
 	private void crearCrear() {
 		try {
 			this.composite1 = new Composite(this.tabFolder1, SWT.NONE);
-			FillLayout composite1Layout = new FillLayout(
-					org.eclipse.swt.SWT.HORIZONTAL);
+			FillLayout composite1Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 
 			composite1Layout.marginHeight = 5;
 			composite1Layout.marginWidth = 5;
@@ -581,15 +547,13 @@ public class WizardCRUDPage extends WizardPage {
 			this.tabItem1.setControl(this.composite1);
 
 			this.group1 = new Group(this.composite1, SWT.NONE);
-			FillLayout group1Layout = new FillLayout(
-					org.eclipse.swt.SWT.HORIZONTAL);
+			FillLayout group1Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 			this.group1.setLayout(group1Layout);
 			this.group1.setText("SiteViews-Areas");
 			// this.tableSiteViewCreate = new Table(this.group1, SWT.CHECK
 			// | SWT.V_SCROLL);
 
-			this.arbolCreate = new Tree(this.group1, SWT.MULTI | SWT.CHECK
-					| SWT.BORDER);
+			this.arbolCreate = new Tree(this.group1, SWT.MULTI | SWT.CHECK | SWT.BORDER);
 			// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL
 			// | SWT.BORDER)
 			listaSiteAreaToArbol(this.arbolCreate);
@@ -611,12 +575,10 @@ public class WizardCRUDPage extends WizardPage {
 
 			// RELACION: se cambia check
 			this.group2 = new Group(this.composite1, SWT.NONE);
-			FillLayout group2Layout = new FillLayout(
-					org.eclipse.swt.SWT.HORIZONTAL);
+			FillLayout group2Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 			this.group2.setLayout(group2Layout);
 			this.group2.setText("Relations");
-			this.tableIndexCreate = new Table(this.group2, SWT.CHECK
-					| SWT.V_SCROLL);
+			this.tableIndexCreate = new Table(this.group2, SWT.CHECK | SWT.V_SCROLL);
 			group2.addPaintListener(new PaintListener() {
 				public void paintControl(PaintEvent evt) {
 					group2PaintControl(evt);
@@ -638,8 +600,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	private void crearObtener() {
 		this.composite2 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite2Layout = new FillLayout(
-				org.eclipse.swt.SWT.HORIZONTAL);
+		FillLayout composite2Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 
 		composite2Layout.spacing = 10;
 		composite2Layout.marginWidth = 5;
@@ -653,8 +614,7 @@ public class WizardCRUDPage extends WizardPage {
 		this.group3.setLayout(group3Layout);
 		this.group3.setText("SiteViews-Areas");
 
-		this.arbolRead = new Tree(this.group3, SWT.MULTI | SWT.CHECK
-				| SWT.BORDER);
+		this.arbolRead = new Tree(this.group3, SWT.MULTI | SWT.CHECK | SWT.BORDER);
 		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
 		// SWT.BORDER)
 		listaSiteAreaToArbol(this.arbolRead);
@@ -674,8 +634,6 @@ public class WizardCRUDPage extends WizardPage {
 
 		});
 
-
-
 		this.group4 = new Group(this.composite2, SWT.NONE);
 		GridLayout groupArbolLayout = new GridLayout();
 		groupArbolLayout.numColumns = 1;
@@ -684,24 +642,19 @@ public class WizardCRUDPage extends WizardPage {
 
 		this.tableIndexRead = new Table(this.group4, SWT.CHECK | SWT.V_SCROLL);
 
-
 		GridData gridData = new GridData(155, 120);
 		tableIndexRead.setLayoutData(gridData);
 
-
-
 		Button buttonSelectPower = new Button(this.group4, SWT.PUSH);
 		buttonSelectPower.setText("(Select/Deselect) All");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END,
-				GridData.CENTER, false, false);
+		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
 		gridDataButtonSelectPower.horizontalSpan = 3;
 		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
 		buttonSelectPower.setSelection(Boolean.FALSE);
 
 		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexRead && null != tableIndexRead.getItems()
-						&& tableIndexRead.getItems().length > 0) {
+				if (null != tableIndexRead && null != tableIndexRead.getItems() && tableIndexRead.getItems().length > 0) {
 					Boolean hayCheckeados = Boolean.FALSE;
 
 					for (int i = 0; i < tableIndexRead.getItems().length; i++) {
@@ -731,7 +684,6 @@ public class WizardCRUDPage extends WizardPage {
 
 		// fin boton select all y deselect all
 
-
 		this.group5 = new Group(this.composite2, SWT.NONE);
 		GridLayout groupArbolLayoutData = new GridLayout();
 		groupArbolLayoutData.numColumns = 1;
@@ -740,24 +692,20 @@ public class WizardCRUDPage extends WizardPage {
 
 		this.tableDataRead = new Table(this.group5, SWT.CHECK | SWT.V_SCROLL);
 
-
 		GridData gridDataRead = new GridData(155, 120);
 		tableDataRead.setLayoutData(gridDataRead);
-
 
 		// boton select all y deselect all
 		Button buttonSelectData = new Button(this.group5, SWT.PUSH);
 		buttonSelectData.setText("(Select/Deselect) All");
-		GridData gridDatabuttonSelectData = new GridData(GridData.END,
-				GridData.CENTER, false, false);
+		GridData gridDatabuttonSelectData = new GridData(GridData.END, GridData.CENTER, false, false);
 		gridDatabuttonSelectData.horizontalSpan = 3;
 		buttonSelectData.setLayoutData(gridDatabuttonSelectData);
 		buttonSelectData.setSelection(Boolean.FALSE);
 
 		buttonSelectData.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (null != tableDataRead && null != tableDataRead.getItems()
-						&& tableDataRead.getItems().length > 0) {
+				if (null != tableDataRead && null != tableDataRead.getItems() && tableDataRead.getItems().length > 0) {
 					Boolean hayCheckeados = Boolean.FALSE;
 
 					for (int i = 0; i < tableDataRead.getItems().length; i++) {
@@ -788,8 +736,7 @@ public class WizardCRUDPage extends WizardPage {
 		// fin boton select all y deselect all
 
 		this.addAttributes(this.tableDataRead, this.checkDataRead, Boolean.TRUE);
-		this.addAttributes(this.tableIndexRead, this.checkIndexRead,
-				Boolean.FALSE);
+		this.addAttributes(this.tableIndexRead, this.checkIndexRead, Boolean.FALSE);
 
 		this.composite2.layout();
 	}
@@ -823,6 +770,7 @@ public class WizardCRUDPage extends WizardPage {
 	public void createControl(Composite parent) {
 		this.container = new Composite(parent, SWT.NULL);
 		this.container.setLayout(null);
+
 		this.crearTabs();
 		setControl(this.container);
 		if (this.entidad != null)
@@ -851,22 +799,17 @@ public class WizardCRUDPage extends WizardPage {
 		HashMap<String, IAttribute> hashLista = new HashMap<String, IAttribute>();
 		// cargar hash
 		for (int i = 0; i < this.listaAtributos.size(); i++) {
-			if (!hashLista.containsKey(Utilities.getAttribute(
-					this.listaAtributos.get(i), "name"))) {
-				hashLista.put(Utilities.getAttribute(
-						this.listaAtributos.get(i), "name"),
-						this.listaAtributos.get(i));
+			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributos.get(i), "name"))) {
+				hashLista.put(Utilities.getAttribute(this.listaAtributos.get(i), "name"), this.listaAtributos.get(i));
 			}
 		}
 
 		List<IAttribute> lista = new ArrayList<IAttribute>();
-		if (null != this.tableDataRead && null != this.tableDataRead.getItems()
-				&& this.tableDataRead.getItems().length > 0) {
+		if (null != this.tableDataRead && null != this.tableDataRead.getItems() && this.tableDataRead.getItems().length > 0) {
 			for (int i = 0; i < this.tableDataRead.getItems().length; i++) {
 				if (this.tableDataRead.getItem(i).getChecked()) {
-					String name = (null == this.tableDataRead.getItem(i)
-							.getText() ? null : this.tableDataRead.getItem(i)
-							.getText().split(" \\(")[0]);
+					String name = (null == this.tableDataRead.getItem(i).getText() ? null : this.tableDataRead.getItem(i).getText()
+							.split(" \\(")[0]);
 					if (null != name && hashLista.containsKey(name)) {
 						lista.add(hashLista.get(name));
 					}
@@ -889,25 +832,19 @@ public class WizardCRUDPage extends WizardPage {
 		HashMap<String, IAttribute> hashLista = new HashMap<String, IAttribute>();
 		// cargar hash
 		for (int i = 0; i < this.listaAtributos.size(); i++) {
-			if (!hashLista.containsKey(Utilities.getAttribute(
-					this.listaAtributos.get(i), "name"))) {
-				hashLista.put(Utilities.getAttribute(
-						this.listaAtributos.get(i), "name"),
-						this.listaAtributos.get(i));
+			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributos.get(i), "name"))) {
+				hashLista.put(Utilities.getAttribute(this.listaAtributos.get(i), "name"), this.listaAtributos.get(i));
 			}
 		}
 
 		List<IAttribute> lista = new ArrayList<IAttribute>();
-		if (null != this.tableDataAllInOne
-				&& null != this.tableDataAllInOne.getItems()
-				&& this.tableDataAllInOne.getItems().length > 0) {
+		if (null != this.tableDataAllInOne && null != this.tableDataAllInOne.getItems() && this.tableDataAllInOne.getItems().length > 0) {
 			for (int i = 0; i < this.tableDataAllInOne.getItems().length; i++) {
 				if (this.tableDataAllInOne.getItem(i).getChecked()) {
 					// el text esta compuesto por name + espacio + ( + id +):
 					// obtener el name
-					String name = (null == this.tableDataAllInOne.getItem(i)
-							.getText() ? null : this.tableDataAllInOne
-							.getItem(i).getText().split(" \\(")[0]);
+					String name = (null == this.tableDataAllInOne.getItem(i).getText() ? null : this.tableDataAllInOne.getItem(i).getText()
+							.split(" \\(")[0]);
 					if (null != name && hashLista.containsKey(name)) {
 						lista.add(hashLista.get(name));
 					}
@@ -986,8 +923,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public IAttribute getBuscadorDelete() {
 		if (this.tableOpcionesDelete.getItem(0).getChecked())
-			return this.listaAtributos.get(this.checkOpcionesDelete.get(0)
-					.getSelectionIndex());
+			return this.listaAtributos.get(this.checkOpcionesDelete.get(0).getSelectionIndex());
 		else
 			return null;
 	}
@@ -1000,8 +936,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public IAttribute getBuscadorRead() {
 		if (this.tableOpcionesRead.getItem(0).getChecked())
-			return this.listaAtributos.get(this.checkOpcionesRead.get(0)
-					.getSelectionIndex());
+			return this.listaAtributos.get(this.checkOpcionesRead.get(0).getSelectionIndex());
 		else
 			return null;
 	}
@@ -1014,8 +949,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public IAttribute getBuscadorUpdate() {
 		if (this.tableOpcionesUpdate.getItem(0).getChecked())
-			return this.listaAtributos.get(this.checkOpcionesUpdate.get(0)
-					.getSelectionIndex());
+			return this.listaAtributos.get(this.checkOpcionesUpdate.get(0).getSelectionIndex());
 		else
 			return null;
 	}
@@ -1034,14 +968,9 @@ public class WizardCRUDPage extends WizardPage {
 			for (int i = 0; i < this.listaCombosCreate.size(); i++) {
 				if (this.tableIndexCreate.getItems()[i].getChecked()) {
 					// this.tableIndexCreate.getItems()[i].checked
-					key = this.listaCombosCreate.get(i).getItem(
-							this.listaCombosCreate.get(i).getSelectionIndex())
-							+ " ("
-							+ Utilities.getAttribute(
-									this.entidadesRelacionadas.get(i), "name")
-							+ ")";
-					mapaRelaciones.put(this.entidadesRelacionadas.get(i),
-							this.atributosRelacion.get(key));
+					key = this.listaCombosCreate.get(i).getItem(this.listaCombosCreate.get(i).getSelectionIndex()) + " ("
+							+ Utilities.getAttribute(this.entidadesRelacionadas.get(i), "name") + ")";
+					mapaRelaciones.put(this.entidadesRelacionadas.get(i), this.atributosRelacion.get(key));
 				}
 			}
 		} catch (Exception e) {
@@ -1064,16 +993,9 @@ public class WizardCRUDPage extends WizardPage {
 				// RELATION 1.15: solo meter la de aquellos que se
 				// hayan seleccionado
 				if (this.tableFormAllInOne.getItems()[i].getChecked()) {
-					key = this.listaCombosAllInOne.get(i)
-							.getItem(
-									this.listaCombosAllInOne.get(i)
-											.getSelectionIndex())
-							+ " ("
-							+ Utilities.getAttribute(
-									this.entidadesRelacionadas.get(i), "name")
-							+ ")";
-					mapaRelaciones.put(this.entidadesRelacionadas.get(i),
-							this.atributosRelacion.get(key));
+					key = this.listaCombosAllInOne.get(i).getItem(this.listaCombosAllInOne.get(i).getSelectionIndex()) + " ("
+							+ Utilities.getAttribute(this.entidadesRelacionadas.get(i), "name") + ")";
+					mapaRelaciones.put(this.entidadesRelacionadas.get(i), this.atributosRelacion.get(key));
 				}
 			}
 		} catch (Exception e) {
@@ -1094,17 +1016,10 @@ public class WizardCRUDPage extends WizardPage {
 		try {
 			String key;
 			for (int i = 0; i < this.listaCombosUpdate.size(); i++) {
-				if (this.tableIndexUpdate.getItem(
-						this.listaAtributosSinDerivados.size() + i)
-						.getChecked()) {
-					key = this.listaCombosUpdate.get(i).getItem(
-							this.listaCombosUpdate.get(i).getSelectionIndex())
-							+ " ("
-							+ Utilities.getAttribute(
-									this.entidadesRelacionadas.get(i), "name")
-							+ ")";
-					mapaRelaciones.put(this.entidadesRelacionadas.get(i),
-							this.atributosRelacion.get(key));
+				if (this.tableIndexUpdate.getItem(this.listaAtributosSinDerivados.size() + i).getChecked()) {
+					key = this.listaCombosUpdate.get(i).getItem(this.listaCombosUpdate.get(i).getSelectionIndex()) + " ("
+							+ Utilities.getAttribute(this.entidadesRelacionadas.get(i), "name") + ")";
+					mapaRelaciones.put(this.entidadesRelacionadas.get(i), this.atributosRelacion.get(key));
 				}
 			}
 		} catch (Exception e) {
@@ -1148,15 +1063,10 @@ public class WizardCRUDPage extends WizardPage {
 					for (int j = 0; j < this.listaSiteViews.size(); j++) {
 						ISiteView siteView = this.listaSiteViews.get(j);
 
-						String valorCompleto = Utilities.getAttribute(siteView,
-								"name") + " (" + siteView.getFinalId() + ")";
-						String valorNameMasEspacio = Utilities.getAttribute(
-								siteView, "name") + " ";
-						if (arrSiteViewSelected[i].getText().compareTo(
-								valorCompleto) == 0
-								|| valorNameMasEspacio
-										.compareTo(arrSiteViewSelected[i]
-												.getText() + " ") == 0) {
+						String valorCompleto = Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")";
+						String valorNameMasEspacio = Utilities.getAttribute(siteView, "name") + " ";
+						if (arrSiteViewSelected[i].getText().compareTo(valorCompleto) == 0
+								|| valorNameMasEspacio.compareTo(arrSiteViewSelected[i].getText() + " ") == 0) {
 							lista.add(this.listaSiteViews.get(j));
 						}
 
@@ -1182,11 +1092,9 @@ public class WizardCRUDPage extends WizardPage {
 
 		for (int j = 0; j < this.listaSiteViews.size(); j++) {
 			ISiteView siteView = this.listaSiteViews.get(j);
-			String valorCompleto = Utilities.getAttribute(siteView, "name")
-					+ " (" + siteView.getFinalId() + ")";
+			String valorCompleto = Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")";
 			// 2 (sv11)
-			if (nombre.compareTo(valorCompleto) == 0
-					|| valorCompleto.startsWith(nombre + " ")) {
+			if (nombre.compareTo(valorCompleto) == 0 || valorCompleto.startsWith(nombre + " ")) {
 				return siteView;
 			}
 		}
@@ -1203,18 +1111,14 @@ public class WizardCRUDPage extends WizardPage {
 			for (Iterator iterator = listArea.iterator(); iterator.hasNext();) {
 				IArea area = (IArea) iterator.next();
 
-				String valorCompleto = Utilities.getAttribute(area, "name")
-						+ " (" + area.getFinalId() + ")";
+				String valorCompleto = Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")";
 				// 2 (sv11)
-				if (nombre.compareTo(valorCompleto) == 0
-						|| valorCompleto.startsWith(nombre + " ")) {
+				if (nombre.compareTo(valorCompleto) == 0 || valorCompleto.startsWith(nombre + " ")) {
 					// if(nombre.contains(valor)){
 					return area;
 				} else {
-					if (null != area.getAreaList()
-							&& area.getAreaList().size() > 0) {
-						IArea areabuscar = buscarElementoAreaRecursivo(
-								area.getAreaList(), nombre);
+					if (null != area.getAreaList() && area.getAreaList().size() > 0) {
+						IArea areabuscar = buscarElementoAreaRecursivo(area.getAreaList(), nombre);
 						if (null != areabuscar) {
 							return areabuscar;
 						}
@@ -1239,11 +1143,9 @@ public class WizardCRUDPage extends WizardPage {
 		for (int j = 0; j < this.listaSiteViews.size(); j++) {
 			ISiteView siteView = this.listaSiteViews.get(j);
 
-			if (null != siteView.getAreaList()
-					&& siteView.getAreaList().size() > 0) {
+			if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
 
-				areaEnc = buscarElementoAreaRecursivo(siteView.getAreaList(),
-						nombre);
+				areaEnc = buscarElementoAreaRecursivo(siteView.getAreaList(), nombre);
 				if (null != areaEnc) {
 					return areaEnc;
 				}
@@ -1260,48 +1162,36 @@ public class WizardCRUDPage extends WizardPage {
 	 * @param retColItemSelEhijos
 	 * @param arrItemRecorrer
 	 */
-	private void obtenerHijosCheckeados(
-			Collection<TreeItem> retColItemSelEhijos, TreeItem[] arrItemRecorrer) {
+	private void obtenerHijosCheckeados(Collection<TreeItem> retColItemSelEhijos, TreeItem[] arrItemRecorrer) {
 
 		if (null != arrItemRecorrer && arrItemRecorrer.length > 0) {
 
 			for (int i = 0; i < arrItemRecorrer.length; i++) {
 				// primero selecciona que el nodo este checkeado
-				if (null != arrItemRecorrer[i]
-						&& arrItemRecorrer[i].getChecked()) {
-					if (null != arrItemRecorrer[i].getData()
-							&& ((ObjStViewArea) arrItemRecorrer[i].getData())
-									.getTipo().equals("STVIEW")
+				if (null != arrItemRecorrer[i] && arrItemRecorrer[i].getChecked()) {
+					if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("STVIEW")
 							&& null != arrItemRecorrer[i].getItems()) {
-						obtenerHijosCheckeados(retColItemSelEhijos,
-								arrItemRecorrer[i].getItems());
+						obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
 					} else {
 
 						// segundo comprueba si es de tipo area y no tiene hijos
-						if (null != arrItemRecorrer[i].getData()
-								&& ((ObjStViewArea) arrItemRecorrer[i]
-										.getData()).getTipo().equals("AREA")
+						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("AREA")
 								&& null == arrItemRecorrer[i].getItems()) {
-	
+
 							retColItemSelEhijos.add(arrItemRecorrer[i]);
 
 						}
 
 						// tercero comprueba si es de tipo area y ninguno de sus
 						// hijos siguientes tiene checkeado
-						if (null != arrItemRecorrer[i].getData()
-								&& ((ObjStViewArea) arrItemRecorrer[i]
-										.getData()).getTipo().equals("AREA")
+						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("AREA")
 								&& null != arrItemRecorrer[i].getItems()) {
 
 							int contador = 0;
 							for (int j = 0; j < arrItemRecorrer[i].getItems().length; j++) {
-								if (null != arrItemRecorrer[i].getItems()[j]
-										&& arrItemRecorrer[i].getItems()[j]
-												.getChecked()) {
+								if (null != arrItemRecorrer[i].getItems()[j] && arrItemRecorrer[i].getItems()[j].getChecked()) {
 									contador++;
-									obtenerHijosCheckeados(retColItemSelEhijos,
-											arrItemRecorrer[i].getItems());
+									obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
 									break;
 								}
 							}
@@ -1333,33 +1223,26 @@ public class WizardCRUDPage extends WizardPage {
 		Collection<TreeItem> retColItemSelEhijos = new ArrayList<TreeItem>();
 
 		if ("RETRIEVE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos,
-					this.arbolRead.getItems());
+			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolRead.getItems());
 		}
 		if ("UPDATE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos,
-					this.arbolUpdate.getItems());
+			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolUpdate.getItems());
 		}
 		if ("DELETE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos,
-					this.arbolDelete.getItems());
+			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolDelete.getItems());
 		}
 		if ("CREATE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos,
-					this.arbolCreate.getItems());
+			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolCreate.getItems());
 		}
 		if ("ALLINONE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos,
-					this.arbolAllInOne.getItems());
+			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolAllInOne.getItems());
 		}
 
 		if (null != retColItemSelEhijos) {
-			for (Iterator iterator = retColItemSelEhijos.iterator(); iterator
-					.hasNext();) {
+			for (Iterator iterator = retColItemSelEhijos.iterator(); iterator.hasNext();) {
 				TreeItem treeItem = (TreeItem) iterator.next();
 
-				IArea area = buscarElementoArea(((ObjStViewArea) treeItem
-						.getData()).getNombre());
+				IArea area = buscarElementoArea(((ObjStViewArea) treeItem.getData()).getNombre());
 				if (null != area) {
 					lista.add(area);
 				}
@@ -1430,32 +1313,26 @@ public class WizardCRUDPage extends WizardPage {
 	public void initialize() {
 		try {
 			if (this.entidad == null) {
-				this.pageSelectEntity = (WizardSelectEntityPage) this
-						.getWizard().getStartingPage();
+				this.pageSelectEntity = (WizardSelectEntityPage) this.getWizard().getStartingPage();
 
-				this.entidad = (IEntity) this.pageSelectEntity
-						.getSelectedElement();
+				this.entidad = (IEntity) this.pageSelectEntity.getSelectedElement();
 			}
 
 			declaracionEstructuras(entidad);
 
 			this.initRelationShips();
-			//  De aqui se obtienen los atributos de la entidad
+			// De aqui se obtienen los atributos de la entidad
 			this.listaAtributos = this.entidad.getAllAttributeList();
-			Iterator<IAttribute> iteratorAtributos = this.listaAtributos
-					.iterator();
+			Iterator<IAttribute> iteratorAtributos = this.listaAtributos.iterator();
 			IAttribute atributo;
 			while (iteratorAtributos.hasNext()) {
 				atributo = iteratorAtributos.next();
-				if (Utilities.getAttribute(atributo, "derivationQuery").equals(
-						"")
-						&& !Utilities.getAttribute(atributo, "key").equals(
-								"true")) {
+				if (Utilities.getAttribute(atributo, "derivationQuery").equals("")
+						&& !Utilities.getAttribute(atributo, "key").equals("true")) {
 					this.listaAtributosSinDerivados.add(atributo);
 				}
 			}
-			this.listaSiteViews = ProjectParameters.getWebModel()
-					.getSiteViewList();
+			this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
 			this.crearAllInOne();
 			this.crearCrear();
@@ -1531,8 +1408,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	private void crearAllInOne() {
 		this.composite5 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite5Layout = new FillLayout(
-				org.eclipse.swt.SWT.HORIZONTAL);
+		FillLayout composite5Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 
 		composite5Layout.marginHeight = 5;
 		composite5Layout.marginWidth = 5;
@@ -1542,17 +1418,17 @@ public class WizardCRUDPage extends WizardPage {
 		this.tabItem0.setControl(this.composite5);
 
 		this.group11 = new Group(this.composite5, SWT.NONE);
-		FillLayout group11Layout = new FillLayout(
-				org.eclipse.swt.SWT.HORIZONTAL);
+		FillLayout group11Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 		this.group11.setLayout(group11Layout);
 		this.group11.setText("SiteViews-Areas");
 
-		this.arbolAllInOne = new Tree(this.group11, SWT.MULTI | SWT.CHECK
-				| SWT.BORDER);
+		this.arbolAllInOne = new Tree(this.group11, SWT.MULTI | SWT.CHECK | SWT.BORDER);
 		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
 		// SWT.BORDER)
-
-		listaSiteAreaToArbol(this.arbolAllInOne);
+		
+		inicializarListaYarbol();
+		//ya utilizo en inicializarListaYarbol el arbolAllInOne para cargarlo y pasarlo a ProjectParameters 
+		//listaSiteAreaToArbol(this.arbolAllInOne);
 
 		arbolAllInOne.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
@@ -1569,35 +1445,28 @@ public class WizardCRUDPage extends WizardPage {
 
 		});
 
-
 		this.group12 = new Group(this.composite5, SWT.NONE);
 		GridLayout groupArbolLayoutIndex = new GridLayout();
 		groupArbolLayoutIndex.numColumns = 1;
 		this.group12.setLayout(groupArbolLayoutIndex);
 		this.group12.setText("Power Index Unit");
 
-		this.tableIndexAllInOne = new Table(this.group12, SWT.CHECK
-				| SWT.V_SCROLL);
-
+		this.tableIndexAllInOne = new Table(this.group12, SWT.CHECK | SWT.V_SCROLL);
 
 		GridData gridDataIndex = new GridData(120, 120);
 		tableIndexAllInOne.setLayoutData(gridDataIndex);
 
-
 		// boton select all y deselect all
 		Button buttonSelectPower = new Button(this.group12, SWT.PUSH);
 		buttonSelectPower.setText("(Select/Deselect) All");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END,
-				GridData.CENTER, false, false);
+		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
 		gridDataButtonSelectPower.horizontalSpan = 3;
 		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
 		buttonSelectPower.setSelection(Boolean.FALSE);
 
 		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexAllInOne
-						&& null != tableIndexAllInOne.getItems()
-						&& tableIndexAllInOne.getItems().length > 0) {
+				if (null != tableIndexAllInOne && null != tableIndexAllInOne.getItems() && tableIndexAllInOne.getItems().length > 0) {
 					Boolean hayCheckeados = Boolean.FALSE;
 
 					for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
@@ -1628,13 +1497,11 @@ public class WizardCRUDPage extends WizardPage {
 		// fin boton select all y deselect all
 
 		this.group13 = new Group(this.composite5, SWT.NONE);
-		FillLayout group13Layout = new FillLayout(
-				org.eclipse.swt.SWT.HORIZONTAL);
+		FillLayout group13Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
 		this.group13.setLayout(group13Layout);
 		this.group13.setText("Relations");
 		// Se ha cambiado de NONE a CHECK
-		this.tableFormAllInOne = new Table(this.group13, SWT.CHECK
-				| SWT.V_SCROLL);
+		this.tableFormAllInOne = new Table(this.group13, SWT.CHECK | SWT.V_SCROLL);
 
 		group13.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent evt) {
@@ -1642,7 +1509,7 @@ public class WizardCRUDPage extends WizardPage {
 			}
 		});
 
-		// Añadir Data Unit: da opcion a elegir campos que aparecen en
+		// Aï¿½adir Data Unit: da opcion a elegir campos que aparecen en
 		// el View
 
 		this.group14 = new Group(this.composite5, SWT.NONE);
@@ -1651,28 +1518,22 @@ public class WizardCRUDPage extends WizardPage {
 		this.group14.setLayout(groupArbolLayoutData);
 		this.group14.setText("Data Unit");
 
-		this.tableDataAllInOne = new Table(this.group14, SWT.CHECK
-				| SWT.V_SCROLL);
-
+		this.tableDataAllInOne = new Table(this.group14, SWT.CHECK | SWT.V_SCROLL);
 
 		GridData gridData = new GridData(120, 120);
 		tableDataAllInOne.setLayoutData(gridData);
 
-
 		// boton select all y deselect all
 		Button buttonSelectData = new Button(this.group14, SWT.PUSH);
 		buttonSelectData.setText("(Select/Deselect) All");
-		GridData gridDatabuttonSelectData = new GridData(GridData.END,
-				GridData.CENTER, false, false);
+		GridData gridDatabuttonSelectData = new GridData(GridData.END, GridData.CENTER, false, false);
 		gridDatabuttonSelectData.horizontalSpan = 3;
 		buttonSelectData.setLayoutData(gridDatabuttonSelectData);
 		buttonSelectData.setSelection(Boolean.FALSE);
 
 		buttonSelectData.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (null != tableDataAllInOne
-						&& null != tableDataAllInOne.getItems()
-						&& tableDataAllInOne.getItems().length > 0) {
+				if (null != tableDataAllInOne && null != tableDataAllInOne.getItems() && tableDataAllInOne.getItems().length > 0) {
 					Boolean hayCheckeados = Boolean.FALSE;
 
 					for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
@@ -1700,23 +1561,93 @@ public class WizardCRUDPage extends WizardPage {
 		});
 		this.group14.setVisible(true);
 
-		this.addAttributes(this.tableIndexAllInOne, this.checkFormAllInOne,
-				Boolean.FALSE);
+		this.addAttributes(this.tableIndexAllInOne, this.checkFormAllInOne, Boolean.FALSE);
 		this.addRelationships(this.tableFormAllInOne, this.listaCombosAllInOne);
-		// Añadir Data Unit: da opcion a elegir campos que aparecen en el View
-		this.addAttributes(this.tableDataAllInOne, this.checkDataAllInOne,
-				Boolean.TRUE);
+		// Aï¿½adir Data Unit: da opcion a elegir campos que aparecen en el View
+		this.addAttributes(this.tableDataAllInOne, this.checkDataAllInOne, Boolean.TRUE);
 
 		this.composite5.layout();
 	}
 
-	private void aniadirElementoToArbol(Tree nodoArbolPadre,
-			TreeItem nodoItemPadre, List<ObjStViewArea> listaElementosPagePrevia) {
+	/**
+	 * 
+	 * Nombre: inicializarListaYarbol Funcion:
+	 */
+	private void inicializarListaYarbol() {
+		List<ISiteView> listaSiteViewsPreviaPage = ProjectParameters.getWebModel().getSiteViewList();
 
-		if (null != listaElementosPagePrevia
-				&& listaElementosPagePrevia.size() > 0) {
-			for (Iterator iterator = listaElementosPagePrevia.iterator(); iterator
-					.hasNext();) {
+		// Inicializa elementos del arbol para volver a version de siteView-
+		// areas creados
+		List<ObjStViewArea> listaSiteViewArea = new ArrayList();
+
+		arbolAllInOne.removeAll();
+		arbolAllInOne.clearAll(Boolean.TRUE);
+
+		if (null != listaSiteViewsPreviaPage && listaSiteViewsPreviaPage.size() > 0) {
+			for (Iterator iterator = listaSiteViewsPreviaPage.iterator(); iterator.hasNext();) {
+				ISiteView siteView = (ISiteView) iterator.next();
+				if (null != siteView) {
+					ObjStViewArea objStView = new ObjStViewArea();
+					objStView.setNombre(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
+					objStView.setTipo("STVIEW");
+					listaSiteViewArea.add(objStView);
+
+					TreeItem itemSiteView = new TreeItem(arbolAllInOne, 0);
+
+					itemSiteView.setText(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
+
+					if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
+						montarArbolAreas(itemSiteView, objStView, siteView.getAreaList());
+					}
+				}
+			}
+		}
+
+		arbolAllInOne.redraw();
+		ProjectParameters.setlistaSiteViewArea(listaSiteViewArea);
+	}
+
+	/**
+	 * Para recorrer una lista de Areas y formar los nodos del padre
+	 * 
+	 * Nombre: montarArbol Funcion:
+	 * 
+	 * @param objPadre
+	 *            --> con esto voy ir aumentando el arbol
+	 * @param listaAreasPadre
+	 *            ---> cone esto voy a ir recorriendo la lista de Areas de cada
+	 *            SiteView, y areas de areas..
+	 */
+	private void montarArbolAreas(TreeItem itemPadreArbol, ObjStViewArea objPadreArbol, List<IArea> listaAreasPadreRecorrer) {
+
+		List listaAreaHijo = null;
+		if (null != listaAreasPadreRecorrer && listaAreasPadreRecorrer.size() > 0) {
+			listaAreaHijo = new ArrayList();
+			objPadreArbol.setListHijos(listaAreaHijo);
+			for (Iterator iterator = listaAreasPadreRecorrer.iterator(); iterator.hasNext();) {
+				IArea area = (IArea) iterator.next();
+
+				if (null != area) {
+					ObjStViewArea objArea1 = new ObjStViewArea();
+					objArea1.setNombre(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
+					objArea1.setTipo("AREA");
+					listaAreaHijo.add(objArea1);
+
+					TreeItem itemHijo = new TreeItem(itemPadreArbol, 0);
+					itemHijo.setText(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
+
+					arbolAllInOne.select(itemHijo);
+
+					montarArbolAreas(itemHijo, objArea1, area.getAreaList());
+				}
+			}
+
+		}
+	}
+	private void aniadirElementoToArbol(Tree nodoArbolPadre, TreeItem nodoItemPadre, List<ObjStViewArea> listaElementosPagePrevia) {
+
+		if (null != listaElementosPagePrevia && listaElementosPagePrevia.size() > 0) {
+			for (Iterator iterator = listaElementosPagePrevia.iterator(); iterator.hasNext();) {
 				ObjStViewArea objStViewArea = (ObjStViewArea) iterator.next();
 				TreeItem item0 = null;
 				if (objStViewArea.getTipo().equals("AREA")) {
@@ -1727,8 +1658,7 @@ public class WizardCRUDPage extends WizardPage {
 				item0.setText(objStViewArea.getNombre());
 				item0.setData(objStViewArea);
 
-				aniadirElementoToArbol(nodoArbolPadre, item0,
-						objStViewArea.getListHijos());
+				aniadirElementoToArbol(nodoArbolPadre, item0, objStViewArea.getListHijos());
 			}
 		}
 
@@ -1741,11 +1671,9 @@ public class WizardCRUDPage extends WizardPage {
 	 * @param arbol
 	 */
 	private void listaSiteAreaToArbol(Tree arbol) {
-		if (null != ProjectParameters.getlistaSiteViewArea()
-				&& ProjectParameters.getlistaSiteViewArea().size() > 0) {
+		if (null != ProjectParameters.getlistaSiteViewArea() && ProjectParameters.getlistaSiteViewArea().size() > 0) {
 
-			aniadirElementoToArbol(arbol, null,
-					ProjectParameters.getlistaSiteViewArea());
+			aniadirElementoToArbol(arbol, null, ProjectParameters.getlistaSiteViewArea());
 		}
 	}
 

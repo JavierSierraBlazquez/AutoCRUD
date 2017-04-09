@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -62,7 +62,7 @@ public class lanzarCRUD extends AbstractHandler {
 				// Si el asistente se inicia con una entidad ya seleccionada nos
 				// ahorramos una pagina, en caso contrario mostramos el
 				// asistente
-				// completo dando la opción de elegir la entidad de la que
+				// completo dando la opciï¿½n de elegir la entidad de la que
 				// queremos obtener el CRUD
 				if (element instanceof IEntity) {
 					wizard = new WizardCRUD((IEntity) element);
@@ -72,7 +72,8 @@ public class lanzarCRUD extends AbstractHandler {
 				wizard.init(window.getWorkbench(), structuredSelection);
 				WizardDialog dialog = new WizardDialog(window.getShell(),
 						wizard);
-				dialog.setPageSize(640, 240);
+				//dialog.setPageSize(640, 240);
+				dialog.setPageSize(800, 440);
 				dialog.open();
 			}
 		} catch (Exception e) {

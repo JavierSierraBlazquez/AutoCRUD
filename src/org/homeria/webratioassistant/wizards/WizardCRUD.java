@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -43,12 +43,12 @@ import com.webratio.ide.model.ISiteView;
  * @class WizardCRUD
  */
 /**
- * WizardCRUD: Clase principal encargada del asistente gráfico
+ * WizardCRUD: Clase principal encargada del asistente grï¿½fico
  */
 public class WizardCRUD extends Wizard implements INewWizard {
 	public static Create c = null;
 	private Create create;
-	private WizardCRUDPreviaPage crudPreviaPage;
+//	private WizardCRUDPreviaPage crudPreviaPage;
 	private WizardCRUDPage crudPage;
 
 	private Delete delete;
@@ -87,9 +87,9 @@ public class WizardCRUD extends Wizard implements INewWizard {
 			this.pageSelectEntity = new WizardSelectEntityPage();
 			addPage(this.pageSelectEntity);
 		}
-		// Se añade pagina intermedia
-		this.crudPreviaPage = new WizardCRUDPreviaPage(this.entidadSeleccionada);
-		addPage(this.crudPreviaPage);
+		// Se aï¿½ade pagina intermedia
+//		this.crudPreviaPage = new WizardCRUDPreviaPage(this.entidadSeleccionada);
+//		addPage(this.crudPreviaPage);
 
 		this.crudPage = new WizardCRUDPage(this.entidadSeleccionada);
 		addPage(this.crudPage);
