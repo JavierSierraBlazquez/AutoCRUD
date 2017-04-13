@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -69,23 +69,23 @@ public class Utilities {
 					// Y ahora se comprueba que haya un hueco que de alto sea
 					// como minimo de 1250 pixel
 					if (figura.getBounds().getLocation().y < 1250) {
-						// Si es así esa posición será valida, y solo nos
-						// quedaremos con la más alejada a la derecha
+						// Si es asï¿½ esa posiciï¿½n serï¿½ valida, y solo nos
+						// quedaremos con la mï¿½s alejada a la derecha
 						if (figura.getBounds().getLocation().x > maximoDerecha) {
 							maximoDerecha = figura.getBounds().getLocation().x;
 						}
 					}
 				}
 			}
-			// Si es la posicion inicial se le añaden 25 pixels para que no
+			// Si es la posicion inicial se le aï¿½aden 25 pixels para que no
 			// quede mal visualmente
 			if (maximoDerecha == 0)
 				maximoDerecha = maximoDerecha + 25;
 			else
-				// Si ya hay elementos dibujados se le añaden 200 pixels para
+				// Si ya hay elementos dibujados se le aï¿½aden 200 pixels para
 				// separarlos
 				maximoDerecha = maximoDerecha + 200;
-			// La posicion Y siempre serán 25 pixels
+			// La posicion Y siempre serï¿½n 25 pixels
 			puntoInicio.setLocation(maximoDerecha, 25);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,14 +94,10 @@ public class Utilities {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static ILinkParameter createLinkParameter(String modelId,
-			IMFIdProvider idProvider, String parentId) {
+	public static ILinkParameter createLinkParameter(String modelId, IMFIdProvider idProvider, String parentId) {
 		Class publicType = ILinkParameter.class;
-		ILinkParameter newLinkParameter = (ILinkParameter) new CreateMFOperation(
-				publicType, modelId).execute();
-		((MFElement) newLinkParameter)
-				.setAttribute("id", idProvider.getFirstFreeId(parentId,
-						publicType, null, true).first);
+		ILinkParameter newLinkParameter = (ILinkParameter) new CreateMFOperation(publicType, modelId).execute();
+		((MFElement) newLinkParameter).setAttribute("id", idProvider.getFirstFreeId(parentId, publicType, null, true).first);
 		return newLinkParameter;
 	}
 
@@ -134,11 +130,9 @@ public class Utilities {
 	 * @param newValue
 	 * @return
 	 */
-	public static boolean setAttribute(IMFElement element, String attribute,
-			String newValue) {
+	public static boolean setAttribute(IMFElement element, String attribute, String newValue) {
 		boolean canExecute;
-		setCommand = new SetAttributeCommand(element, attribute, newValue,
-				element.getModelId(), ProjectParameters.getEditPartViewer());
+		setCommand = new SetAttributeCommand(element, attribute, newValue, element.getModelId(), ProjectParameters.getEditPartViewer());
 		canExecute = setCommand.canExecute();
 		if (canExecute) {
 			setCommand.execute();
@@ -154,10 +148,8 @@ public class Utilities {
 	 */
 	public static void switchSiteView(ISiteView siteView) {
 		try {
-			MFMultiEditor multiEditor = (MFMultiEditor) ProjectParameters
-					.getMFGraphEditor(siteView).getAdapter(MFMultiEditor.class);
-			multiEditor.activateEditor(ProjectParameters
-					.getMFGraphEditor(siteView));
+			MFMultiEditor multiEditor = (MFMultiEditor) ProjectParameters.getMFGraphEditor(siteView).getAdapter(MFMultiEditor.class);
+			multiEditor.activateEditor(ProjectParameters.getMFGraphEditor(siteView));
 			ProjectParameters.init();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,8 +164,7 @@ public class Utilities {
 	 * @param entidad
 	 * @return
 	 */
-	public static IEntity getTargetEntity(IRelationshipRole role,
-			IEntity entidad) {
+	public static IEntity getTargetEntity(IRelationshipRole role, IEntity entidad) {
 		IRelationship relation = (IRelationship) role.getParentElement();
 		if (relation.getTargetEntity() == entidad) {
 			return relation.getSourceEntity();
@@ -182,4 +173,7 @@ public class Utilities {
 
 	}
 
+	public enum Operations {
+		CREATE, READ, UPDATE, DELETE, ALLINONE;
+	}
 }

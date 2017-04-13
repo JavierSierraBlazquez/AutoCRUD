@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -133,7 +133,7 @@ public class Delete extends CRUD {
 		subProgressMonitor.worked(unidad);
 		powerIndexUnit = (IContentUnit) this.addUnidad(pagina,
 				"PowerIndexUnit", 5, 5, "Index", true, null);
-		this.addAtritubosIndex(powerIndexUnit);
+		this.addAtributosIndex(powerIndexUnit);
 		subProgressMonitor.worked(unidad);
 
 		multiMessageUnit = (IContentUnit) this.addUnidad(pagina,

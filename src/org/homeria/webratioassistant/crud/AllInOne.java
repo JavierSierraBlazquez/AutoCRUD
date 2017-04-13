@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -35,18 +35,26 @@ import com.webratio.ide.model.ISiteView;
  * @class Create
  */
 public class AllInOne extends CRUD {
+	private List<IAttribute> listaAtributosDetail;
 	/**
 	 * Create.java: Clase que se encarga de generar los elementos encargados de
-	 * realizar la operación de Crear/Create. Es necesario especificar los
-	 * siteviews donde se deberí colocar, además de los atributos y relaciones
+	 * realizar la operaciï¿½n de Crear/Create. Es necesario especificar los
+	 * siteviews donde se deberï¿½ colocar, ademï¿½s de los atributos y relaciones
 	 * que se deberan mostrar en la unidad EntryUnit.
 	 */
-	public AllInOne(IMFElement entity, List<ISiteView> siteViews,
-			List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
+	public AllInOne(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
 			List<IAttribute> atributosIndex, List<IAttribute> atributosData) {
 		super(siteViews, areas, entity, atributosIndex, atributosData, relation);
 
 	}
+	
+	// se aÃ±ade la lista de Detail
+	public AllInOne(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
+			List<IAttribute> atributosIndex, List<IAttribute> atributosData, List<IAttribute> atributosDetail) {
+		super(siteViews, areas, entity, atributosIndex, atributosData, relation);
+		this.listaAtributosDetail = atributosDetail;
+	}
+	
 
 	/**
 	 * 
@@ -56,7 +64,7 @@ public class AllInOne extends CRUD {
 	 */
 	public void ejecutar(SubProgressMonitor subProgressMonitor) {
 		int unidad = 1;
-		// Tamaño total de ejecuciones para la barra de progreso
+		// Tamaï¿½o total de ejecuciones para la barra de progreso
 		int totalWork = this.getListaSiteViews().size() * (30);
 		// Creamos tarea "Create" para que aparezca en la barra de progreso
 		subProgressMonitor.beginTask("Create", totalWork);
@@ -65,8 +73,7 @@ public class AllInOne extends CRUD {
 			ISiteView siteView;
 
 			// Se ejecuta para todos los siteviews
-			for (Iterator<ISiteView> iteradorSiteView = this
-					.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
+			for (Iterator<ISiteView> iteradorSiteView = this.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
 				siteView = iteradorSiteView.next();
 
 				// Activamos el siteView seleccionado en el editor de webratio
@@ -75,17 +82,13 @@ public class AllInOne extends CRUD {
 				List<IArea> listaAreaEnc = null;
 				// metodo que diga si en la lista de areas de entrada hay alguno
 				// que corresponde al siteView del iterator
-				if (null != siteView.getAreaList()
-						&& siteView.getAreaList().size() > 0
-						&& null != this.getListaAreas()
+				if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0 && null != this.getListaAreas()
 						&& this.getListaAreas().size() > 0) {
 
-					for (Iterator iterator = this.getListaAreas().iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = this.getListaAreas().iterator(); iterator.hasNext();) {
 						IArea iAreaSelected = (IArea) iterator.next();
 
-						String[] partesNombreID = iAreaSelected.getRootXPath()
-								.split("'"); // id('stv')
+						String[] partesNombreID = iAreaSelected.getRootXPath().split("'"); // id('stv')
 						String idPadre = partesNombreID[1];
 						if (idPadre.compareTo(siteView.getFinalId()) == 0) {
 							if (null == listaAreaEnc) {
@@ -102,12 +105,10 @@ public class AllInOne extends CRUD {
 					allInOneCrearElementos(subProgressMonitor, unidad, siteView);
 					subProgressMonitor.worked(unidad);
 				} else {
-					for (Iterator iterator = listaAreaEnc.iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = listaAreaEnc.iterator(); iterator.hasNext();) {
 						IArea iArea = (IArea) iterator.next();
 						Utilities.switchSiteView(siteView);
-						allInOneCrearElementos(subProgressMonitor, unidad,
-								iArea);
+						allInOneCrearElementos(subProgressMonitor, unidad, iArea);
 						subProgressMonitor.worked(unidad);
 
 					}
@@ -130,8 +131,7 @@ public class AllInOne extends CRUD {
 	 * @param unidad
 	 * @param elementIMFE
 	 */
-	private void allInOneCrearElementos(SubProgressMonitor subProgressMonitor,
-			int unidad, IMFElement elementIMFE) {
+	private void allInOneCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE) {
 		IPage pagina;
 		IPage paginaDefault;
 		IPage paginaForm;
@@ -164,15 +164,14 @@ public class AllInOne extends CRUD {
 		int posx;
 		int posy;
 
-		// Buscamos la posición x,y libre
+		// Buscamos la posiciï¿½n x,y libre
 		posicion = Utilities.buscarHueco();
 		x = posicion.x;
 		y = posicion.y;
 		firstCreate = null;
 
 		// Crear deteUnit
-		deleteUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DeleteUnit",
-				x, y, "Delete", true, null);
+		deleteUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DeleteUnit", x, y, "Delete", true, null);
 		subProgressMonitor.worked(unidad);
 		// Buscamos otra vez primer hueco libre
 		posicion = Utilities.buscarHueco();
@@ -183,96 +182,85 @@ public class AllInOne extends CRUD {
 		pagina = (IPage) this.addPagina(elementIMFE, "CRUD", x, y);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir pagina alternativa
+		// Aï¿½adir pagina alternativa
 		posx = posy = 5;
-		alternative = (IAlternative) this.addArea(pagina, posx, posy,
-				"Alternative");
+		alternative = (IAlternative) this.addArea(pagina, posx, posy, "Alternative");
 		subProgressMonitor.worked(unidad);
 
 		// New
 		// Obtenemos la pagina default
 		paginaDefault = alternative.getPageList().get(0);
-		Utilities.setAttribute(paginaDefault, "name",
-				"New " + Utilities.getAttribute(this.getEntity(), "name"));
+		Utilities.setAttribute(paginaDefault, "name", "New " + Utilities.getAttribute(this.getEntity(), "name"));
 
 		// No Op Content Unit
-		// Añadimos una noOpContentUnit para crear un enlace
-		noOpContentUnit = (IContentUnit) this.addUnidad(paginaDefault,
-				"NoOpContentUnit", 5, 5, "New ", false, null);
+		// Aï¿½adimos una noOpContentUnit para crear un enlace
+		noOpContentUnit = (IContentUnit) this.addUnidad(paginaDefault, "NoOpContentUnit", 5, 5, "New ", false, null);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir multiMessage para los mensajes de las unidades
-		multiMessageUnit = (IContentUnit) this.addUnidad(paginaDefault,
-				"MultiMessageUnit", (posx + Utilities.anchoUnidad), 5,
-				"Message", false, null);
+		// Aï¿½adir multiMessage para los mensajes de las unidades
+		multiMessageUnit = (IContentUnit) this.addUnidad(paginaDefault, "MultiMessageUnit", (posx + Utilities.anchoUnidad), 5, "Message",
+				false, null);
 		subProgressMonitor.worked(unidad);
 
-		// Añadimos la powerIndex e indicamos los atributos visibles
+		// Aï¿½adimos la powerIndex e indicamos los atributos visibles
 		posy = posy + Utilities.altoUnidad;
-		powerIndexUnit = (IContentUnit) this.addUnidad(paginaDefault,
-				"PowerIndexUnit", posx, posy, "Index", true, null);
+		powerIndexUnit = (IContentUnit) this.addUnidad(paginaDefault, "PowerIndexUnit", posx, posy, "Index", true, null);
 
-		// Añadimos los atributos que queremos visibles en la powerIndexUnit
-		this.addAtritubosIndex(powerIndexUnit);
-		// TODO CAGUADOF: añadir que sea sorteable ascending por el oid
+		// Aï¿½adimos los atributos que queremos visibles en la powerIndexUnit
+		this.addAtributosIndex(powerIndexUnit);
+		// TODO CAGUADOF: aï¿½adir que sea sorteable ascending por el oid
 		// SortAttribute
 		subProgressMonitor.worked(unidad);
 
-		// Añadimos la pagina donde irá el formulario
+		// Aï¿½adimos la pagina donde irï¿½ el formulario
 		paginaDetails = (IPage) this.addPagina(alternative, "Details", 300, 5);
 		subProgressMonitor.worked(unidad);
 
-		// Añadimos la dataUnit e indicamos todos los atributos visibles
-		dataUnit = (IContentUnit) this.addUnidad(paginaDetails, "DataUnit", 5,
-				5, "Data", true, null);
-		// Añadimos todos los atributos para mostrarlos en la dataUnit
-		this.addAtritubosData(dataUnit);
+		// Aï¿½adimos la dataUnit e indicamos todos los atributos visibles
+		dataUnit = (IContentUnit) this.addUnidad(paginaDetails, "DataUnit", 5, 5, "Data", true, null);
+		// Aï¿½adimos todos los atributos para mostrarlos en la dataUnit
+		this.addAtributosData(dataUnit,this.listaAtributosDetail);
 
-		// Añadimos un link normal entre la dataUnit
+		// Aï¿½adimos un link normal entre la dataUnit
 		// y la pagina para limpiar el contenido
 		this.addNormalLink((IMFElement) dataUnit, multiMessageUnit, "Close");
 
 		// Enlaces
 		link = this.addOKLink(deleteUnit, multiMessageUnit);
 		this.setAutomaticCoupling(link);
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"The data from " + this.getNombreEntity() + " has been delete.");
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "The data from " + this.getNombreEntity() + " has been delete.");
 		subProgressMonitor.worked(unidad);
 
 		link = this.addKOLink(deleteUnit, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"Error deleting data from " + this.getNombreEntity());
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error deleting data from " + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
 
 		// PAGINA FORMULARIO
-		// Añadimos la pagina donde irá el formulario
+		// Aï¿½adimos la pagina donde irï¿½ el formulario
 		paginaForm = (IPage) this.addPagina(alternative, "Form", 5, 300);
-																			
+
 		subProgressMonitor.worked(unidad);
 
-		// Añadir el formulario y poner los campos
-		entryUnit = (IContentUnit) this.addUnidad(paginaForm, "EntryUnit", 200,
-				200, "Form", true, null);
+		// Aï¿½adir el formulario y poner los campos
+		entryUnit = (IContentUnit) this.addUnidad(paginaForm, "EntryUnit", 200, 200, "Form", true, null);
 		this.setFields(entryUnit, true, true);
 		subProgressMonitor.worked(unidad);
 
-		// Enlace Cancel desde entrey a MultiMesage: sin validación
+		// Enlace Cancel desde entrey a MultiMesage: sin validaciï¿½n
 		link = this.addNormalLink(entryUnit, multiMessageUnit, "Cancel");
 		Utilities.setAttribute(link, "validate", "false");
 
-		// Añadir el selector de entidad y asignarle una keyCondition
+		// Aï¿½adir el selector de entidad y asignarle una keyCondition
 		posx = posy = 5;
-		selectorEntidad = (IContentUnit) this.addUnidad(paginaForm,
-				"SelectorUnit", posx, posy, "Selector", true, null);
+		selectorEntidad = (IContentUnit) this.addUnidad(paginaForm, "SelectorUnit", posx, posy, "Selector", true, null);
 		IMFElement condicion = this.addKeyCondition(selectorEntidad);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir enlace al formulario para nuevo
+		// Aï¿½adir enlace al formulario para nuevo
 		// usuario desde la noOpContentUnit
-		link = this.addNormalLink((IMFElement) noOpContentUnit,
-				(IMFElement) selectorEntidad,
+		link = this.addNormalLink((IMFElement) noOpContentUnit, (IMFElement) selectorEntidad,
 				"New " + Utilities.getAttribute(this.getEntity(), "name"));
 
 		// Hay que conseguir hacer el mapeo a oid 0 de la otra
@@ -280,71 +268,62 @@ public class AllInOne extends CRUD {
 		// 0 a KeyCondition
 		// <LinkParameter id="par21" name="0_KeyCondition3 [oid]"
 		// sourceValue="0" target="kcond3.att2"/> -->oid
-		guessCouplingFieldAttConValor(this.getEntity(),
-				(IMFElement) selectorEntidad, link, String.valueOf(0));
+		guessCouplingFieldAttConValor(this.getEntity(), (IMFElement) selectorEntidad, link, String.valueOf(0));
 
 		subProgressMonitor.worked(unidad);
 
-		// Añadimos un link normal entre la powerIndex
+		// Aï¿½adimos un link normal entre la powerIndex
 		// y la dataUnit para mostrar el contenido
-		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit,
-				"View");
+		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit, "View");
 		subProgressMonitor.worked(unidad);
 
-		// Añadir el enlace de Modificar entre la
+		// Aï¿½adir el enlace de Modificar entre la
 		// powerIndexUnit y selectorEntidad
-		this.addNormalLink((IMFElement) powerIndexUnit,
-				(IMFElement) selectorEntidad, "Modify");
+		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) selectorEntidad, "Modify");
 		subProgressMonitor.worked(unidad);
 
-		// Añadimos un link normal entre la powerIndex
+		// Aï¿½adimos un link normal entre la powerIndex
 		// y la deleteUnit para borrar la tupla
-		this.addNormalLink((IMFElement) powerIndexUnit,
-				(IMFElement) deleteUnit, "Delete");
+		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) deleteUnit, "Delete");
 		subProgressMonitor.worked(unidad);
 
-		// Añadir link de transporte entre la selectorUnit
+		// Aï¿½adir link de transporte entre la selectorUnit
 		// y el formulario. Hacer un guessCoupling
 		link = this.addTransportLink(selectorEntidad, entryUnit, "Load");
 		this.setAutomaticCoupling(link);
-		this.guessCouplingUnitToEntry(selectorEntidad, this.getEntity(),
-				entryUnit, link);// , preload);
+		this.guessCouplingUnitToEntry(selectorEntidad, this.getEntity(), entryUnit, link);// ,
+																							// preload);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir Selector para precarga formulario (Update)
-		// Solo son validas las relaciones NaN, las demás las
+		// Aï¿½adir Selector para precarga formulario (Update)
+		// Solo son validas las relaciones NaN, las demï¿½s las
 		// carga la selectorEntidad directamente.
 		posx = 200;
 		posy = 5;
 		IMFElement roleCondition;
 		IRelationship relation;
 		IRelationshipRole role;
-		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones()
-				.keySet().iterator(); iteradorRole.hasNext();) {
+		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			role = iteradorRole.next();
 			entidadPreload = this.getTargetEntity(role);
 			relation = this.isNtoN(role);
 			if (relation != null) {
 				idRole = Utilities.getAttribute(role, "id");
-				selectorUnit = (IContentUnit) this.addUnidad(paginaForm,
-						"SelectorUnit", posx, posy, "Entity", false,
-						entidadPreload);
+				selectorUnit = (IContentUnit) this.addUnidad(paginaForm, "SelectorUnit", posx, posy, "Entity", false, entidadPreload);
 				roleCondition = this.addRelationShipRoleCondition(selectorUnit);
 
 				this.addRoleCondition((IMFElement) roleCondition, idRole);
-				// Añadir link y hacer guessCoupling
-				link = this.addTransportLink(selectorEntidad, selectorUnit,
-						"Load");
+				// Aï¿½adir link y hacer guessCoupling
+				link = this.addTransportLink(selectorEntidad, selectorUnit, "Load");
 				link = this.addTransportLink(selectorUnit, entryUnit, "Load");
 				this.setAutomaticCoupling(link);
-				this.guessCouplingUnitToEntry(selectorUnit, entidadPreload,
-						entryUnit, link, role);
+				this.guessCouplingUnitToEntry(selectorUnit, entidadPreload, entryUnit, link, role);
 				posx = posx + Utilities.anchoUnidad;
 			}
 		}
 		subProgressMonitor.worked(unidad);
 
-		// Añadir las selectorUnit que se encarga de rellenar
+		// Aï¿½adir las selectorUnit que se encarga de rellenar
 		// los campos multiSelectionField y selectionField
 		posx = 5;
 		posy = Utilities.altoUnidad;
@@ -352,14 +331,11 @@ public class AllInOne extends CRUD {
 		// Para todas las relaciones se crea una selector unit
 		// y se enlace con un link de transporte a la entry Unit
 		// para mostrar los datos de las relaciones NaN
-		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones()
-				.keySet().iterator(); iteradorRole.hasNext();) {
+		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			role = iteradorRole.next();
 			entidadPreload = this.getTargetEntity(role);
 
-			selectorUnit = (IContentUnit) this
-					.addUnidad(paginaForm, "SelectorUnit", posx, posy,
-							"Entity", false, entidadPreload);
+			selectorUnit = (IContentUnit) this.addUnidad(paginaForm, "SelectorUnit", posx, posy, "Entity", false, entidadPreload);
 			posy = posy + Utilities.altoUnidad;
 			link = this.addTransportLink(selectorUnit, entryUnit, "Load");
 
@@ -374,24 +350,21 @@ public class AllInOne extends CRUD {
 		y = posicion.y + 500;
 
 		// Links de la isNotNullUnit
-		isNotNullUnit = (IOperationUnit) this.addUnidad(elementIMFE,
-				"IsNotNullUnit", x, y, "New", false, null);
+		isNotNullUnit = (IOperationUnit) this.addUnidad(elementIMFE, "IsNotNullUnit", x, y, "New", false, null);
 		link = this.addNormalLink(entryUnit, isNotNullUnit, "Accept");
 		this.putCoupling(this.getOidField(), isNotNullUnit, "isnotnull", link);
 		subProgressMonitor.worked(unidad);
 
 		// createUnit y hacer coupling con los datos de la entryUnit
 		// pero con un link de transporte
-		createUnit = (IOperationUnit) this.addUnidad(elementIMFE, "CreateUnit",
-				x, y - Utilities.altoUnidad, "Create", true, null);
+		createUnit = (IOperationUnit) this.addUnidad(elementIMFE, "CreateUnit", x, y - Utilities.altoUnidad, "Create", true, null);
 		link = this.addTransportLink(entryUnit, createUnit, "Load");
 		this.setAutomaticCoupling(link);
 		this.guessCouplingEntryToCreateModify(entryUnit, createUnit, link);
 		subProgressMonitor.worked(unidad);
 
 		// modifyUnit igual que la create
-		modifyUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ModifyUnit",
-				x, y + Utilities.altoUnidad, "Create", true, null);
+		modifyUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ModifyUnit", x, y + Utilities.altoUnidad, "Modify", true, null);
 		link = this.addTransportLink(entryUnit, modifyUnit, "Load");
 
 		this.setAutomaticCoupling(link);
@@ -405,21 +378,18 @@ public class AllInOne extends CRUD {
 		link = this.addKOLink(anteriorCreate, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"Error creating data in" + this.getNombreEntity());
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error creating data in" + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
 
 		link = this.addKOLink(anteriorModify, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"Error modify data in " + this.getNombreEntity());
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error modify data in " + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
 		// Para todas las relaciones creamos las connectUnit y
 		// disconnectUnit que se usaran para crear/modificar
 		// los datos
-		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones()
-				.keySet().iterator(); iteradorRole.hasNext();) {
+		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			// Obtenemos la role
 			role = iteradorRole.next();
 			// y la entidad destino
@@ -428,40 +398,33 @@ public class AllInOne extends CRUD {
 			relation = this.isNtoN(role);
 			if (relation != null) {
 				// Si es una relacion NaN necesitamos las connectUnit
-				// y disconnectUnit, así que buscamos hueco para colocar
+				// y disconnectUnit, asï¿½ que buscamos hueco para colocar
 				// las unidades
 				posicion = Utilities.buscarHueco();
 				x = posicion.x;
 
 				nombreRole = Utilities.getAttribute(role, "name");
 				idRole = Utilities.getAttribute(role, "id");
-				connectUnit = (IOperationUnit) this.addUnidad(elementIMFE,
-						"ConnectUnit", x, y - Utilities.altoUnidad, nombreRole,
-						false, null);
+				connectUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ConnectUnit", x, y - Utilities.altoUnidad, nombreRole, false,
+						null);
 				Utilities.setAttribute(connectUnit, "relationship", idRole);
 				this.addOKLink(anteriorCreate, connectUnit);
 				link = this.addTransportLink(entryUnit, connectUnit, "Load");
 				this.setAutomaticCoupling(link);
-				this.guessCouplingEntryToConnect(entryUnit, connectUnit,
-						entidad, role, link);
+				this.guessCouplingEntryToConnect(entryUnit, connectUnit, entidad, role, link);
 				anteriorCreate = connectUnit;
 
 				link = this.addKOLink(anteriorCreate, multiMessageUnit);
 				this.setAutomaticCoupling(link);
 
-				this.putMessageOnMultiMessageUnit(
-						link,
-						multiMessageUnit,
-						"Error creating/modifying data in "
-								+ this.getNombreEntity());
+				this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error creating/modifying data in " + this.getNombreEntity());
 				if (firstCreate == null)
 					firstCreate = connectUnit;
 
 				this.addTransportLink(modifyUnit, anteriorCreate, "Load");
 
-				disconnectUnit = (IOperationUnit) this.addUnidad(elementIMFE,
-						"DisconnectUnit", x, y + Utilities.altoUnidad,
-						nombreRole, false, null);
+				disconnectUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DisconnectUnit", x, y + Utilities.altoUnidad, nombreRole,
+						false, null);
 				Utilities.setAttribute(disconnectUnit, "relationship", idRole);
 				this.convertKeyConditionToRoleCondition(disconnectUnit, idRole);
 
@@ -470,8 +433,7 @@ public class AllInOne extends CRUD {
 				link = this.addKOLink(anteriorModify, multiMessageUnit);
 				this.setAutomaticCoupling(link);
 
-				this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-						"Error modifying data in " + this.getNombreEntity());
+				this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error modifying data in " + this.getNombreEntity());
 			}
 		}
 		subProgressMonitor.worked(unidad);
@@ -487,22 +449,18 @@ public class AllInOne extends CRUD {
 		this.setAutomaticCoupling(link);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir OKLink y KOLink de las create Y Modify
+		// Aï¿½adir OKLink y KOLink de las create Y Modify
 		link = this.addOKLink(anteriorCreate, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"The data from " + this.getNombreEntity()
-						+ " has been create/modify");
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "The data from " + this.getNombreEntity() + " has been create/modify");
 		subProgressMonitor.worked(unidad);
 
 		if (firstCreate == null) {
 			link = this.addOKLink(anteriorModify, multiMessageUnit);
 			this.setAutomaticCoupling(link);
 
-			this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-					"The data from " + this.getNombreEntity()
-							+ " has been create/modify");
+			this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "The data from " + this.getNombreEntity() + " has been create/modify");
 
 		} else {
 			link = this.addOKLink(anteriorModify, firstCreate);

@@ -10,6 +10,7 @@
 package org.homeria.webratioassistant.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,13 +27,14 @@ import org.eclipse.ui.IWorkbench;
 import org.homeria.webratioassistant.crud.AllInOne;
 import org.homeria.webratioassistant.crud.Create;
 import org.homeria.webratioassistant.crud.Delete;
-import org.homeria.webratioassistant.crud.Retrieve;
+import org.homeria.webratioassistant.crud.Read;
 import org.homeria.webratioassistant.crud.Update;
 import org.homeria.webratioassistant.plugin.Debug;
 import org.homeria.webratioassistant.plugin.EventoNuevaArea;
 import org.homeria.webratioassistant.plugin.EventoNuevaSiteView;
 import org.homeria.webratioassistant.plugin.ObjStViewArea;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
+import org.homeria.webratioassistant.plugin.Utilities;
 
 import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.IEntity;
@@ -47,17 +49,15 @@ import com.webratio.ide.model.ISiteView;
  */
 public class WizardCRUD extends Wizard implements INewWizard {
 	public static Create c = null;
-	private Create create;
-//	private WizardCRUDPreviaPage crudPreviaPage;
 	private WizardCRUDPage crudPage;
+	private WizardSelectEntityPage pageSelectEntity;
 
+	private AllInOne allinone;
+	private Create create;
+	private Read read;
+	private Update update;
 	private Delete delete;
 	private IEntity entidadSeleccionada;
-	private WizardSelectEntityPage pageSelectEntity;
-	private Retrieve retrieve;
-
-	private Update update;
-	private AllInOne allinone;
 
 	/**
 	 * 
@@ -87,9 +87,6 @@ public class WizardCRUD extends Wizard implements INewWizard {
 			this.pageSelectEntity = new WizardSelectEntityPage();
 			addPage(this.pageSelectEntity);
 		}
-		// Se a�ade pagina intermedia
-//		this.crudPreviaPage = new WizardCRUDPreviaPage(this.entidadSeleccionada);
-//		addPage(this.crudPreviaPage);
 
 		this.crudPage = new WizardCRUDPage(this.entidadSeleccionada);
 		addPage(this.crudPage);
@@ -100,7 +97,9 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * 
 	 */
 	public boolean canFinish() {
-		if (getContainer().getCurrentPage() == this.crudPage)
+		if (getContainer().getCurrentPage() == this.crudPage && 
+				!this.crudPage.getOperationsChecked().isEmpty() && 
+				!this.crudPage.getSiteViewsChecked().isEmpty())
 			return true;
 		else
 			return false;
@@ -116,31 +115,22 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	private void doInicial(IProgressMonitor monitor) throws CoreException {
 		try {
 			// Viene informado con los SiteView y Areas
-			if (null != ProjectParameters.getlistaSiteViewArea()
-					&& ProjectParameters.getlistaSiteViewArea().size() > 0) {
+			if (null != ProjectParameters.getlistaSiteViewArea() && ProjectParameters.getlistaSiteViewArea().size() > 0) {
 
-				List listaSiteViewAreaAlta = ProjectParameters
-						.getlistaSiteViewArea();
+				List listaSiteViewAreaAlta = ProjectParameters.getlistaSiteViewArea();
 
-				for (Iterator iterator = listaSiteViewAreaAlta.iterator(); iterator
-						.hasNext();) {
+				for (Iterator iterator = listaSiteViewAreaAlta.iterator(); iterator.hasNext();) {
 					ObjStViewArea objSiteView = (ObjStViewArea) iterator.next();
-					if (null != objSiteView && null != objSiteView.getEsNuevo()
-							&& objSiteView.getEsNuevo()) {
+					if (null != objSiteView && null != objSiteView.getEsNuevo() && objSiteView.getEsNuevo()) {
 
-						EventoNuevaSiteView crearSite = new EventoNuevaSiteView(
-								objSiteView.getNombre());
-						crearSite.ejecutar(new SubProgressMonitor(monitor, 1),
-								objSiteView.getNombre());
+						EventoNuevaSiteView crearSite = new EventoNuevaSiteView(objSiteView.getNombre());
+						crearSite.ejecutar(new SubProgressMonitor(monitor, 1), objSiteView.getNombre());
 						this.crudPage.actualizarListaSiteViews();
 					}
 
-					if (null != objSiteView.getListHijos()
-							&& objSiteView.getListHijos().size() > 0) {
+					if (null != objSiteView.getListHijos() && objSiteView.getListHijos().size() > 0) {
 						this.crudPage.actualizarListaSiteViews();
-						crearAreas(objSiteView.getListHijos(),
-								objSiteView.getNombre(),
-								objSiteView.getNombre());
+						crearAreas(objSiteView.getListHijos(), objSiteView.getNombre(), objSiteView.getNombre());
 					}
 				}
 			}
@@ -163,41 +153,30 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * @param nombrePadre
 	 * @throws ExecutionException
 	 */
-	private void crearAreas(List<ObjStViewArea> listaObjSiteView,
-			String nombreSiteView, String nombrePadre)
-			throws ExecutionException {
+	private void crearAreas(List<ObjStViewArea> listaObjSiteView, String nombreSiteView, String nombrePadre) throws ExecutionException {
 
-		for (Iterator iterator2 = listaObjSiteView.iterator(); iterator2
-				.hasNext();) {
+		for (Iterator iterator2 = listaObjSiteView.iterator(); iterator2.hasNext();) {
 
 			ObjStViewArea objecthijo = (ObjStViewArea) iterator2.next();
 			// Es un area
-			if (null != objecthijo && null != objecthijo.getEsNuevo()
-					&& objecthijo.getEsNuevo()) {
+			if (null != objecthijo && null != objecthijo.getEsNuevo() && objecthijo.getEsNuevo()) {
 
 				// buscar el nodo padre del objeto que vamos a crear, para que
 				// lo situe en el
-				ISiteView siteView = crudPage
-						.buscarElementoSiteView(nombreSiteView);
-				if (nombreSiteView.compareTo(nombrePadre) != 0
-						&& null != siteView.getAreaList()
-						&& siteView.getAreaList().size() > 0) {
-					IArea areaEnc = crudPage.buscarElementoAreaRecursivo(
-							siteView.getAreaList(), nombrePadre);
-					EventoNuevaArea nuevaArea = new EventoNuevaArea(areaEnc,
-							150, 150, objecthijo.getNombre());
+				ISiteView siteView = crudPage.buscarElementoSiteView(nombreSiteView);
+				if (nombreSiteView.compareTo(nombrePadre) != 0 && null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
+					IArea areaEnc = crudPage.buscarElementoAreaRecursivo(siteView.getAreaList(), nombrePadre);
+					EventoNuevaArea nuevaArea = new EventoNuevaArea(areaEnc, 150, 150, objecthijo.getNombre());
 					nuevaArea.ejecutar();
 				} else {
-					EventoNuevaArea nuevaArea = new EventoNuevaArea(siteView,
-							150, 150, objecthijo.getNombre());
+					EventoNuevaArea nuevaArea = new EventoNuevaArea(siteView, 150, 150, objecthijo.getNombre());
 					nuevaArea.ejecutar();
 				}
 
 				this.crudPage.actualizarListaSiteViews();
 			}
 
-			if (null != objecthijo.getListHijos()
-					&& objecthijo.getListHijos().size() > 0) {
+			if (null != objecthijo.getListHijos() && objecthijo.getListHijos().size() > 0) {
 				List hijos2 = objecthijo.getListHijos();
 				crearAreas(hijos2, nombreSiteView, objecthijo.getNombre());
 			}
@@ -216,36 +195,26 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	private void doFinish(AllInOne a, Create c, Retrieve r, Update u, Delete d,
-			IProgressMonitor monitor) throws CoreException {
+	private void doFinish(AllInOne a, Create c, Read r, Update u, Delete d, IProgressMonitor monitor) throws CoreException {
 		try {
 
-			int numTareas = 0;
-			if (this.crudPage.getSiteViews("RETRIEVE").size() > 0)
-				numTareas++;
-			if (this.crudPage.getSiteViews("CREATE").size() > 0)
-				numTareas++;
-			if (this.crudPage.getSiteViews("ALLINONE").size() > 0)
-				numTareas++;
-			if (this.crudPage.getSiteViews("UPDATE").size() > 0)
-				numTareas++;
-			if (this.crudPage.getSiteViews("DELETE").size() > 0)
-				numTareas++;
+			List<Utilities.Operations> operationsChecked = this.crudPage.getOperationsChecked();
+			int numTareas = operationsChecked.size();
 
-			monitor.beginTask("Running RETIEVE", numTareas);
-			if (this.crudPage.getSiteViews("RETRIEVE").size() > 0)
+			monitor.beginTask("Running READ", numTareas);
+			if (operationsChecked.contains(Utilities.Operations.READ))
 				r.ejecutar(new SubProgressMonitor(monitor, 1));
 			monitor.setTaskName("Running CREATE");
-			if (this.crudPage.getSiteViews("CREATE").size() > 0)
+			if (operationsChecked.contains(Utilities.Operations.CREATE))
 				c.ejecutar(new SubProgressMonitor(monitor, 1));
 			monitor.setTaskName("Running ALLINONE");
-			if (this.crudPage.getSiteViews("ALLINONE").size() > 0)
+			if (operationsChecked.contains(Utilities.Operations.ALLINONE))
 				a.ejecutar(new SubProgressMonitor(monitor, 1));
 			monitor.setTaskName("Running UPDATE");
-			if (this.crudPage.getSiteViews("UPDATE").size() > 0)
+			if (operationsChecked.contains(Utilities.Operations.UPDATE))
 				u.ejecutar(new SubProgressMonitor(monitor, 1));
 			monitor.setTaskName("Running DELETE");
-			if (this.crudPage.getSiteViews("DELETE").size() > 0)
+			if (operationsChecked.contains(Utilities.Operations.DELETE))
 				d.ejecutar(new SubProgressMonitor(monitor, 1));
 
 		} catch (Exception e) {
@@ -286,8 +255,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 			// Primera parte parte para la creacion de siteView y que para la
 			// segunda parte ya esten todos los SiteView activos
 			IRunnableWithProgress op1 = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor2)
-						throws InvocationTargetException {
+				public void run(IProgressMonitor monitor2) throws InvocationTargetException {
 					try {
 						doInicial(monitor2);
 					} catch (CoreException e) {
@@ -304,8 +272,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 				return false;
 			} catch (InvocationTargetException e) {
 				Throwable realException = e.getTargetException();
-				MessageDialog.openError(getShell(), "Error",
-						realException.getMessage());
+				MessageDialog.openError(getShell(), "Error", realException.getMessage());
 				e.printStackTrace();
 				return false;
 			}
@@ -317,41 +284,49 @@ public class WizardCRUD extends Wizard implements INewWizard {
 
 			// Hay que pasarle SiteViews checkeadas y existentes, hay que pasale
 			// Areas checkeadas y ya existentes
-			this.create = new Create(entidad,
-					this.crudPage.getSiteViews("CREATE"),
-					this.crudPage.getAreas("CREATE"),
-					this.crudPage.getRelationShipsCreate(),
-					this.crudPage.getAttributesDataCreate());
-			this.retrieve = new Retrieve(entidad,
-					this.crudPage.getSiteViews("RETRIEVE"),
-					this.crudPage.getAreas("RETRIEVE"),
-					this.crudPage.getAttributesIndexRead(),
-					this.crudPage.getAttributesDataRead());
-			this.update = new Update(entidad,
-					this.crudPage.getSiteViews("UPDATE"),
-					this.crudPage.getAreas("UPDATE"),
-					this.crudPage.getRelationShipsUpdate(),
-					this.crudPage.getAttributesUpdate(),
-					this.crudPage.getAttributesShowUpdate());
-			this.delete = new Delete(entidad,
-					this.crudPage.getSiteViews("DELETE"),
-					this.crudPage.getAreas("DELETE"),
-					this.crudPage.getAttributesIndexDelete());
-			this.allinone = new AllInOne(entidad,
-					this.crudPage.getSiteViews("ALLINONE"),
-					this.crudPage.getAreas("ALLINONE"),
-					this.crudPage.getRelationShipsAllInOne(),
-					this.crudPage.getAttributesIndexAllInOne(),
-					this.crudPage.getAttributesDataAllInOne());
+
+			List<Utilities.Operations> operationsChecked = this.crudPage.getOperationsChecked();
+
+			if (operationsChecked.contains(Utilities.Operations.CREATE))
+				this.create = new Create(entidad, 
+						this.crudPage.getSiteViewsChecked(), 
+						this.crudPage.getAreas(),
+						this.crudPage.getRelationShipsCreate(), 
+						this.crudPage.getAttributesDataCreate());
+			if (operationsChecked.contains(Utilities.Operations.READ))
+				this.read = new Read(entidad, 
+						this.crudPage.getSiteViewsChecked(), 
+						this.crudPage.getAreas(),
+						this.crudPage.getAttributesIndexRead(), 
+						this.crudPage.getAttributesDataRead());
+			if (operationsChecked.contains(Utilities.Operations.UPDATE))
+				this.update = new Update(entidad, 
+						this.crudPage.getSiteViewsChecked(), 
+						this.crudPage.getAreas(),
+						this.crudPage.getRelationShipsUpdate(), 
+						this.crudPage.getAttributesUpdate(),
+						this.crudPage.getAttributesShowUpdate());
+			if (operationsChecked.contains(Utilities.Operations.DELETE))
+				this.delete = new Delete(entidad, 
+						this.crudPage.getSiteViewsChecked(), 
+						this.crudPage.getAreas(),
+						this.crudPage.getAttributesIndexDelete());
+			if (operationsChecked.contains(Utilities.Operations.ALLINONE))
+				this.allinone = new AllInOne(entidad, 
+						this.crudPage.getSiteViewsChecked(), 
+						this.crudPage.getAreas(),
+						this.crudPage.getRelationShipsAllInOne(), 
+						this.crudPage.getAttributesIndexAllInOne(),
+						this.crudPage.getAttributesDataAllInOne(),
+						this.crudPage.getAttributesDetailAllInOne());
 
 			final Create c = this.create;
-			final Retrieve r = this.retrieve;
+			final Read r = this.read;
 			final Update u = this.update;
 			final Delete d = this.delete;
 			final AllInOne a = this.allinone;
 			IRunnableWithProgress op2 = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor)
-						throws InvocationTargetException {
+				public void run(IProgressMonitor monitor) throws InvocationTargetException {
 					try {
 						doFinish(a, c, r, u, d, monitor);
 					} catch (CoreException e) {
@@ -369,8 +344,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 				return false;
 			} catch (InvocationTargetException e) {
 				Throwable realException = e.getTargetException();
-				MessageDialog.openError(getShell(), "Error",
-						realException.getMessage());
+				MessageDialog.openError(getShell(), "Error", realException.getMessage());
 				e.printStackTrace();
 				return false;
 			}

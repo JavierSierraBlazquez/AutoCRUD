@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
+ * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
+ *		  		  especificaci�n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -77,12 +77,10 @@ public class CRUD {
 	 * @param listaAtributosDataOrForm
 	 * @param relaciones
 	 */
-	public CRUD(List<ISiteView> listaSiteViews,List<IArea> areas, IMFElement entidad,
-			List<IAttribute> listaAtributosIndex,
-			List<IAttribute> listaAtributosDataOrForm,
-			Map<IRelationshipRole, IAttribute> relaciones) {
+	public CRUD(List<ISiteView> listaSiteViews, List<IArea> areas, IMFElement entidad, List<IAttribute> listaAtributosIndex,
+			List<IAttribute> listaAtributosDataOrForm, Map<IRelationshipRole, IAttribute> relaciones) {
 		this.listaSiteViews = listaSiteViews;
-		this.listaAreas=areas;
+		this.listaAreas = areas;
 		this.entidad = (IEntity) entidad;
 		this.listaAtributosIndex = listaAtributosIndex;
 		this.listaAtributosDataOrForm = listaAtributosDataOrForm;
@@ -103,8 +101,7 @@ public class CRUD {
 	 * @return elemento area que se ha añadido al siteView
 	 */
 	protected IMFElement addArea(IMFElement padre, int x, int y, String nombre) {
-		evento = new EventoNuevaAlternantiva(padre, x, y, nombre 
-				+ Utilities.getAttribute(this.entidad, "name"));
+		evento = new EventoNuevaAlternantiva(padre, x, y, nombre + Utilities.getAttribute(this.entidad, "name"));
 		return evento.ejecutar();
 	}
 
@@ -115,8 +112,7 @@ public class CRUD {
 	 * @param elemento
 	 */
 	protected void addAtritubosAll(IMFElement elemento) {
-		Utilities.setAttribute(elemento, "displayAttributes", this
-				.getAtributos(this.getEntity().getAllAttributeList()));
+		Utilities.setAttribute(elemento, "displayAttributes", this.getAtributos(this.getEntity().getAllAttributeList()));
 	}
 
 	/**
@@ -127,11 +123,14 @@ public class CRUD {
 	 * @param elemento
 	 *            : IndexUnit o DataUnit
 	 */
-	protected void addAtritubosData(IMFElement elemento) {
-		Utilities.setAttribute(elemento, "displayAttributes", this
-				.getAtributos(this.listaAtributosDataOrForm));
+	protected void addAtributosData(IMFElement elemento) {
+		Utilities.setAttribute(elemento, "displayAttributes", this.getAtributos(this.listaAtributosDataOrForm));
 	}
 
+	// Método creado posteriormente para añadir atributos a la Detail Unit desde AllInOne
+	protected void addAtributosData(IMFElement elemento,List<IAttribute> listaAttDetail) {
+		Utilities.setAttribute(elemento, "displayAttributes", this.getAtributos(listaAttDetail));
+	}
 	/**
 	 * Nombre: addAtritubosIndex Funcion: marca como visibles los atributos que
 	 * se encuentran en la variable listaAtributosIndex
@@ -139,9 +138,8 @@ public class CRUD {
 	 * @param elemento
 	 *            : IndexUnit
 	 */
-	protected void addAtritubosIndex(IMFElement elemento) {
-		Utilities.setAttribute(elemento, "displayAttributes", this
-				.getAtributos(this.listaAtributosIndex));
+	protected void addAtributosIndex(IMFElement elemento) {
+		Utilities.setAttribute(elemento, "displayAttributes", this.getAtributos(this.listaAtributosIndex));
 	}
 
 	/**
@@ -192,8 +190,7 @@ public class CRUD {
 	 *            : nombre del link
 	 * @return: link creado
 	 */
-	protected IMFElement addNormalLink(IMFElement source, IMFElement target,
-			String nombre) {
+	protected IMFElement addNormalLink(IMFElement source, IMFElement target, String nombre) {
 		evento = new EventoNuevoLink(nombre, source, target, "normal");
 		return evento.ejecutar();
 	}
@@ -226,8 +223,7 @@ public class CRUD {
 	 * @return: página creada
 	 */
 	protected IMFElement addPagina(IMFElement padre, String nombre, int x, int y) {
-		evento = new EventoNuevaPagina(padre, x, y, nombre 
-				+ Utilities.getAttribute(this.entidad, "name"));
+		evento = new EventoNuevaPagina(padre, x, y, nombre + Utilities.getAttribute(this.entidad, "name"));
 		return evento.ejecutar();
 	}
 
@@ -270,8 +266,7 @@ public class CRUD {
 	 *            : nombre del link de transporte
 	 * @return: link creado
 	 */
-	protected IMFElement addTransportLink(IMFElement source, IMFElement target,
-			String nombre) {
+	protected IMFElement addTransportLink(IMFElement source, IMFElement target, String nombre) {
 		evento = new EventoNuevoLink(nombre, source, target, "transport");
 		return evento.ejecutar();
 	}
@@ -298,13 +293,11 @@ public class CRUD {
 	 *            : entidad usada en lugar de la principal del crud
 	 * @return: unidad creada
 	 */
-	protected IMFElement addUnidad(IMFElement padre, String tipo, int x, int y,
-			String nombre, boolean entidadBool, IEntity entidadRelacion) {
-	
-		
+	protected IMFElement addUnidad(IMFElement padre, String tipo, int x, int y, String nombre, boolean entidadBool, IEntity entidadRelacion) {
+
 		IEntity sEntidad;
 		// Si la variable entidadBool es true se opta por la entidad que se usa
-		// en  el crud, en caso contrario usaremos la entidad que psamos por
+		// en el crud, en caso contrario usaremos la entidad que psamos por
 		// parametros.
 		// Se usa principalmente en las SelectorUnit para elegir entidades
 		// distintas a la que se esta usando para generar el crud.
@@ -314,8 +307,7 @@ public class CRUD {
 			sEntidad = null;
 		if (entidadRelacion != null)
 			sEntidad = entidadRelacion;
-		evento = new EventoNuevaUnit(padre, tipo, x, y, nombre 
-				+ Utilities.getAttribute(this.entidad, "name"), sEntidad);
+		evento = new EventoNuevaUnit(padre, tipo, x, y, nombre + Utilities.getAttribute(this.entidad, "name"), sEntidad);
 		return evento.ejecutar();
 	}
 
@@ -328,13 +320,11 @@ public class CRUD {
 	 */
 	private IRelationshipRole buscarRelation(String nombreCampo) {
 
-		List<IRelationship> listaRelation = this.entidad
-				.getIncomingRelationshipList();
+		List<IRelationship> listaRelation = this.entidad.getIncomingRelationshipList();
 		listaRelation.addAll(this.entidad.getOutgoingRelationshipList());
 		IRelationship relation;
 		IRelationshipRole role;
-		for (Iterator<IRelationship> iter = listaRelation.iterator(); iter
-				.hasNext();) {
+		for (Iterator<IRelationship> iter = listaRelation.iterator(); iter.hasNext();) {
 			relation = iter.next();
 			role = relation.getRelationshipRole1();
 			if (Utilities.getAttribute(role, "name").equals(nombreCampo)) {
@@ -369,12 +359,10 @@ public class CRUD {
 	 * @param nombreRole
 	 *            : nombre que se le dará a la role
 	 */
-	protected void convertKeyConditionToRoleCondition(IMFElement element,
-			String nombreRole) {
+	protected void convertKeyConditionToRoleCondition(IMFElement element, String nombreRole) {
 		List<IMFElement> l = new ArrayList<IMFElement>();
 		// Selecciono el hijo TargetSelector del xml del elemento
-		IMFElement targetSelector = element
-				.selectSingleElement("TargetSelector");
+		IMFElement targetSelector = element.selectSingleElement("TargetSelector");
 		// Y lo borramos
 		l.add(targetSelector);
 		AbstractMFCommand cmd = new DeleteCommand(l);
@@ -382,19 +370,14 @@ public class CRUD {
 		ISubUnitType keyCondition = null;
 		IMFElement condicion = null;
 		// Creamos un nuevo TargetSelector
-		ISubUnitType target = UnitHelper.getUnitType(element).getSubUnitType(
-				"TargetSelector");
+		ISubUnitType target = UnitHelper.getUnitType(element).getSubUnitType("TargetSelector");
 		// Y lo hacemos como un RelationShipRoleCondition
 		keyCondition = target.getSubUnitType("RelationshipRoleCondition");
 		// Lo añadimos al elemento
-		AddSelectorConditionCommand cmd2 = new AddSelectorConditionCommand(
-				element, keyCondition);
-		cmd2.setEditor(ProjectParameters.getWebProjectEditor()
-				.getActiveGraphEditor());
-		((CommandStack) ProjectParameters.getWorkbenchPartWebRatio()
-				.getAdapter(CommandStack.class)).execute(cmd2);
-		condicion = element.selectSingleElement("TargetSelector")
-				.selectSingleElement(keyCondition.getElementName());
+		AddSelectorConditionCommand cmd2 = new AddSelectorConditionCommand(element, keyCondition);
+		cmd2.setEditor(ProjectParameters.getWebProjectEditor().getActiveGraphEditor());
+		((CommandStack) ProjectParameters.getWorkbenchPartWebRatio().getAdapter(CommandStack.class)).execute(cmd2);
+		condicion = element.selectSingleElement("TargetSelector").selectSingleElement(keyCondition.getElementName());
 		// Y le ponemos el nombre que queramos
 		Utilities.setAttribute(condicion, "role", nombreRole);
 	}
@@ -411,31 +394,24 @@ public class CRUD {
 	 *            : link que contendrá el parametro
 	 * @return: el parametro creado
 	 */
-	private IMFElement createParameter(IAttribute atributo, ISubUnit subUnit,
-			IMFElement link) {
+	private IMFElement createParameter(IAttribute atributo, ISubUnit subUnit, IMFElement link) {
 		IMFElement linkParameter;
 		IMFElement field = (IMFElement) subUnit;
 		String nombre = Utilities.getAttribute(field, "name");
 		// Creamos un linkParameter con los datos necesarios
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
 		// Id: se forma de las id del link más las id de los elementos
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
-				.execute();
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 		// Nombre: se forma con el nombre del field
-		new SetAttributeMFOperation(linkParameter, "name", nombre + "_"
-				+ nombre, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nombre, link.getRootElement()).execute();
 		// Origen: con los datos del atributo
-		new SetAttributeMFOperation(linkParameter, "source", this
-				.cleanIds(atributo.getIdsByFinalId().toString())
-				+ "Array", link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array",
+				link.getRootElement()).execute();
 		// Destino: se crea con los campos del field del formulario
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(field.getIdsByFinalId().toString())
-				+ "_slot", link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(field.getIdsByFinalId().toString()) + "_slot",
+				link.getRootElement()).execute();
 
 		return linkParameter;
 	}
@@ -458,8 +434,7 @@ public class CRUD {
 	 *            : para indicar si es un oid
 	 * @return: el parametro creado
 	 */
-	private IMFElement createParameterField2Att(IAttribute atributo,
-			IMFElement unidadDestino, ISubUnit subUnit, IMFElement link,
+	private IMFElement createParameterField2Att(IAttribute atributo, IMFElement unidadDestino, ISubUnit subUnit, IMFElement link,
 			boolean key) {
 		IMFElement linkParameter;
 		IMFElement field = (IMFElement) subUnit;
@@ -468,45 +443,35 @@ public class CRUD {
 
 		String idAtributo = Utilities.getAttribute(atributo, "id");
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
-				.execute();
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 		// Si no es de tipo key (para relacionar el oid) se hace igual que la
 		// funcion anterior.
 		if (!key) {
-			new SetAttributeMFOperation(linkParameter, "name", nombre + "_"
-					+ nombre, link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nombre, link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "source", this
-					.cleanIds(field.getIdsByFinalId().toString()), link
-					.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(field.getIdsByFinalId().toString()), link.getRootElement())
+					.execute();
 
-			new SetAttributeMFOperation(linkParameter, "target", this
-					.cleanIds(unidadDestino.getIdsByFinalId().toString())
-					+ "." + idAtributo, link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(unidadDestino.getIdsByFinalId().toString()) + "."
+					+ idAtributo, link.getRootElement()).execute();
 		} else {
 			// Si se relaciona con un oid se necesita la keyCondition del
 			// elemento
 			// para crear el parametro del link, además de cambiar el formato
 			// del nombre
-			IMFElement keyCondition = unidadDestino.selectSingleElement(
-					"Selector").selectSingleElement("KeyCondition");
+			IMFElement keyCondition = unidadDestino.selectSingleElement("Selector").selectSingleElement("KeyCondition");
 			String nameKey = Utilities.getAttribute(keyCondition, "name");
-			
-			new SetAttributeMFOperation(linkParameter, "name", nombre + "_"
-					+ nameKey + " [oid]", link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "source", this
-					.cleanIds(field.getIdsByFinalId().toString()), link
-					.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nameKey + " [oid]", link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "target", this
-					.cleanIds(keyCondition.getIdsByFinalId().toString())
-					+ "." + idAtributo, link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(field.getIdsByFinalId().toString()), link.getRootElement())
+					.execute();
+
+			new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(keyCondition.getIdsByFinalId().toString()) + "."
+					+ idAtributo, link.getRootElement()).execute();
 
 		}
 		return linkParameter;
@@ -528,8 +493,7 @@ public class CRUD {
 	 *            : link que contendrá el parametro
 	 * @return: el parametro creado
 	 */
-	private IMFElement createParameterFieldToRole(IRelationshipRole role,
-			IMFElement unidadDestino, ISubUnit field, IMFElement link) {
+	private IMFElement createParameterFieldToRole(IRelationshipRole role, IMFElement unidadDestino, ISubUnit field, IMFElement link) {
 		IMFElement linkParameter;
 		String nameRole = Utilities.getAttribute(role, "name");
 		String idRole = Utilities.getAttribute(role, "id");
@@ -551,27 +515,20 @@ public class CRUD {
 		// (id,name,source,target)
 		String idAtributo = Utilities.getAttribute(atributo, "id");
 		String nombreAtributo = Utilities.getAttribute(atributo, "name");
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
 
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
-				.execute();
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 
-		new SetAttributeMFOperation(linkParameter, "name", nameRole + "_"
-				+ nombreEntidad + "." + nombreAtributo + "(" + nameRole + ")"
+		new SetAttributeMFOperation(linkParameter, "name", nameRole + "_" + nombreEntidad + "." + nombreAtributo + "(" + nameRole + ")"
 
 		, link.getRootElement()).execute();
 
-		new SetAttributeMFOperation(linkParameter, "source", this
-				.cleanIds(field.getIdsByFinalId().toString()), link
-				.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(unidadDestino.getIdsByFinalId().toString())
-				+ "." + idRole + "." + idAtributo, link.getRootElement())
+		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(field.getIdsByFinalId().toString()), link.getRootElement())
 				.execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(unidadDestino.getIdsByFinalId().toString()) + "." + idRole + "."
+				+ idAtributo, link.getRootElement()).execute();
 
 		return linkParameter;
 	}
@@ -592,50 +549,34 @@ public class CRUD {
 	 *            : entidad de la que proceden los atributos
 	 */
 
-	private void createParameterPreload(IAttribute atributo, ISubUnit field,
-			IAttribute atributoSeleccion, IMFElement link, IEntity entidadOrigen) {
+	private void createParameterPreload(IAttribute atributo, ISubUnit field, IAttribute atributoSeleccion, IMFElement link,
+			IEntity entidadOrigen) {
 		IMFElement linkParameter;
 		IEntity padre = entidadOrigen;
 
 		String id = this.cleanIds(link.getIdsByFinalId().toString());
-		String source_label = this.cleanIds(atributoSeleccion.getIdsByFinalId()
-				.toString())
-				+ "Array";
-		String source_output = this.cleanIds(atributo.getIdsByFinalId()
-				.toString())
-				+ "Array";
-		
-		String name_label = Utilities.getAttribute(atributoSeleccion, "name")
-				+ "_" + Utilities.getAttribute(padre, "name") + " [label]";
-		String name_output = "oid_" + Utilities.getAttribute(padre, "name")
-				+ " [output]";
+		String source_label = this.cleanIds(atributoSeleccion.getIdsByFinalId().toString()) + "Array";
+		String source_output = this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array";
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
-		new SetAttributeMFOperation(linkParameter, "id", id + "#"
-				+ linkParameter.getFinalId(), link.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "name", name_label, link
-				.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "source", source_label, link
-				.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(field.getIdsByFinalId().toString())
-				+ "_label", link.getRootElement()).execute();
+		String name_label = Utilities.getAttribute(atributoSeleccion, "name") + "_" + Utilities.getAttribute(padre, "name") + " [label]";
+		String name_output = "oid_" + Utilities.getAttribute(padre, "name") + " [output]";
+
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		new SetAttributeMFOperation(linkParameter, "id", id + "#" + linkParameter.getFinalId(), link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", name_label, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "source", source_label, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(field.getIdsByFinalId().toString()) + "_label",
+				link.getRootElement()).execute();
 		((MFElement) link).addChild(linkParameter, null);
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
-		new SetAttributeMFOperation(linkParameter, "id", id + "#"
-				+ linkParameter.getFinalId(), link.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "name", name_output, link
-				.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "source", source_output,
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		new SetAttributeMFOperation(linkParameter, "id", id + "#" + linkParameter.getFinalId(), link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", name_output, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "source", source_output, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(field.getIdsByFinalId().toString()) + "_output",
 				link.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(field.getIdsByFinalId().toString())
-				+ "_output", link.getRootElement()).execute();
 		((MFElement) link).addChild(linkParameter, null);
 	}
 
@@ -653,8 +594,7 @@ public class CRUD {
 	 *            : para distinguir entre selectionField y multiSelectionField
 	 * @return: parametro creado.
 	 */
-	private IMFElement createParameterRoleToField(IRelationshipRole role,
-			ISubUnit field, IMFElement link, boolean multi) {
+	private IMFElement createParameterRoleToField(IRelationshipRole role, ISubUnit field, IMFElement link, boolean multi) {
 		IMFElement linkParameter;
 		String nameRole = Utilities.getAttribute(role, "name");
 		String idRole = Utilities.getAttribute(role, "id");
@@ -669,38 +609,29 @@ public class CRUD {
 			break;
 		}
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
 
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
-				.execute();
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 
 		if (multi) {
-			new SetAttributeMFOperation(linkParameter, "name", Utilities
-					.getAttribute(atributo, "name")
-					+ "_" + nameRole + " - Preselection", link.getRootElement())
+			new SetAttributeMFOperation(linkParameter, "name", Utilities.getAttribute(atributo, "name") + "_" + nameRole
+					+ " - Preselection", link.getRootElement()).execute();
+
+			new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array",
+					link.getRootElement()).execute();
+		} else {
+
+			new SetAttributeMFOperation(linkParameter, "name", nameRole + ".oid_" + nameRole + " - Preselection", link.getRootElement())
 					.execute();
 
-			new SetAttributeMFOperation(linkParameter, "source", this
-					.cleanIds(atributo.getIdsByFinalId().toString())
-					+ "Array", link.getRootElement()).execute();
-		} else {
-			
-			new SetAttributeMFOperation(linkParameter, "name", nameRole
-					+ ".oid_" + nameRole + " - Preselection", link
-					.getRootElement()).execute();
-
-			new SetAttributeMFOperation(linkParameter, "source", idRole + "_"
-					+ this.cleanIds(atributo.getIdsByFinalId().toString())
+			new SetAttributeMFOperation(linkParameter, "source", idRole + "_" + this.cleanIds(atributo.getIdsByFinalId().toString())
 					+ "Array", link.getRootElement()).execute();
 		}
 
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(field.getIdsByFinalId().toString())
-				+ "_presel", link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(field.getIdsByFinalId().toString()) + "_presel",
+				link.getRootElement()).execute();
 
 		return linkParameter;
 	}
@@ -729,7 +660,7 @@ public class CRUD {
 		if (!entidadWR)
 			if (tipoEntidad.equals("Module"))
 				entidadWR = true;
-	
+
 		String atributos = "";
 		Iterator<IAttribute> iteradorAtributos = lista.iterator();
 		IAttribute atributo;
@@ -738,8 +669,7 @@ public class CRUD {
 			if (!entidadWR) {
 				// Si no es propia de webratio se general con el formato
 				// ent1#att1
-				atributos = atributos + this.entidad.getFinalId() + "#"
-						+ atributo.getFinalId() + " ";
+				atributos = atributos + this.entidad.getFinalId() + "#" + atributo.getFinalId() + " ";
 			} else {
 				atributos = atributos + atributo.getFinalId() + " ";
 			}
@@ -769,7 +699,7 @@ public class CRUD {
 	protected List<ISiteView> getListaSiteViews() {
 		return this.listaSiteViews;
 	}
-	
+
 	/**
 	 * Nombre: getListaSiteViews Funcion: Obtiene una lista de siteViews
 	 * 
@@ -800,8 +730,7 @@ public class CRUD {
 		this.initRelationShips();
 		// La variable entidadesRelacionadas es un map compuesto por Role,
 		// targetEntity
-		IRelationshipRole role = this.entidadesRelacionadas
-				.get((IEntity) target);
+		IRelationshipRole role = this.entidadesRelacionadas.get((IEntity) target);
 
 		return role;
 
@@ -862,13 +791,11 @@ public class CRUD {
 	 *            : link que enlaza la unidad origen y destino, para añadirle el
 	 *            linkParameter
 	 */
-	protected void guessCouplingEntryToConnect(IMFElement origen,
-			IMFElement destino, IEntity entidadDestino, IRelationshipRole role,
+	protected void guessCouplingEntryToConnect(IMFElement origen, IMFElement destino, IEntity entidadDestino, IRelationshipRole role,
 			IMFElement link) {
 		// Obtenemos la keyCondition de la unidadDestino
 		IOperationUnit connectUnit = (IOperationUnit) destino;
-		IMFElement keyCondition = connectUnit.selectSingleElement(
-				"TargetSelector").selectSingleElement("KeyCondition");
+		IMFElement keyCondition = connectUnit.selectSingleElement("TargetSelector").selectSingleElement("KeyCondition");
 		String name = Utilities.getAttribute(keyCondition, "name");
 		String nombreBuscar = Utilities.getAttribute(entidadDestino, "name");
 
@@ -884,8 +811,7 @@ public class CRUD {
 		// TODO Otro break fuera del if!! (funcionaba porque la key suele ser la
 		// primera!)
 		for (int i = 0; i < listaAtributos.size(); i++) {
-			if (Utilities.getAttribute(listaAtributos.get(i), "key").equals(
-					"true")) {
+			if (Utilities.getAttribute(listaAtributos.get(i), "key").equals("true")) {
 				keyAtributo = listaAtributos.get(i);
 				break;
 			}
@@ -904,26 +830,18 @@ public class CRUD {
 		field = mapaCampos.get(Utilities.getAttribute(role, "name"));
 
 		// Creamos el link parameter que añadimos al link.
-		ILinkParameter linkParameter = Utilities.createLinkParameter(link
-				.getModelId(), ProjectParameters.getWebProject()
-				.getIdProvider(), link.getFinalId());
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
+		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
+
+		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(field.getIdsByFinalId().toString()), link.getRootElement())
 				.execute();
 
-		new SetAttributeMFOperation(linkParameter, "source", this
-				.cleanIds(field.getIdsByFinalId().toString()), link
-				.getRootElement()).execute();
-		
-		new SetAttributeMFOperation(linkParameter, "name", nombreBuscar + "_"
-				+ name + " [oid] [" + nombreBuscar + "] [Target]", link
-				.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "target",
-				this.cleanIds(keyCondition.getIdsByFinalId().toString())
-						+ "."
-						+ this.cleanIds(keyAtributo.getIdsByFinalId()
-								.toString()), link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", nombreBuscar + "_" + name + " [oid] [" + nombreBuscar + "] [Target]",
+				link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(keyCondition.getIdsByFinalId().toString()) + "."
+				+ this.cleanIds(keyAtributo.getIdsByFinalId().toString()), link.getRootElement()).execute();
 
 		((MFElement) link).addChild(linkParameter, null);
 	}
@@ -939,8 +857,7 @@ public class CRUD {
 	 * @param link
 	 *            : link sobre el que añadir el linkParameter
 	 */
-	protected void guessCouplingEntryToCreateModify(IMFElement origen,
-			IMFElement destino, IMFElement link) {
+	protected void guessCouplingEntryToCreateModify(IMFElement origen, IMFElement destino, IMFElement link) {
 		// Variables
 		ISubUnit field;
 		IAttribute atributo;
@@ -953,8 +870,7 @@ public class CRUD {
 		// Obtener lista FIELDS
 		List<ISubUnit> listaFields = ((IUnit) origen).getSubUnitList();
 		// Obtener lista Atributos de la entidad origen
-		List<IAttribute> listaAtributos = ((IEntity) entidadGuess)
-				.getAllAttributeList();
+		List<IAttribute> listaAtributos = ((IEntity) entidadGuess).getAllAttributeList();
 
 		String tipoDestino = destino.getQName().getName();
 
@@ -967,16 +883,13 @@ public class CRUD {
 			field = iter.next();
 			mapaCampos.put(Utilities.getAttribute(field, "name"), field);
 		}
-		for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter
-				.hasNext();) {
+		for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter.hasNext();) {
 			atributo = iter.next();
-			mapaAtributos.put(Utilities.getAttribute(atributo, "name"),
-					atributo);
+			mapaAtributos.put(Utilities.getAttribute(atributo, "name"), atributo);
 		}
 
 		// Recorremos todos los campos
-		for (Iterator<String> iter = mapaCampos.keySet().iterator(); iter
-				.hasNext();) {
+		for (Iterator<String> iter = mapaCampos.keySet().iterator(); iter.hasNext();) {
 			nombreCampo = iter.next();
 			atributo = mapaAtributos.get(nombreCampo);
 			// Si nos retorna un atributo es un coupling por atributo
@@ -984,15 +897,12 @@ public class CRUD {
 				keyAtributo = Utilities.getAttribute(atributo, "key");
 
 				if (!keyAtributo.equals("true")) {
-					linkParameter = this.createParameterField2Att(atributo,
-							destino, mapaCampos.get(nombreCampo), link, false);
+					linkParameter = this.createParameterField2Att(atributo, destino, mapaCampos.get(nombreCampo), link, false);
 					((MFElement) link).addChild(linkParameter, null);
 				} else {
 					if (tipoDestino.equals("ModifyUnit")) {
 
-						linkParameter = this.createParameterField2Att(atributo,
-								destino, mapaCampos.get(nombreCampo), link,
-								true);
+						linkParameter = this.createParameterField2Att(atributo, destino, mapaCampos.get(nombreCampo), link, true);
 						((MFElement) link).addChild(linkParameter, null);
 					}
 				}
@@ -1004,78 +914,78 @@ public class CRUD {
 				field = mapaCampos.get(nombreCampo);
 				tipoCampo = field.getQName().getName();
 				if (tipoCampo.equals("SelectionField")) {
-					linkParameter = this.createParameterFieldToRole(role,
-							destino, field, link);
+					linkParameter = this.createParameterFieldToRole(role, destino, field, link);
 					((MFElement) link).addChild(linkParameter, null);
 				}
 			}
 		}
 	}
 
-	
-	/** Parameter de Link desde origen a destino para una keycondition en la cual en el mapeo el origen va a ser un valor fijo.
+	/**
+	 * Parameter de Link desde origen a destino para una keycondition en la cual
+	 * en el mapeo el origen va a ser un valor fijo.
 	 * 
 	 */
-	protected void guessCouplingFieldAttConValor(IEntity entidadOrigen,IMFElement destino,IMFElement link, String valor){
-		
-		//Uso para keyCondition
-		
-		//<Link id="ln3" name="New Town" to="seu1" type="normal" validate="true">
-		//  <LinkParameter id="par21" name="0_KeyCondition3 [oid]" sourceValue="0" target="kcond3.att2"/>
-		//</Link>
+	protected void guessCouplingFieldAttConValor(IEntity entidadOrigen, IMFElement destino, IMFElement link, String valor) {
+
+		// Uso para keyCondition
+
+		// <Link id="ln3" name="New Town" to="seu1" type="normal"
+		// validate="true">
+		// <LinkParameter id="par21" name="0_KeyCondition3 [oid]"
+		// sourceValue="0" target="kcond3.att2"/>
+		// </Link>
 
 		// Variables
-		//ISubUnit field;
+		// ISubUnit field;
 		IAttribute atributo;
 		String nombreCampo;
-		//String tipoCampo;
+		// String tipoCampo;
 		IMFElement linkParameter;
 		String keyAtributo;
-		
-		try{
+
+		try {
 			// Obtener lista Atributos de la entidad origen
 			List<IAttribute> listaAtributos = entidadOrigen.getAllAttributeList();
-		
+
 			// Generar mapas para las listas de campos y atributos
 			Map<String, IAttribute> mapaAtributos = new HashMap<String, IAttribute>();
-	
+
 			// Iniciar los hashMa
-			for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter
-					.hasNext();) {
+			for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter.hasNext();) {
 				atributo = iter.next();
-				
+
 				keyAtributo = Utilities.getAttribute(atributo, "key");
 				if (keyAtributo.equals("true")) {
-					mapaAtributos.put(Utilities.getAttribute(atributo, "name"),atributo);
+					mapaAtributos.put(Utilities.getAttribute(atributo, "name"), atributo);
 				}
 			}
-	
-			if(null!=mapaAtributos && mapaAtributos.size()>0){
+
+			if (null != mapaAtributos && mapaAtributos.size() > 0) {
 				// Recorremos todos los campos
-				for (Iterator<String> iter = mapaAtributos.keySet().iterator(); iter
-						.hasNext();) {
+				for (Iterator<String> iter = mapaAtributos.keySet().iterator(); iter.hasNext();) {
 					nombreCampo = iter.next();
 					atributo = mapaAtributos.get(nombreCampo);
 					// Si nos retorna un atributo es un coupling por atributo
 					if (atributo != null) {
 						keyAtributo = Utilities.getAttribute(atributo, "key");
 						if (keyAtributo.equals("true")) {
-								linkParameter = this.createParameterField2AttValor(atributo,destino, valor , link,true);
-								((MFElement) link).addChild(linkParameter, null);
-						} 
+							linkParameter = this.createParameterField2AttValor(atributo, destino, valor, link, true);
+							((MFElement) link).addChild(linkParameter, null);
+						}
 					}
 				}
 			}
-		}catch (Exception e){
-			//captura excepcion ya que esto solo es para a�adir un linkParameter a un parameter
+		} catch (Exception e) {
+			// captura excepcion ya que esto solo es para a�adir un
+			// linkParameter a un parameter
 		}
 	}
-	
-	
+
 	/**
 	 * 
-	 * Nombre: createParameterField2AttCarlos
-	 * Funcion: 
+	 * Nombre: createParameterField2AttCarlos Funcion:
+	 * 
 	 * @param atributo
 	 * @param unidadDestino
 	 * @param valor
@@ -1083,20 +993,16 @@ public class CRUD {
 	 * @param key
 	 * @return
 	 */
-	private IMFElement createParameterField2AttValor(IAttribute atributo,
-			IMFElement unidadDestino, String valor, IMFElement link,
+	private IMFElement createParameterField2AttValor(IAttribute atributo, IMFElement unidadDestino, String valor, IMFElement link,
 			boolean key) {
-		
+
 		IMFElement linkParameter;
 		String idAtributo = Utilities.getAttribute(atributo, "id");
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(),
-				ProjectParameters.getWebProject().getIdProvider(), link
-						.getFinalId());
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
-				.execute();
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 		// Si no es de tipo key (para relacionar el oid) se hace igual que la
 		// funcion anterior.
 		if (key) {
@@ -1104,25 +1010,20 @@ public class CRUD {
 			// elemento
 			// para crear el parametro del link, además de cambiar el formato
 			// del nombre
-			IMFElement keyCondition = unidadDestino.selectSingleElement(
-					"Selector").selectSingleElement("KeyCondition");
+			IMFElement keyCondition = unidadDestino.selectSingleElement("Selector").selectSingleElement("KeyCondition");
 			String nameKey = Utilities.getAttribute(keyCondition, "name");
-			
-			new SetAttributeMFOperation(linkParameter, "name", valor + "_"
-					+ nameKey + " [oid]", link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "sourceValue", valor, link
-			.getRootElement()).execute();
-			
-			new SetAttributeMFOperation(linkParameter, "target", this
-					.cleanIds(keyCondition.getIdsByFinalId().toString())
-					+ "." + idAtributo, link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "name", valor + "_" + nameKey + " [oid]", link.getRootElement()).execute();
+
+			new SetAttributeMFOperation(linkParameter, "sourceValue", valor, link.getRootElement()).execute();
+
+			new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(keyCondition.getIdsByFinalId().toString()) + "."
+					+ idAtributo, link.getRootElement()).execute();
 
 		}
 		return linkParameter;
 	}
 
-	
 	/**
 	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guessCoupling entre
 	 * cualquier unidad y una entryUnit llamando a los metodos creados
@@ -1137,8 +1038,7 @@ public class CRUD {
 	 * @param link
 	 *            : link sobre el que se creara el linkParameter
 	 */
-	protected void guessCouplingUnitToEntry(IMFElement origen,
-			IEntity entidadOrigen, IMFElement destino, IMFElement link) {
+	protected void guessCouplingUnitToEntry(IMFElement origen, IEntity entidadOrigen, IMFElement destino, IMFElement link) {
 		// Variables
 		ISubUnit field;
 		IAttribute atributo;
@@ -1162,22 +1062,18 @@ public class CRUD {
 			field = iter.next();
 			mapaCampos.put(Utilities.getAttribute(field, "name"), field);
 		}
-		for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter
-				.hasNext();) {
+		for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter.hasNext();) {
 			atributo = iter.next();
-			mapaAtributos.put(Utilities.getAttribute(atributo, "name"),
-					atributo);
+			mapaAtributos.put(Utilities.getAttribute(atributo, "name"), atributo);
 		}
 
 		// Recorremos todos los campos
-		for (Iterator<String> iter = mapaCampos.keySet().iterator(); iter
-				.hasNext();) {
+		for (Iterator<String> iter = mapaCampos.keySet().iterator(); iter.hasNext();) {
 			nombreCampo = iter.next();
 			atributo = mapaAtributos.get(nombreCampo);
 			// Si nos retorna un atributo es un coupling por atributo
 			if (atributo != null) {
-				linkParameter = this.createParameter(atributo, mapaCampos
-						.get(nombreCampo), link);
+				linkParameter = this.createParameter(atributo, mapaCampos.get(nombreCampo), link);
 				((MFElement) link).addChild(linkParameter, null);
 			} else {
 				// En caso contrario es un coupling con selection o
@@ -1188,8 +1084,7 @@ public class CRUD {
 				tipoCampo = field.getQName().getName();
 				if (tipoCampo.equals("SelectionField")) {
 					// System.out.println("coupling de selection, N a 1 para"+nombreCampo);
-					linkParameter = this.createParameterRoleToField(role,
-							field, link, false);
+					linkParameter = this.createParameterRoleToField(role, field, link, false);
 					((MFElement) link).addChild(linkParameter, null);
 				}
 			}
@@ -1211,8 +1106,7 @@ public class CRUD {
 	 * @param role
 	 *            : role que de la unidad origen, en caso de tenerla
 	 */
-	protected void guessCouplingUnitToEntry(IMFElement origen,
-			IEntity entidadOrigen, IMFElement destino, IMFElement link,
+	protected void guessCouplingUnitToEntry(IMFElement origen, IEntity entidadOrigen, IMFElement destino, IMFElement link,
 			IRelationshipRole role) {// , boolean preload){
 		ISubUnit field;
 		ISubUnit preselect = null;
@@ -1221,7 +1115,7 @@ public class CRUD {
 		String nombreRole = Utilities.getAttribute(role, "name");
 		// Obtener lista FIELDS
 		List<ISubUnit> listaFields = ((IUnit) destino).getSubUnitList();
-	
+
 		// Iniciar los hashMap
 		for (Iterator<ISubUnit> iter = listaFields.iterator(); iter.hasNext();) {
 			field = iter.next();
@@ -1231,8 +1125,7 @@ public class CRUD {
 				break;
 			}
 		}
-		linkParameter = this.createParameterRoleToField(role, preselect, link,
-				true);
+		linkParameter = this.createParameterRoleToField(role, preselect, link, true);
 		((MFElement) link).addChild(linkParameter, null);
 	}
 
@@ -1255,13 +1148,11 @@ public class CRUD {
 			// Si la entidad del crud es la source guardamos la target y la role
 			if (relacion.getSourceEntity() == this.entidad) {
 				role = relacion.getRelationshipRole1();
-				this.entidadesRelacionadas
-						.put(relacion.getTargetEntity(), role);
+				this.entidadesRelacionadas.put(relacion.getTargetEntity(), role);
 			} else {
 				// En caso contrario guardamos la source
 				role = relacion.getRelationshipRole2();
-				this.entidadesRelacionadas
-						.put(relacion.getSourceEntity(), role);
+				this.entidadesRelacionadas.put(relacion.getSourceEntity(), role);
 			}
 		}
 	}
@@ -1306,28 +1197,21 @@ public class CRUD {
 	 * @param link
 	 *            : link en el que se crea el coupling
 	 */
-	protected void putCoupling(IMFElement oidField, IUnit destino, String tipo,
-			IMFElement link) {
+	protected void putCoupling(IMFElement oidField, IUnit destino, String tipo, IMFElement link) {
 		// Se elimina el automaticCoupling del link, para hacerlo manual
 		Utilities.setAttribute(link, "automaticCoupling", null);
 		String nombre = Utilities.getAttribute(oidField, "name").toLowerCase();
 
-		ILinkParameter linkParameter = Utilities.createLinkParameter(link
-				.getModelId(), ProjectParameters.getWebProject()
-				.getIdProvider(), link.getFinalId());
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
+		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nombre, link.getRootElement()).execute();
+
+		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(oidField.getIdsByFinalId().toString()), link.getRootElement())
 				.execute();
-		new SetAttributeMFOperation(linkParameter, "name", nombre + "_"
-				+ nombre, link.getRootElement()).execute();
-		
-		new SetAttributeMFOperation(linkParameter, "source", this
-				.cleanIds(oidField.getIdsByFinalId().toString()), link
-				.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(destino.getIdsByFinalId().toString())
-				+ "." + tipo, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(destino.getIdsByFinalId().toString()) + "." + tipo,
+				link.getRootElement()).execute();
 
 		((MFElement) link).addChild(linkParameter, null);
 	}
@@ -1342,8 +1226,7 @@ public class CRUD {
 	 *            : role que
 	 * @param link
 	 */
-	protected void putPreload(IMFElement destino, IRelationshipRole role,
-			IMFElement link) {
+	protected void putPreload(IMFElement destino, IRelationshipRole role, IMFElement link) {
 		IEntity entidadOrigen = this.getTargetEntity(role);
 		IAttribute atributoSeleccion = this.relaciones.get(role);
 		ISubUnit field;
@@ -1364,8 +1247,7 @@ public class CRUD {
 			field = iter.next();
 			nombreCampo = Utilities.getAttribute(field, "name");
 			if (nombreCampo.equals(nombreRole)) {
-				this.createParameterPreload(atributo, field, atributoSeleccion,
-						link, entidadOrigen);
+				this.createParameterPreload(atributo, field, atributoSeleccion, link, entidadOrigen);
 				break;
 			}
 		}
@@ -1391,9 +1273,8 @@ public class CRUD {
 	 * @param precarga
 	 *            : si es true los campos estaran marcados como preload
 	 */
-	protected void setFields(IMFElement element, boolean precarga,boolean noDerivado) {
-		CompositeMFCommand cmd = new CompositeMFCommand(element
-				.getRootElement());
+	protected void setFields(IMFElement element, boolean precarga, boolean noDerivado) {
+		CompositeMFCommand cmd = new CompositeMFCommand(element.getRootElement());
 		List<IAttribute> listaAtributos = this.listaAtributosDataOrForm;
 		IAttribute atributo;
 		IAttribute atributoKey;
@@ -1401,12 +1282,10 @@ public class CRUD {
 		// Recorremos todos los atributos para ver si en la lista existe
 		// algun atributo de tipo key, ya que se creara de forma oculta
 		// para el usuario
-		for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter
-				.hasNext();) {
+		for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter.hasNext();) {
 			atributo = iter.next();
 			if (Utilities.getAttribute(atributo, "key").equals("true")
-					&& (Utilities.getAttribute(atributo, "name")
-							.contains("oid")||Utilities.getAttribute(atributo, "name")
+					&& (Utilities.getAttribute(atributo, "name").contains("oid") || Utilities.getAttribute(atributo, "name")
 							.contains("OID")))
 				key = true; // Entre los seleccionados existe un key
 		}
@@ -1415,17 +1294,16 @@ public class CRUD {
 		// ya que en el formulario deberá aparecer como oculto
 		if (!key) {
 			atributoKey = null;
-			List<IAttribute> listaAtributosKey = this.entidad
-					.getAllAttributeList();
-			for (Iterator<IAttribute> iter = listaAtributosKey.iterator(); iter
-					.hasNext();) {
+			List<IAttribute> listaAtributosKey = this.entidad.getAllAttributeList();
+			for (Iterator<IAttribute> iter = listaAtributosKey.iterator(); iter.hasNext();) {
 				atributo = iter.next();
 				if (Utilities.getAttribute(atributo, "key").equals("true")
-						&& (Utilities.getAttribute(atributo, "name")
-								.contains("oid")||Utilities.getAttribute(atributo, "name")
-								.contains("OID"))) {
+						&& (Utilities.getAttribute(atributo, "name").contains("oid") || Utilities.getAttribute(atributo, "name").contains(
+								"OID"))) {
 					atributoKey = atributo; // Es el atributo oid
-					//TODO DUDA CAGUADOF OID problamemente no haya que pararse en el primero y continuar guardando en listaAtributos tantos como haya encontrado
+					// TODO DUDA CAGUADOF OID problamemente no haya que pararse
+					// en el primero y continuar guardando en listaAtributos
+					// tantos como haya encontrado
 					break;
 				}
 			}
@@ -1434,60 +1312,58 @@ public class CRUD {
 				listaAtributos.add(atributoKey);
 			}
 		}
-	
+
 		Iterator<IAttribute> iteratorAtributos = listaAtributos.iterator();
-	
+
 		String nombre, tipo;
 		IMFElement field;
 		// Recorremos la lista final de atributos para crear los campos en el
 		// formulario
 		while (iteratorAtributos.hasNext()) {
 			atributo = iteratorAtributos.next();
-			
-			//Si no se quieren atributos derivados y el atributo es derivado
-			if(noDerivado && null!=Utilities.getAttribute(atributo, "derivationQuery") && !Utilities.getAttribute(atributo, "derivationQuery").isEmpty()){
-				//10.11 no atributos derivados
-				//Es un atributo derivado y por el parametro del metodo no quiere derivado
-			}else{
+
+			// Si no se quieren atributos derivados y el atributo es derivado
+			if (noDerivado && null != Utilities.getAttribute(atributo, "derivationQuery")
+					&& !Utilities.getAttribute(atributo, "derivationQuery").isEmpty()) {
+				// 10.11 no atributos derivados
+				// Es un atributo derivado y por el parametro del metodo no
+				// quiere derivado
+			} else {
 				nombre = Utilities.getAttribute(atributo, "name");
 				tipo = Utilities.getAttribute(atributo, "type");
-				field = cmd.addSubUnit(Utilities.getSubUnitType(element, "Field"),
-						element);
-				// Si el tipo es password lo pasamos a tipo string por comodidad a
+				field = cmd.addSubUnit(Utilities.getSubUnitType(element, "Field"), element);
+				// Si el tipo es password lo pasamos a tipo string por comodidad
+				// a
 				// la hora de modificar el formulario
 				if (tipo.equals("password"))
 					tipo = "string";
 				Utilities.setAttribute(field, "type", tipo);
 				if (precarga)
 					Utilities.setAttribute(field, "preloaded", "true");
-				new SetAttributeMFOperation(field, "name", nombre, element
-						.getRootElement()).execute();
-		
-				if ((Utilities.getAttribute(atributo, "name").contains("oid")
-						||Utilities.getAttribute(atributo, "name").contains("OID"))
+				new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
+
+				if ((Utilities.getAttribute(atributo, "name").contains("oid") || Utilities.getAttribute(atributo, "name").contains("OID"))
 						&& Utilities.getAttribute(atributo, "key").equals("true")) {
 					Utilities.setAttribute(field, "hidden", "true");
 					Utilities.setAttribute(field, "modifiable", "false");
-					 
+
 					this.fieldOid = field;
-		
+
 				}
-				
+
 				// Mantener el contenType de los campos en el formulario.
-				if(null!=Utilities.getAttribute(atributo,"contentType")){
-					Utilities.setAttribute(field,"contentType",Utilities.getAttribute(atributo,"contentType"));
+				if (null != Utilities.getAttribute(atributo, "contentType")) {
+					Utilities.setAttribute(field, "contentType", Utilities.getAttribute(atributo, "contentType"));
 				}
 			}
-			
-			
+
 		}
-	
+
 		// Ahora hacemos lo mismo creando selectionField en caso de relaciones
 		// 1aN y multiSelectionField en caso de relaciones NaN
 		if (this.relaciones != null) {
 			Set<IRelationshipRole> entidades = this.relaciones.keySet();
-			Iterator<IRelationshipRole> iteratorEntidades = entidades
-					.iterator();
+			Iterator<IRelationshipRole> iteratorEntidades = entidades.iterator();
 			IRelationshipRole role;
 			IRelationship relation;
 			String maxCard1;
@@ -1498,57 +1374,48 @@ public class CRUD {
 				atributo = this.relaciones.get(role);
 				nombre = Utilities.getAttribute(role, "name");
 				tipo = Utilities.getAttribute(atributo, "type");
-	
-				maxCard1 = Utilities.getAttribute(relation
-						.getRelationshipRole1(), "maxCard");
-				maxCard2 = Utilities.getAttribute(relation
-						.getRelationshipRole2(), "maxCard");
-				
+
+				maxCard1 = Utilities.getAttribute(relation.getRelationshipRole1(), "maxCard");
+				maxCard2 = Utilities.getAttribute(relation.getRelationshipRole2(), "maxCard");
+
 				if (maxCard1.equals("N") && maxCard2.equals("N")) {
-					field = cmd.addSubUnit(Utilities.getSubUnitType(element,
-							"MultiSelectionField"), element);
+					field = cmd.addSubUnit(Utilities.getSubUnitType(element, "MultiSelectionField"), element);
 				} else {
-					field = cmd.addSubUnit(Utilities.getSubUnitType(element,
-							"SelectionField"), element);
+					field = cmd.addSubUnit(Utilities.getSubUnitType(element, "SelectionField"), element);
 				}
-	
+
 				Utilities.setAttribute(field, "type", tipo);
-	
-				new SetAttributeMFOperation(field, "name", nombre, element
-						.getRootElement()).execute();
+
+				new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
 			}
 		}
-	
+
 	}
 
 	/**
-	 * Nombre: putMessageOnMultiMessageUnit 
-	 * Funcion: añade un mensaje a un link OK o linkKO que van dirigidos
-	 * a una multiMessageUnit 
-	 * @param link: link al que añadir el mensaje
-	 * @param destino: multiMessageUnit que mostrará el mensaje
-	 * @param mensaje: mensaje a mostrar
+	 * Nombre: putMessageOnMultiMessageUnit Funcion: añade un mensaje a un link
+	 * OK o linkKO que van dirigidos a una multiMessageUnit
+	 * 
+	 * @param link
+	 *            : link al que añadir el mensaje
+	 * @param destino
+	 *            : multiMessageUnit que mostrará el mensaje
+	 * @param mensaje
+	 *            : mensaje a mostrar
 	 */
-	protected void putMessageOnMultiMessageUnit(IMFElement link,
-			IMFElement destino, String mensaje) {
-		ILinkParameter linkParameter = Utilities.createLinkParameter(link
-				.getModelId(), ProjectParameters.getWebProject()
-				.getIdProvider(), link.getFinalId());
+	protected void putMessageOnMultiMessageUnit(IMFElement link, IMFElement destino, String mensaje) {
+		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
 
-		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link
-				.getIdsByFinalId().toString())
-				+ "#" + linkParameter.getFinalId(), link.getRootElement())
-				.execute();
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 
-		new SetAttributeMFOperation(linkParameter, "name", mensaje + "_"
-				+ "Shown Messages", link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", mensaje + "_" + "Shown Messages", link.getRootElement()).execute();
 
-		new SetAttributeMFOperation(linkParameter, "sourceValue", mensaje, link
-				.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "sourceValue", mensaje, link.getRootElement()).execute();
 
-		new SetAttributeMFOperation(linkParameter, "target", this
-				.cleanIds(destino.getIdsByFinalId().toString())
-				+ ".shownMessages", link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(destino.getIdsByFinalId().toString()) + ".shownMessages",
+				link.getRootElement()).execute();
 		((MFElement) link).addChild(linkParameter, null);
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -153,10 +153,10 @@ public class Update extends CRUD {
 		// Read
 		posx = posy = 5;
 		posy = posy + Utilities.altoUnidad;
-		// Añadimos la powerIndex e indicamos los atributos visibles
+		// Aï¿½adimos la powerIndex e indicamos los atributos visibles
 		powerIndexUnit = (IContentUnit) this.addUnidad(pagina,
 				"PowerIndexUnit", posx, posy, "Index", true, null);
-		this.addAtritubosIndex(powerIndexUnit);
+		this.addAtributosIndex(powerIndexUnit);
 		subProgressMonitor.worked(unidad);
 
 		posx = posx + Utilities.anchoUnidad;
@@ -167,32 +167,32 @@ public class Update extends CRUD {
 
 		posx = posx + Utilities.anchoUnidad;
 
-		// Añadir multiMessage para los mensajes de las unidades
+		// Aï¿½adir multiMessage para los mensajes de las unidades
 		multiMessageUnit = (IContentUnit) this.addUnidad(pagina,
 				"MultiMessageUnit", posx, posy, "Message", false, null);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir el selector de entidad y asignarle una keyCondition
+		// Aï¿½adir el selector de entidad y asignarle una keyCondition
 		posx = posy = 5;
 		selectorEntidad = (IContentUnit) this.addUnidad(pagina, "SelectorUnit",
 				posx, posy, "Selector", true, null);
 		this.addKeyCondition(selectorEntidad);
 		subProgressMonitor.worked(unidad);
 
-		// Añadir el enlace de Modificar entre la
+		// Aï¿½adir el enlace de Modificar entre la
 		// powerIndexUnit y selectorEntidad
 		this.addNormalLink((IMFElement) powerIndexUnit,
 				(IMFElement) selectorEntidad, "Modify");
 		subProgressMonitor.worked(unidad);
-		// Añadir link de transporte entre la selectorUnit
+		// Aï¿½adir link de transporte entre la selectorUnit
 		// y el formulario. Hacer un guessCoupling
 		link = this.addTransportLink(selectorEntidad, entryUnit, "Load");
 		this.setAutomaticCoupling(link);
 		this.guessCouplingUnitToEntry(selectorEntidad, this.getEntity(),
 				entryUnit, link);// , preload);
 		subProgressMonitor.worked(unidad);
-		// Añadir Selector para precarga formulario (Update)
-		// Solo son validas las relaciones NaN, las demñs las
+		// Aï¿½adir Selector para precarga formulario (Update)
+		// Solo son validas las relaciones NaN, las demï¿½s las
 		// carga la selectorEntidad directamente.
 		posx = 5 + Utilities.anchoUnidad;
 		posy = 5 + 2 * (Utilities.altoUnidad);
@@ -212,7 +212,7 @@ public class Update extends CRUD {
 				roleCondition = this.addRelationShipRoleCondition(selectorUnit);// ,
 				// idRole);
 				this.addRoleCondition((IMFElement) roleCondition, idRole);
-				// Añadir link y hacer guessCoupling
+				// Aï¿½adir link y hacer guessCoupling
 				link = this.addTransportLink(selectorEntidad, selectorUnit,
 						"Load");
 				link = this.addTransportLink(selectorUnit, entryUnit, "Load");
@@ -225,7 +225,7 @@ public class Update extends CRUD {
 			subProgressMonitor.worked(unidad);
 		}
 
-		// Añadir las selectorUnit que se encarga de rellenar
+		// Aï¿½adir las selectorUnit que se encarga de rellenar
 		// los campos multiSelectionField y selectionField
 		posx = 5 + Utilities.anchoUnidad;
 		posy = 5;

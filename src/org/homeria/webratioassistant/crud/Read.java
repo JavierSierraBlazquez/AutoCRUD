@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -23,7 +23,7 @@ import com.webratio.ide.model.IContentUnit;
 import com.webratio.ide.model.IPage;
 import com.webratio.ide.model.ISiteView;
 
-public class Retrieve extends CRUD {
+public class Read extends CRUD {
 
 	/**
 	 * 
@@ -33,8 +33,7 @@ public class Retrieve extends CRUD {
 	 * @param index
 	 * @param data
 	 */
-	public Retrieve(IMFElement entity, List<ISiteView> siteViews,
-			List<IArea> areas, List<IAttribute> index, List<IAttribute> data) {
+	public Read(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, List<IAttribute> index, List<IAttribute> data) {
 		super(siteViews, areas, entity, index, data, null);
 
 	}
@@ -50,13 +49,12 @@ public class Retrieve extends CRUD {
 		int unidad = 1;
 		int totalWork = this.getListaSiteViews().size() * (4) * unidad;
 
-		subProgressMonitor.beginTask("Retrieve", totalWork);
+		subProgressMonitor.beginTask("READ", totalWork);
 		try {
 
 			ISiteView siteView;
 
-			for (Iterator<ISiteView> iteradorSiteView = this
-					.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
+			for (Iterator<ISiteView> iteradorSiteView = this.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
 
 				siteView = iteradorSiteView.next();
 
@@ -70,17 +68,13 @@ public class Retrieve extends CRUD {
 				List<IArea> listaAreaEnc = null;
 				// metodo que diga si en la lista de areas de entrada hay alguno
 				// que corresponde al siteView del iterator
-				if (null != siteView.getAreaList()
-						&& siteView.getAreaList().size() > 0
-						&& null != this.getListaAreas()
+				if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0 && null != this.getListaAreas()
 						&& this.getListaAreas().size() > 0) {
 
-					for (Iterator iterator = this.getListaAreas().iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = this.getListaAreas().iterator(); iterator.hasNext();) {
 						IArea iAreaSelected = (IArea) iterator.next();
 
-						String[] partesNombreID = iAreaSelected.getRootXPath()
-								.split("'"); // id('stv')
+						String[] partesNombreID = iAreaSelected.getRootXPath().split("'"); // id('stv')
 						String idPadre = partesNombreID[1];
 						if (idPadre.compareTo(siteView.getFinalId()) == 0) {
 							if (null == listaAreaEnc) {
@@ -96,12 +90,10 @@ public class Retrieve extends CRUD {
 					retrieveCrearElementos(subProgressMonitor, unidad, siteView);
 					subProgressMonitor.worked(unidad);
 				} else {
-					for (Iterator iterator = listaAreaEnc.iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = listaAreaEnc.iterator(); iterator.hasNext();) {
 						IArea iArea = (IArea) iterator.next();
 						Utilities.switchSiteView(siteView);
-						retrieveCrearElementos(subProgressMonitor, unidad,
-								iArea);
+						retrieveCrearElementos(subProgressMonitor, unidad, iArea);
 						subProgressMonitor.worked(unidad);
 
 					}
@@ -125,8 +117,7 @@ public class Retrieve extends CRUD {
 	 * @param unidad
 	 * @param elementIMFE
 	 */
-	private void retrieveCrearElementos(SubProgressMonitor subProgressMonitor,
-			int unidad, IMFElement elementIMFE) {
+	private void retrieveCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE) {
 		IPage pagina;
 		IContentUnit dataUnit;
 		IContentUnit powerIndexUnit;
@@ -141,18 +132,15 @@ public class Retrieve extends CRUD {
 		pagina = (IPage) this.addPagina(elementIMFE, "Read", x, y);
 		subProgressMonitor.worked(unidad);
 
-		powerIndexUnit = (IContentUnit) this.addUnidad(pagina,
-				"PowerIndexUnit", 5, 5, "Index", true, null);
-		this.addAtritubosIndex(powerIndexUnit);
+		powerIndexUnit = (IContentUnit) this.addUnidad(pagina, "PowerIndexUnit", 5, 5, "Index", true, null);
+		this.addAtributosIndex(powerIndexUnit);
 		subProgressMonitor.worked(unidad);
 
-		dataUnit = (IContentUnit) this.addUnidad(pagina, "DataUnit", 200, 10,
-				"Data", true, null);
-		this.addAtritubosData(dataUnit);
+		dataUnit = (IContentUnit) this.addUnidad(pagina, "DataUnit", 200, 10, "Data", true, null);
+		this.addAtributosData(dataUnit);
 		subProgressMonitor.worked(unidad);
-		// Añadimos un link normal entre la powerIndex
+		// Aï¿½adimos un link normal entre la powerIndex
 		// y la dataUnit para mostrar el contenido
-		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit,
-				"View");
+		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit, "View");
 	}
 }

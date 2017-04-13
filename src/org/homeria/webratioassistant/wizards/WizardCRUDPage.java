@@ -26,6 +26,9 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -71,25 +74,41 @@ public class WizardCRUDPage extends WizardPage {
 	private ArrayList<CCombo> checkOpcionesUpdate;
 	private List<TableItem> checkShowUpdate;
 
-	private Composite composite1;
-	private Composite composite2;
-	private Composite composite3;
-	private Composite composite4;
-	private Composite container;
 	private IEntity entidad = null;
 	// private ArrayList<IEntity> entidadesRelacionadas;
 	private ArrayList<IRelationshipRole> entidadesRelacionadas;
-	private Group group1;
-	private Group group10;
-	private Group group2;
-	private Group group3;
-	private Group group4;
-	private Group group5;
-	private Group group6;
-	private Group group7;
-	private Group group8;
-	private Group group9;
-	private List<IAttribute> listaAtributos;
+
+	private Composite containerComposite;
+	private Composite leftComposite;
+	private Composite rightComposite;
+	private Composite allComposite;
+	private Composite crudComposite;
+	private Composite allLeftComposite;
+	private Composite allRightComposite;
+
+	private Group operationsGroup;
+	private Group sPageOpGroup;
+	private Group mPageOpGroup;
+	private Group svAreaGroup;
+	private Group pIndexAllGroup;
+	private Group pIndexReadGroup;
+	private Group pIndexUpdateGroup;
+	private Group pIndexDeleteGroup;
+	private Group relationsAllGroup;
+	private Group relationsCreateGroup;
+	private Group relationsFromGroup;
+	private Group createGroup;
+	private Group readGroup;
+	private Group updateGroup;
+	private Group deleteGroup;
+
+	private Button allCheck;
+	private Button cCheck;
+	private Button rCheck;
+	private Button uCheck;
+	private Button dCheck;
+
+	private List<IAttribute> listaAtributosEntidad;
 	private List<IAttribute> listaAtributosSinDerivados;
 	private List<CCombo> listaCombosCreate;
 	private List<CCombo> listaCombosUpdate;
@@ -102,32 +121,35 @@ public class WizardCRUDPage extends WizardPage {
 	private TabItem tabItem4;
 	private Table tableDataRead;
 	private Table tableDataAllInOne;
-	private Table tableIndexCreate;
+	private Table tableDetailAllInOne;
+	private Table tableRelationsCreate;
 	private Table tableIndexDelete;
 	private Table tableIndexRead;
-	private Table tableIndexUpdate;
+	private Table tableRelFormUpdate;
 	private Table tableOpcionesDelete;
 	private Table tableOpcionesRead;
 	private Table tableOpcionesUpdate;
-	private Table tableShowUpdate;
+	private Table tableIndexUpdate;
 
-	private Tree arbolUpdate;
-	private Tree arbolCreate;
-	private Tree arbolDelete;
-	private Tree arbolRead;
-	private Tree arbolAllInOne;
+	private Tree arbolSvAreas;
 
 	private TabItem tabItem0;
 	private Composite composite5;
 	private Group group11;
-	private Group group12;
 	private Table tableIndexAllInOne;
-	private Group group13;
-	private Table tableFormAllInOne;
+	private Table tableRelationsAll;
 	private List<TableItem> checkFormAllInOne;
 	private List<CCombo> listaCombosAllInOne;
-	private Group group14;
+	private Group dataUnitGroup;
 	private List<TableItem> checkDataAllInOne;
+
+	/**
+	 * usado en WizardCRUD.doFinish() para saber qué patrones se deben generar
+	 */
+	private List<Utilities.Operations> operationsChecked;
+	private Group detailAllGroup;
+	private Group detailReadGroup;
+	private List<TableItem> attDetailListAllInOne;
 
 	public WizardCRUDPage(IEntity entity) {
 		super("wizardCRUDPage");
@@ -135,6 +157,7 @@ public class WizardCRUDPage extends WizardPage {
 		setDescription("Configure options.");
 
 		declaracionEstructuras(entity);
+		this.crudComposite = null;
 	}
 
 	private void declaracionEstructuras(IEntity entity) {
@@ -150,11 +173,759 @@ public class WizardCRUDPage extends WizardPage {
 		this.checkOpcionesRead = new ArrayList<CCombo>();
 		this.checkOpcionesUpdate = new ArrayList<CCombo>();
 		this.checkOpcionesDelete = new ArrayList<CCombo>();
-		this.listaAtributos = new ArrayList<IAttribute>();
+		this.listaAtributosEntidad = new ArrayList<IAttribute>();
 		this.listaAtributosSinDerivados = new ArrayList<IAttribute>();
 		this.checkFormAllInOne = new ArrayList<TableItem>();
 		this.checkDataAllInOne = new ArrayList<TableItem>();
+		this.attDetailListAllInOne = new ArrayList<TableItem>();
 		this.listaCombosAllInOne = new ArrayList<CCombo>();
+		this.operationsChecked = new ArrayList<Utilities.Operations>();
+	}
+
+	private void crearUI() {
+		this.crearCompositeIzquierdo();
+		this.crearCompositeDerecho();
+
+		// Se crean al seleccionar los checks
+		// this.crearAllInOneUI();
+		// this.crearCrudUI();
+
+		this.containerComposite.layout();
+	}
+
+	private void crearCompositeIzquierdo() {
+		// Creando el composite izquierdo y su contenido
+		this.leftComposite = new Composite(this.containerComposite, SWT.NONE);
+		FillLayout leftCompositeLayout = new FillLayout(SWT.VERTICAL);
+		leftCompositeLayout.marginHeight = 5;
+		leftCompositeLayout.marginWidth = 5;
+		leftCompositeLayout.spacing = 10;
+		this.leftComposite.setLayout(leftCompositeLayout);
+
+		FormData fData = new FormData();
+		fData.top = new FormAttachment(0);
+		fData.left = new FormAttachment(0);
+		fData.right = new FormAttachment(20); // Locks on 20% of the view
+		fData.bottom = new FormAttachment(100);
+		leftComposite.setLayoutData(fData);
+
+		// Grupos del composite izquierdo y su contenido
+		this.operationsGroup = new Group(this.leftComposite, SWT.NONE);
+		FillLayout operationsGroupLayout = new FillLayout(SWT.VERTICAL);
+		this.operationsGroup.setLayout(operationsGroupLayout);
+		this.operationsGroup.setText("Operations");
+		this.operationsGroup.setVisible(true);
+
+		this.sPageOpGroup = new Group(this.operationsGroup, SWT.NONE);
+		FillLayout sPageOpGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		this.sPageOpGroup.setLayout(sPageOpGroupLayout);
+		this.sPageOpGroup.setText("   Single Page");
+		this.sPageOpGroup.setVisible(true);
+
+		this.allCheck = new Button(this.sPageOpGroup, SWT.CHECK);
+		this.allCheck.setText("All in one");
+		this.allCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				allCheckSelectionAction();
+			};
+		});
+
+		this.mPageOpGroup = new Group(this.operationsGroup, SWT.NONE);
+		FillLayout mPageOpGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		this.mPageOpGroup.setLayout(mPageOpGroupLayout);
+		this.mPageOpGroup.setText("   Multiple Pages");
+		this.mPageOpGroup.setVisible(true);
+
+		this.cCheck = new Button(this.mPageOpGroup, SWT.CHECK);
+		this.cCheck.setText("C");
+		this.cCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				cCheckSelectionAction();
+			}
+		});
+
+		this.rCheck = new Button(this.mPageOpGroup, SWT.CHECK);
+		this.rCheck.setText("R");
+		this.rCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				rCheckSelectionAction();
+			}
+		});
+
+		this.uCheck = new Button(this.mPageOpGroup, SWT.CHECK);
+		this.uCheck.setText("U");
+		this.uCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				uCheckSelectionAction();
+			}
+		});
+
+		this.dCheck = new Button(this.mPageOpGroup, SWT.CHECK);
+		this.dCheck.setText("D");
+		this.dCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				dCheckSelectionAction();
+			}
+		});
+
+		this.svAreaGroup = new Group(this.leftComposite, SWT.NONE);
+		FillLayout svAreaGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		this.svAreaGroup.setLayout(svAreaGroupLayout);
+		this.svAreaGroup.setText("SiteViews-Areas");
+		this.svAreaGroup.setVisible(true);
+
+		this.arbolSvAreas = new Tree(this.svAreaGroup, SWT.MULTI | SWT.CHECK | SWT.BORDER);
+		arbolSvAreas.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				// S el motivo de la seleccion ha sido el check
+				if (event.detail == SWT.CHECK) {
+					TreeItem item = (TreeItem) event.item;
+					boolean checked = item.getChecked();
+					if (!checked) {
+						checkItems(item, checked);
+					}
+					checkPath(item.getParentItem(), checked, false);
+					getWizard().getContainer().updateButtons();
+				}
+			}
+		});
+		inicializarListaYarbol();
+	}
+
+	private void crearCompositeDerecho() {
+		// Creando el composite derecho y su contenido
+		this.rightComposite = new Composite(this.containerComposite, SWT.NONE);
+		FillLayout rightCompositeLayout = new FillLayout(SWT.HORIZONTAL);
+		this.rightComposite.setLayout(rightCompositeLayout);
+
+		FormData fData = new FormData();
+		fData.top = new FormAttachment(0);
+		fData.left = new FormAttachment(this.leftComposite);
+		fData.right = new FormAttachment(100);
+		fData.bottom = new FormAttachment(100);
+		rightComposite.setLayoutData(fData);
+
+	}
+
+	private void crearAllInOneUI() {
+		this.allComposite = new Composite(this.rightComposite, SWT.NONE);
+		FillLayout allCompositeLayout = new FillLayout(SWT.HORIZONTAL);
+		this.allComposite.setLayout(allCompositeLayout);
+
+		this.allLeftComposite = new Composite(this.allComposite, SWT.NONE);
+		FillLayout pIndexDetailCompositeLayout = new FillLayout(SWT.VERTICAL);
+		this.allLeftComposite.setLayout(pIndexDetailCompositeLayout);
+
+		// POWER INDEX UNIT
+		this.pIndexAllGroup = new Group(this.allLeftComposite, SWT.NONE);
+		GridLayout pIndexAllGroupLayout = new GridLayout();
+		pIndexAllGroupLayout.numColumns = 1;
+		this.pIndexAllGroup.setLayout(pIndexAllGroupLayout);
+
+		this.pIndexAllGroup.setText("Power Index Unit");
+
+		this.tableIndexAllInOne = new Table(this.pIndexAllGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		GridData gridDataIndex = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableIndexAllInOne.setLayoutData(gridDataIndex);
+
+		// boton select all y deselect all
+		Button buttonSelectPower = new Button(this.pIndexAllGroup, SWT.PUSH);
+		buttonSelectPower.setText("(Select/Deselect) All");
+		GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDataButtonSelectPower.horizontalSpan = 1;
+		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
+		buttonSelectPower.setSelection(Boolean.FALSE);
+
+		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableIndexAllInOne && null != tableIndexAllInOne.getItems() && tableIndexAllInOne.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
+						if (tableIndexAllInOne.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
+							tableIndexAllInOne.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
+							tableIndexAllInOne.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.pIndexAllGroup.setVisible(true);
+		this.addAttributes(this.tableIndexAllInOne, this.checkFormAllInOne, Boolean.FALSE);
+
+		// DETAIL UNIT
+
+		this.detailAllGroup = new Group(this.allLeftComposite, SWT.NONE);
+		GridLayout detailAllGroupLayout = new GridLayout();
+		detailAllGroupLayout.numColumns = 1;
+		this.detailAllGroup.setLayout(detailAllGroupLayout);
+
+		this.detailAllGroup.setText("Detail Unit");
+
+		this.tableDetailAllInOne = new Table(this.detailAllGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		GridData gridDataDetail = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableDetailAllInOne.setLayoutData(gridDataDetail);
+
+		// boton select all y deselect all
+		Button buttonSelectDetail = new Button(this.detailAllGroup, SWT.PUSH);
+		buttonSelectDetail.setText("(Select/Deselect) All");
+		GridData gridDataButtonSelectDetail = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDataButtonSelectDetail.horizontalSpan = 1;
+		buttonSelectDetail.setLayoutData(gridDataButtonSelectDetail);
+		buttonSelectDetail.setSelection(Boolean.FALSE);
+
+		buttonSelectDetail.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableDetailAllInOne && null != tableDetailAllInOne.getItems() && tableDetailAllInOne.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableDetailAllInOne.getItems().length; i++) {
+						if (tableDetailAllInOne.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableDetailAllInOne.getItems().length; i++) {
+							tableDetailAllInOne.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableDetailAllInOne.getItems().length; i++) {
+							tableDetailAllInOne.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.detailAllGroup.setVisible(true);
+		this.addAttributes(this.tableDetailAllInOne, this.attDetailListAllInOne, Boolean.FALSE);
+
+		// Composite derecho donde se situan los groups de relations y data unit
+		this.allRightComposite = new Composite(this.allComposite, SWT.NONE);
+		FillLayout relationsDataCompositeLayout = new FillLayout(SWT.VERTICAL);
+		this.allRightComposite.setLayout(relationsDataCompositeLayout);
+
+		// Group de Relations
+		this.relationsAllGroup = new Group(this.allRightComposite, SWT.NONE);
+		FillLayout relationsAllGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		this.relationsAllGroup.setLayout(relationsAllGroupLayout);
+		this.relationsAllGroup.setText("Relations");
+		this.tableRelationsAll = new Table(this.relationsAllGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		relationsAllGroup.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent evt) {
+				relationsAllGroupPaintControl(evt);
+			}
+		});
+
+		this.addRelationships(this.tableRelationsAll, this.listaCombosAllInOne);
+
+		// Group de Data Unit
+		this.dataUnitGroup = new Group(this.allRightComposite, SWT.NONE);
+		GridLayout groupArbolLayoutData = new GridLayout();
+		groupArbolLayoutData.numColumns = 1;
+		this.dataUnitGroup.setLayout(groupArbolLayoutData);
+		this.dataUnitGroup.setText("Data Unit");
+
+		this.tableDataAllInOne = new Table(this.dataUnitGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		// FillLayout tableDataAllInOneLayout = new FillLayout(SWT.HORIZONTAL);
+		GridData tableDataAllInOneLayout = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableDataAllInOne.setLayoutData(tableDataAllInOneLayout);
+
+		// boton select/deselect all
+		Button buttonSelectData = new Button(this.dataUnitGroup, SWT.PUSH);
+		buttonSelectData.setText("(Select/Deselect) All");
+		GridData gridDatabuttonSelectData = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDatabuttonSelectData.horizontalSpan = 3;
+		buttonSelectData.setLayoutData(gridDatabuttonSelectData);
+		buttonSelectData.setSelection(Boolean.FALSE);
+
+		buttonSelectData.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableDataAllInOne && null != tableDataAllInOne.getItems() && tableDataAllInOne.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
+						if (tableDataAllInOne.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
+							tableDataAllInOne.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
+							tableDataAllInOne.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.dataUnitGroup.setVisible(true);
+
+		this.addAttributes(this.tableDataAllInOne, this.checkDataAllInOne, Boolean.TRUE);
+
+		this.allLeftComposite.setVisible(false);
+		this.allRightComposite.setVisible(false);
+	}
+
+	private void crearCrudUI() {
+		this.crudComposite = new Composite(this.rightComposite, SWT.NONE);
+		FillLayout crudCompositeLayout = new FillLayout(SWT.HORIZONTAL);
+		this.crudComposite.setLayout(crudCompositeLayout);
+
+		this.crearCreateUI();
+		this.crearReadUI();
+		this.crearUpdateUI();
+		this.crearDeleteUI();
+	}
+
+	/**
+	 * 
+	 * Nombre: crearCrear Funcion:
+	 */
+	private void crearCreateUI() {
+		this.createGroup = new Group(this.crudComposite, SWT.NONE);
+		FillLayout createGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		this.createGroup.setLayout(createGroupLayout);
+		this.createGroup.setText("Create");
+		this.createGroup.setVisible(false);
+
+		this.relationsCreateGroup = new Group(this.createGroup, SWT.NONE);
+		FillLayout relationsCreateGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		relationsCreateGroupLayout.marginHeight = 5;
+		this.relationsCreateGroup.setLayout(relationsCreateGroupLayout);
+		this.relationsCreateGroup.setText("Relations");
+		this.tableRelationsCreate = new Table(this.relationsCreateGroup, SWT.CHECK | SWT.V_SCROLL);
+		relationsCreateGroup.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent evt) {
+				relationsCreateGroupPaintControl(evt);
+			}
+		});
+
+		this.addRelationships(this.tableRelationsCreate, this.listaCombosCreate);
+	}
+
+	/**
+	 * 
+	 * Nombre: crearObtener Funcion:
+	 */
+	private void crearReadUI() {
+
+		this.readGroup = new Group(this.crudComposite, SWT.NONE);
+		FillLayout readGroupLayout = new FillLayout(SWT.VERTICAL);
+		this.readGroup.setLayout(readGroupLayout);
+		this.readGroup.setText("Read");
+		this.readGroup.setVisible(false);
+
+		this.pIndexReadGroup = new Group(this.readGroup, SWT.NONE);
+		GridLayout pIndexReadGroupLayout = new GridLayout();
+		pIndexReadGroupLayout.numColumns = 1;
+		this.pIndexReadGroup.setLayout(pIndexReadGroupLayout);
+		this.pIndexReadGroup.setText("Power Index Unit");
+
+		this.tableIndexRead = new Table(this.pIndexReadGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableIndexRead.setLayoutData(gridData);
+
+		Button buttonSelectPower = new Button(this.pIndexReadGroup, SWT.PUSH);
+		buttonSelectPower.setText("(Select/Deselect) All");
+		GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDataButtonSelectPower.horizontalSpan = 3;
+		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
+		buttonSelectPower.setSelection(Boolean.FALSE);
+
+		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableIndexRead && null != tableIndexRead.getItems() && tableIndexRead.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableIndexRead.getItems().length; i++) {
+						if (tableIndexRead.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableIndexRead.getItems().length; i++) {
+							tableIndexRead.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableIndexRead.getItems().length; i++) {
+							tableIndexRead.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.pIndexReadGroup.setVisible(true);
+
+		this.addAttributes(this.tableIndexRead, this.checkIndexRead, Boolean.FALSE);
+
+		// DETAIL UNIT
+		this.detailReadGroup = new Group(this.readGroup, SWT.NONE);
+		GridLayout detailReadGroupLayout = new GridLayout();
+		detailReadGroupLayout.numColumns = 1;
+		this.detailReadGroup.setLayout(detailReadGroupLayout);
+
+		this.detailReadGroup.setText("Detail Unit");
+
+		this.tableDataRead = new Table(this.detailReadGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		GridData gridDataDetail = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableDataRead.setLayoutData(gridDataDetail);
+
+		// boton select all y deselect all
+		Button buttonSelectDetail = new Button(this.detailReadGroup, SWT.PUSH);
+		buttonSelectDetail.setText("(Select/Deselect) All");
+		GridData gridDataButtonSelectDetail = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDataButtonSelectDetail.horizontalSpan = 1;
+		buttonSelectDetail.setLayoutData(gridDataButtonSelectDetail);
+		buttonSelectDetail.setSelection(Boolean.FALSE);
+
+		buttonSelectDetail.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableDataRead && null != tableDataRead.getItems() && tableDataRead.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableDataRead.getItems().length; i++) {
+						if (tableDataRead.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableDataRead.getItems().length; i++) {
+							tableDataRead.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableDataRead.getItems().length; i++) {
+							tableDataRead.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.detailReadGroup.setVisible(true);
+
+		this.addAttributes(this.tableDataRead, this.checkDataRead, Boolean.FALSE);
+
+	}
+
+	/**
+	 * 
+	 * Nombre: crearActualizar Funcion:
+	 */
+	private void crearUpdateUI() {
+
+		this.updateGroup = new Group(this.crudComposite, SWT.NONE);
+		FillLayout updateGroupLayout = new FillLayout(SWT.VERTICAL);
+		this.updateGroup.setLayout(updateGroupLayout);
+		this.updateGroup.setText("Update");
+		this.updateGroup.setVisible(false);
+
+		this.pIndexUpdateGroup = new Group(this.updateGroup, SWT.NONE);
+		GridLayout pIndexUpdateGroupLayout = new GridLayout();
+		pIndexUpdateGroupLayout.numColumns = 1;
+		this.pIndexUpdateGroup.setLayout(pIndexUpdateGroupLayout);
+		this.pIndexUpdateGroup.setText("Power Index Unit");
+
+		this.tableIndexUpdate = new Table(this.pIndexUpdateGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableIndexUpdate.setLayoutData(gridData);
+
+		// boton select all y deselect all
+		Button buttonSelectPower = new Button(this.pIndexUpdateGroup, SWT.PUSH);
+		buttonSelectPower.setText("(Select/Deselect) All");
+		GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDataButtonSelectPower.horizontalSpan = 3;
+		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
+		buttonSelectPower.setSelection(Boolean.FALSE);
+
+		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableIndexRead && null != tableIndexUpdate.getItems() && tableIndexUpdate.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableIndexUpdate.getItems().length; i++) {
+						if (tableIndexUpdate.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableIndexUpdate.getItems().length; i++) {
+							tableIndexUpdate.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableIndexUpdate.getItems().length; i++) {
+							tableIndexUpdate.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.pIndexUpdateGroup.setVisible(true);
+
+		// fin boton select all y deselect all
+
+		this.relationsFromGroup = new Group(this.updateGroup, SWT.NONE);
+		FillLayout relationsFromGroupLayout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
+		this.relationsFromGroup.setLayout(relationsFromGroupLayout);
+		this.relationsFromGroup.setText("Relations and forms");
+		this.tableRelFormUpdate = new Table(this.relationsFromGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		relationsFromGroup.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent evt) {
+				relationsFromGroupPaintControl(evt);
+			}
+		});
+
+		this.addAttributes(this.tableRelFormUpdate, this.checkIndexUpdate, Boolean.FALSE);
+		this.addAttributes(this.tableIndexUpdate, this.checkShowUpdate, Boolean.FALSE);
+		this.addRelationships(this.tableRelFormUpdate, this.listaCombosUpdate);
+	}
+
+	/**
+	 * 
+	 * Nombre: crearBorrado Funcion:
+	 */
+	private void crearDeleteUI() {
+
+		this.deleteGroup = new Group(this.crudComposite, SWT.NONE);
+		FillLayout deleteGroupLayout = new FillLayout(SWT.HORIZONTAL);
+		this.deleteGroup.setLayout(deleteGroupLayout);
+		this.deleteGroup.setText("Delete");
+		this.deleteGroup.setVisible(false);
+
+		this.pIndexDeleteGroup = new Group(this.deleteGroup, SWT.NONE);
+		GridLayout groupArbolLayout = new GridLayout();
+		groupArbolLayout.numColumns = 1;
+		this.pIndexDeleteGroup.setLayout(groupArbolLayout);
+		this.pIndexDeleteGroup.setText("Power Index Unit");
+
+		this.tableIndexDelete = new Table(this.pIndexDeleteGroup, SWT.CHECK | SWT.V_SCROLL);
+
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableIndexDelete.setLayoutData(gridData);
+
+		// boton select all y deselect all
+		Button buttonSelectPowerIndexBorrado = new Button(this.pIndexDeleteGroup, SWT.PUSH);
+		buttonSelectPowerIndexBorrado.setText("(Select/Deselect) All");
+		GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
+		gridDataButtonSelectPower.horizontalSpan = 3;
+		buttonSelectPowerIndexBorrado.setLayoutData(gridDataButtonSelectPower);
+		buttonSelectPowerIndexBorrado.setSelection(Boolean.FALSE);
+
+		buttonSelectPowerIndexBorrado.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (null != tableIndexDelete && null != tableIndexDelete.getItems() && tableIndexDelete.getItems().length > 0) {
+					Boolean hayCheckeados = Boolean.FALSE;
+
+					for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
+						if (tableIndexDelete.getItems()[i].getChecked()) {
+							hayCheckeados = Boolean.TRUE;
+						}
+					}
+
+					if (hayCheckeados) {
+						// si hay elementos seleccionados: deselecciono
+						// all
+						// tableIndexRead.deselectAll();
+						for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
+							tableIndexDelete.getItems()[i].setChecked(false);
+
+						}
+					} else {
+						// si no hay elementos seleccionados: selecciono
+						// all
+						// tableIndexRead.selectAll();
+						for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
+							tableIndexDelete.getItems()[i].setChecked(true);
+						}
+					}
+				}
+			}
+		});
+		this.pIndexDeleteGroup.setVisible(true);
+
+		// fin boton select all y deselect all
+
+		this.addAttributes(this.tableIndexDelete, this.checkIndexDelete, Boolean.FALSE);
+	}
+
+	private void allCheckSelectionAction() {
+		if (this.allCheck.getSelection()) {
+			this.crearAllInOneUI();
+			this.cCheck.setEnabled(false);
+			this.rCheck.setEnabled(false);
+			this.uCheck.setEnabled(false);
+			this.dCheck.setEnabled(false);
+			this.mPageOpGroup.setEnabled(false);
+			this.allLeftComposite.setVisible(true);
+			this.allRightComposite.setVisible(true);
+
+			this.operationsChecked.add(Utilities.Operations.ALLINONE);
+
+		} else {
+			this.cCheck.setEnabled(true);
+			this.rCheck.setEnabled(true);
+			this.uCheck.setEnabled(true);
+			this.dCheck.setEnabled(true);
+			this.mPageOpGroup.setEnabled(true);
+			this.allLeftComposite.setVisible(false);
+			this.allRightComposite.setVisible(false);
+
+			this.checkFormAllInOne.clear();
+			this.listaCombosAllInOne.clear();
+			this.checkDataAllInOne.clear();
+
+			this.operationsChecked.remove(Utilities.Operations.ALLINONE);
+
+			this.allComposite.dispose();
+		}
+		getWizard().getContainer().updateButtons();
+		this.containerComposite.layout(true, true);
+	}
+
+	private void cCheckSelectionAction() {
+
+		if (cCheck.getSelection()) {
+			if (this.crudComposite == null)
+				crearCrudUI();
+			createGroup.setVisible(true);
+			this.operationsChecked.add(Utilities.Operations.CREATE);
+		} else {
+			createGroup.setVisible(false);
+			this.operationsChecked.remove(Utilities.Operations.CREATE);
+			this.listaCombosCreate.clear();
+		}
+		getWizard().getContainer().updateButtons();
+		activaDesactivaChecks();
+	}
+
+	private void rCheckSelectionAction() {
+
+		if (rCheck.getSelection()) {
+			if (this.crudComposite == null)
+				crearCrudUI();
+			readGroup.setVisible(true);
+			this.operationsChecked.add(Utilities.Operations.READ);
+		} else {
+			readGroup.setVisible(false);
+			this.operationsChecked.remove(Utilities.Operations.READ);
+			this.checkIndexRead.clear();
+
+		}
+		getWizard().getContainer().updateButtons();
+		activaDesactivaChecks();
+	}
+
+	private void uCheckSelectionAction() {
+
+		if (uCheck.getSelection()) {
+			if (this.crudComposite == null)
+				crearCrudUI();
+			updateGroup.setVisible(true);
+			this.operationsChecked.add(Utilities.Operations.UPDATE);
+		} else {
+			updateGroup.setVisible(false);
+			this.operationsChecked.remove(Utilities.Operations.UPDATE);
+			this.checkIndexUpdate.clear();
+			this.checkShowUpdate.clear();
+			this.listaCombosUpdate.clear();
+		}
+		getWizard().getContainer().updateButtons();
+		activaDesactivaChecks();
+	}
+
+	private void dCheckSelectionAction() {
+		if (dCheck.getSelection()) {
+			if (this.crudComposite == null)
+				crearCrudUI();
+			deleteGroup.setVisible(true);
+			this.operationsChecked.add(Utilities.Operations.DELETE);
+		} else {
+			deleteGroup.setVisible(false);
+			this.operationsChecked.remove(Utilities.Operations.DELETE);
+			this.checkIndexDelete.clear();
+		}
+		activaDesactivaChecks();
+		getWizard().getContainer().updateButtons();
+	}
+
+	private void activaDesactivaChecks() {
+		if (cCheck.getSelection() || rCheck.getSelection() || uCheck.getSelection() || dCheck.getSelection()) {
+			allCheck.setSelection(false);
+			allCheck.setEnabled(false);
+			sPageOpGroup.setEnabled(false);
+		} else {
+			sPageOpGroup.setEnabled(true);
+			allCheck.setEnabled(true);
+			this.crudComposite.dispose();
+			this.crudComposite = null;
+		}
+		this.containerComposite.layout(true, true);
+	}
+
+	public List<Utilities.Operations> getOperationsChecked() {
+		return this.operationsChecked;
 	}
 
 	/**
@@ -194,10 +965,10 @@ public class WizardCRUDPage extends WizardPage {
 	// (Detalle)
 	private void addAttributes(Table tabla, List<TableItem> list, Boolean esDataUnit) {
 		Iterator<IAttribute> iteratorAttribute;
-		if (tabla == this.tableIndexUpdate)
+		if (tabla == this.tableRelFormUpdate)
 			iteratorAttribute = this.listaAtributosSinDerivados.iterator();
 		else
-			iteratorAttribute = this.listaAtributos.iterator();
+			iteratorAttribute = this.listaAtributosEntidad.iterator();
 		IAttribute atributo;
 		while (iteratorAttribute.hasNext()) {
 			atributo = iteratorAttribute.next();
@@ -230,10 +1001,10 @@ public class WizardCRUDPage extends WizardPage {
 
 		int numAtributos = this.entidad.getAttributeList().size();
 
-		if (tabla == this.tableIndexUpdate)
+		if (tabla == this.tableRelFormUpdate)
 			numAtributos = this.listaAtributosSinDerivados.size();
 
-		if (tabla == this.tableIndexCreate || tabla == this.tableFormAllInOne)
+		if (tabla == this.tableRelationsCreate || tabla == this.tableRelationsAll)
 			numAtributos = 0;
 		for (int i = numAtributos; i < items.length; i++) {
 			TableEditor editor = new TableEditor(tabla);
@@ -276,7 +1047,7 @@ public class WizardCRUDPage extends WizardPage {
 
 			t.getItems()[(Integer) c.getData()].setChecked(Boolean.TRUE);
 
-			if (t == this.tableIndexCreate) {
+			if (t == this.tableRelationsCreate) {
 				for (int i = 0; i < this.listaCombosCreate.size(); i++) {
 					/*
 					 * this.listaCombosUpdate.get(i).select(
@@ -287,7 +1058,7 @@ public class WizardCRUDPage extends WizardPage {
 				}
 			}
 
-			if (t == this.tableIndexUpdate) {
+			if (t == this.tableRelFormUpdate) {
 				for (int i = 0; i < this.listaCombosCreate.size(); i++) {
 					/*
 					 * this.listaCombosCreate.get(i).select(
@@ -298,7 +1069,7 @@ public class WizardCRUDPage extends WizardPage {
 
 				}
 			}
-			if (t == this.tableFormAllInOne) {
+			if (t == this.tableRelationsAll) {
 
 				for (int i = 0; i < this.listaCombosCreate.size(); i++) {
 					/*
@@ -319,436 +1090,12 @@ public class WizardCRUDPage extends WizardPage {
 
 	/**
 	 * 
-	 * Nombre: crearActualizar Funcion:
-	 */
-	private void crearActualizar() {
-		this.composite3 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite3Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-
-		composite3Layout.marginHeight = 5;
-		composite3Layout.marginWidth = 5;
-		composite3Layout.spacing = 10;
-
-		this.composite3.setLayout(composite3Layout);
-		this.tabItem3.setControl(this.composite3);
-
-		this.group6 = new Group(this.composite3, SWT.NONE);
-		FillLayout group6Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.group6.setLayout(group6Layout);
-		this.group6.setText("SiteViews-Areas");
-		// this.tableSiteViewUpdate = new Table(this.group6, SWT.CHECK
-		// | SWT.V_SCROLL);
-
-		this.arbolUpdate = new Tree(this.group6, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
-		// SWT.BORDER)
-		listaSiteAreaToArbol(this.arbolUpdate);
-
-		arbolUpdate.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				// Ver si el motivo de la seleccion ha sido el check
-				if (event.detail == SWT.CHECK) {
-					TreeItem item = (TreeItem) event.item;
-					boolean checked = item.getChecked();
-					if (!checked) {
-						checkItems(item, checked);
-					}
-					checkPath(item.getParentItem(), checked, false);
-				}
-			}
-
-		});
-
-		this.group10 = new Group(this.composite3, SWT.NONE);
-		GridLayout groupArbolLayout = new GridLayout();
-		groupArbolLayout.numColumns = 1;
-		this.group10.setLayout(groupArbolLayout);
-		this.group10.setText("Power Index Unit");
-
-		this.tableShowUpdate = new Table(this.group10, SWT.CHECK | SWT.V_SCROLL);
-
-		GridData gridData = new GridData(160, 120);
-		tableShowUpdate.setLayoutData(gridData);
-
-		// boton select all y deselect all
-		Button buttonSelectPower = new Button(this.group10, SWT.PUSH);
-		buttonSelectPower.setText("(Select/Deselect) All");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
-		gridDataButtonSelectPower.horizontalSpan = 3;
-		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
-		buttonSelectPower.setSelection(Boolean.FALSE);
-
-		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexRead && null != tableShowUpdate.getItems() && tableShowUpdate.getItems().length > 0) {
-					Boolean hayCheckeados = Boolean.FALSE;
-
-					for (int i = 0; i < tableShowUpdate.getItems().length; i++) {
-						if (tableShowUpdate.getItems()[i].getChecked()) {
-							hayCheckeados = Boolean.TRUE;
-						}
-					}
-
-					if (hayCheckeados) {
-						// si hay elementos seleccionados: deselecciono all
-						// tableIndexRead.deselectAll();
-						for (int i = 0; i < tableShowUpdate.getItems().length; i++) {
-							tableShowUpdate.getItems()[i].setChecked(false);
-
-						}
-					} else {
-						// si no hay elementos seleccionados: selecciono all
-						// tableIndexRead.selectAll();
-						for (int i = 0; i < tableShowUpdate.getItems().length; i++) {
-							tableShowUpdate.getItems()[i].setChecked(true);
-						}
-					}
-				}
-			}
-		});
-		this.group10.setVisible(true);
-
-		// fin boton select all y deselect all
-
-		this.group7 = new Group(this.composite3, SWT.NONE);
-		FillLayout group7Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.group7.setLayout(group7Layout);
-		this.group7.setText("Relations and forms");
-		this.tableIndexUpdate = new Table(this.group7, SWT.CHECK | SWT.V_SCROLL);
-
-		group7.addPaintListener(new PaintListener() {
-			public void paintControl(PaintEvent evt) {
-				group7PaintControl(evt);
-			}
-		});
-
-		this.addAttributes(this.tableIndexUpdate, this.checkIndexUpdate, Boolean.FALSE);
-		this.addAttributes(this.tableShowUpdate, this.checkShowUpdate, Boolean.FALSE);
-		this.addRelationships(this.tableIndexUpdate, this.listaCombosUpdate);
-
-		this.composite3.layout();
-	}
-
-	/**
-	 * 
-	 * Nombre: crearBorrado Funcion:
-	 */
-	private void crearBorrado() {
-		this.composite4 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite4Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-
-		composite4Layout.spacing = 10;
-		composite4Layout.marginWidth = 5;
-		composite4Layout.marginHeight = 5;
-
-		this.composite4.setLayout(composite4Layout);
-		this.tabItem4.setControl(this.composite4);
-
-		this.group8 = new Group(this.composite4, SWT.NONE);
-		FillLayout group8Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.group8.setLayout(group8Layout);
-		this.group8.setText("SiteViews-Areas");
-		// this.tableSiteViewDelete = new Table(this.group8, SWT.CHECK
-		// | SWT.V_SCROLL);
-
-		this.arbolDelete = new Tree(this.group8, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
-		// SWT.BORDER)
-		listaSiteAreaToArbol(this.arbolDelete);
-
-		arbolDelete.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				// ver si el motivo de la seleccion ha sido el check
-				if (event.detail == SWT.CHECK) {
-					TreeItem item = (TreeItem) event.item;
-					boolean checked = item.getChecked();
-					if (!checked) {
-						checkItems(item, checked);
-					}
-					checkPath(item.getParentItem(), checked, false);
-				}
-			}
-
-		});
-
-		this.group9 = new Group(this.composite4, SWT.NONE);
-		GridLayout groupArbolLayout = new GridLayout();
-		groupArbolLayout.numColumns = 1;
-		this.group9.setLayout(groupArbolLayout);
-		this.group9.setText("Power Index Unit");
-
-		this.tableIndexDelete = new Table(this.group9, SWT.CHECK | SWT.V_SCROLL);
-
-		GridData gridData = new GridData(180, 120);
-		tableIndexDelete.setLayoutData(gridData);
-
-		// boton select all y deselect all
-		Button buttonSelectPowerIndexBorrado = new Button(this.group9, SWT.PUSH);
-		buttonSelectPowerIndexBorrado.setText("(Select/Deselect) All Prueba");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
-		gridDataButtonSelectPower.horizontalSpan = 3;
-		buttonSelectPowerIndexBorrado.setLayoutData(gridDataButtonSelectPower);
-		buttonSelectPowerIndexBorrado.setSelection(Boolean.FALSE);
-
-		buttonSelectPowerIndexBorrado.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexDelete && null != tableIndexDelete.getItems() && tableIndexDelete.getItems().length > 0) {
-					Boolean hayCheckeados = Boolean.FALSE;
-
-					for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
-						if (tableIndexDelete.getItems()[i].getChecked()) {
-							hayCheckeados = Boolean.TRUE;
-						}
-					}
-
-					if (hayCheckeados) {
-						// si hay elementos seleccionados: deselecciono
-						// all
-						// tableIndexRead.deselectAll();
-						for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
-							tableIndexDelete.getItems()[i].setChecked(false);
-
-						}
-					} else {
-						// si no hay elementos seleccionados: selecciono
-						// all
-						// tableIndexRead.selectAll();
-						for (int i = 0; i < tableIndexDelete.getItems().length; i++) {
-							tableIndexDelete.getItems()[i].setChecked(true);
-						}
-					}
-				}
-			}
-		});
-		this.group9.setVisible(true);
-
-		// fin boton select all y deselect all
-
-		// this.addSiteViews(this.tableSiteViewDelete, this.checkSiteDelete);
-		this.addAttributes(this.tableIndexDelete, this.checkIndexDelete, Boolean.FALSE);
-
-		this.composite4.layout();
-	}
-
-	/**
-	 * 
-	 * Nombre: crearCrear Funcion:
-	 */
-	private void crearCrear() {
-		try {
-			this.composite1 = new Composite(this.tabFolder1, SWT.NONE);
-			FillLayout composite1Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-
-			composite1Layout.marginHeight = 5;
-			composite1Layout.marginWidth = 5;
-			composite1Layout.spacing = 10;
-
-			this.composite1.setLayout(composite1Layout);
-			this.tabItem1.setControl(this.composite1);
-
-			this.group1 = new Group(this.composite1, SWT.NONE);
-			FillLayout group1Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-			this.group1.setLayout(group1Layout);
-			this.group1.setText("SiteViews-Areas");
-			// this.tableSiteViewCreate = new Table(this.group1, SWT.CHECK
-			// | SWT.V_SCROLL);
-
-			this.arbolCreate = new Tree(this.group1, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-			// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL
-			// | SWT.BORDER)
-			listaSiteAreaToArbol(this.arbolCreate);
-
-			arbolCreate.addListener(SWT.Selection, new Listener() {
-				public void handleEvent(Event event) {
-					// si el motivo de la seleccion ha sido el check
-					if (event.detail == SWT.CHECK) {
-						TreeItem item = (TreeItem) event.item;
-						boolean checked = item.getChecked();
-						if (!checked) {
-							checkItems(item, checked);
-						}
-						checkPath(item.getParentItem(), checked, false);
-					}
-				}
-
-			});
-
-			// RELACION: se cambia check
-			this.group2 = new Group(this.composite1, SWT.NONE);
-			FillLayout group2Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-			this.group2.setLayout(group2Layout);
-			this.group2.setText("Relations");
-			this.tableIndexCreate = new Table(this.group2, SWT.CHECK | SWT.V_SCROLL);
-			group2.addPaintListener(new PaintListener() {
-				public void paintControl(PaintEvent evt) {
-					group2PaintControl(evt);
-				}
-			});
-
-			this.addRelationships(this.tableIndexCreate, this.listaCombosCreate);
-
-			this.composite1.layout();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 
-	 * Nombre: crearObtener Funcion:
-	 */
-	private void crearObtener() {
-		this.composite2 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite2Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-
-		composite2Layout.spacing = 10;
-		composite2Layout.marginWidth = 5;
-		composite2Layout.marginHeight = 5;
-
-		this.composite2.setLayout(composite2Layout);
-		tabItem2.setControl(this.composite2);
-
-		this.group3 = new Group(this.composite2, SWT.NONE);
-		FillLayout group3Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.group3.setLayout(group3Layout);
-		this.group3.setText("SiteViews-Areas");
-
-		this.arbolRead = new Tree(this.group3, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
-		// SWT.BORDER)
-		listaSiteAreaToArbol(this.arbolRead);
-
-		arbolRead.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				// si el motivo de la seleccion ha sido el check
-				if (event.detail == SWT.CHECK) {
-					TreeItem item = (TreeItem) event.item;
-					boolean checked = item.getChecked();
-					if (!checked) {
-						checkItems(item, checked);
-					}
-					checkPath(item.getParentItem(), checked, false);
-				}
-			}
-
-		});
-
-		this.group4 = new Group(this.composite2, SWT.NONE);
-		GridLayout groupArbolLayout = new GridLayout();
-		groupArbolLayout.numColumns = 1;
-		this.group4.setLayout(groupArbolLayout);
-		this.group4.setText("Power Index Unit");
-
-		this.tableIndexRead = new Table(this.group4, SWT.CHECK | SWT.V_SCROLL);
-
-		GridData gridData = new GridData(155, 120);
-		tableIndexRead.setLayoutData(gridData);
-
-		Button buttonSelectPower = new Button(this.group4, SWT.PUSH);
-		buttonSelectPower.setText("(Select/Deselect) All");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
-		gridDataButtonSelectPower.horizontalSpan = 3;
-		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
-		buttonSelectPower.setSelection(Boolean.FALSE);
-
-		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexRead && null != tableIndexRead.getItems() && tableIndexRead.getItems().length > 0) {
-					Boolean hayCheckeados = Boolean.FALSE;
-
-					for (int i = 0; i < tableIndexRead.getItems().length; i++) {
-						if (tableIndexRead.getItems()[i].getChecked()) {
-							hayCheckeados = Boolean.TRUE;
-						}
-					}
-
-					if (hayCheckeados) {
-						// si hay elementos seleccionados: deselecciono all
-						// tableIndexRead.deselectAll();
-						for (int i = 0; i < tableIndexRead.getItems().length; i++) {
-							tableIndexRead.getItems()[i].setChecked(false);
-
-						}
-					} else {
-						// si no hay elementos seleccionados: selecciono all
-						// tableIndexRead.selectAll();
-						for (int i = 0; i < tableIndexRead.getItems().length; i++) {
-							tableIndexRead.getItems()[i].setChecked(true);
-						}
-					}
-				}
-			}
-		});
-		this.group4.setVisible(true);
-
-		// fin boton select all y deselect all
-
-		this.group5 = new Group(this.composite2, SWT.NONE);
-		GridLayout groupArbolLayoutData = new GridLayout();
-		groupArbolLayoutData.numColumns = 1;
-		this.group5.setLayout(groupArbolLayoutData);
-		this.group5.setText("Data Unit");
-
-		this.tableDataRead = new Table(this.group5, SWT.CHECK | SWT.V_SCROLL);
-
-		GridData gridDataRead = new GridData(155, 120);
-		tableDataRead.setLayoutData(gridDataRead);
-
-		// boton select all y deselect all
-		Button buttonSelectData = new Button(this.group5, SWT.PUSH);
-		buttonSelectData.setText("(Select/Deselect) All");
-		GridData gridDatabuttonSelectData = new GridData(GridData.END, GridData.CENTER, false, false);
-		gridDatabuttonSelectData.horizontalSpan = 3;
-		buttonSelectData.setLayoutData(gridDatabuttonSelectData);
-		buttonSelectData.setSelection(Boolean.FALSE);
-
-		buttonSelectData.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (null != tableDataRead && null != tableDataRead.getItems() && tableDataRead.getItems().length > 0) {
-					Boolean hayCheckeados = Boolean.FALSE;
-
-					for (int i = 0; i < tableDataRead.getItems().length; i++) {
-						if (tableDataRead.getItems()[i].getChecked()) {
-							hayCheckeados = Boolean.TRUE;
-						}
-					}
-
-					if (hayCheckeados) {
-						// si hay elementos seleccionados: deselecciono all
-						// tableIndexRead.deselectAll();
-						for (int i = 0; i < tableDataRead.getItems().length; i++) {
-							tableDataRead.getItems()[i].setChecked(false);
-
-						}
-					} else {
-						// si no hay elementos seleccionados: selecciono all
-						// tableIndexRead.selectAll();
-						for (int i = 0; i < tableDataRead.getItems().length; i++) {
-							tableDataRead.getItems()[i].setChecked(true);
-						}
-					}
-				}
-			}
-		});
-		this.group5.setVisible(true);
-
-		// fin boton select all y deselect all
-
-		this.addAttributes(this.tableDataRead, this.checkDataRead, Boolean.TRUE);
-		this.addAttributes(this.tableIndexRead, this.checkIndexRead, Boolean.FALSE);
-
-		this.composite2.layout();
-	}
-
-	/**
-	 * 
 	 * Nombre: crearTabs Funcion:
 	 */
 	private void crearTabs() {
-		FillLayout thisLayout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.container.setLayout(thisLayout);
-		this.tabFolder1 = new TabFolder(this.container, SWT.NONE);
+		FillLayout thisLayout = new FillLayout(SWT.HORIZONTAL);
+		this.containerComposite.setLayout(thisLayout);
+		this.tabFolder1 = new TabFolder(this.containerComposite, SWT.NONE);
 		this.tabItem0 = new TabItem(this.tabFolder1, SWT.NONE);
 		this.tabItem0.setText("All In One");
 		this.tabItem1 = new TabItem(this.tabFolder1, SWT.NONE);
@@ -760,7 +1107,8 @@ public class WizardCRUDPage extends WizardPage {
 		this.tabItem4 = new TabItem(this.tabFolder1, SWT.NONE);
 		this.tabItem4.setText("Delete");
 		this.tabFolder1.setSelection(0);
-		this.container.layout();
+
+		this.containerComposite.layout();
 
 	}
 
@@ -768,11 +1116,12 @@ public class WizardCRUDPage extends WizardPage {
 	 * 
 	 */
 	public void createControl(Composite parent) {
-		this.container = new Composite(parent, SWT.NULL);
-		this.container.setLayout(null);
+		this.containerComposite = new Composite(parent, SWT.NULL);
+		FormLayout thisLayout = new FormLayout();
+		this.containerComposite.setLayout(thisLayout);
+		this.containerComposite.layout();
+		setControl(this.containerComposite);
 
-		this.crearTabs();
-		setControl(this.container);
 		if (this.entidad != null)
 			this.initialize();
 	}
@@ -798,9 +1147,9 @@ public class WizardCRUDPage extends WizardPage {
 		// crear hash de atributos
 		HashMap<String, IAttribute> hashLista = new HashMap<String, IAttribute>();
 		// cargar hash
-		for (int i = 0; i < this.listaAtributos.size(); i++) {
-			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributos.get(i), "name"))) {
-				hashLista.put(Utilities.getAttribute(this.listaAtributos.get(i), "name"), this.listaAtributos.get(i));
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
+			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributosEntidad.get(i), "name"))) {
+				hashLista.put(Utilities.getAttribute(this.listaAtributosEntidad.get(i), "name"), this.listaAtributosEntidad.get(i));
 			}
 		}
 
@@ -831,9 +1180,9 @@ public class WizardCRUDPage extends WizardPage {
 		// crear hash de atributos
 		HashMap<String, IAttribute> hashLista = new HashMap<String, IAttribute>();
 		// cargar hash
-		for (int i = 0; i < this.listaAtributos.size(); i++) {
-			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributos.get(i), "name"))) {
-				hashLista.put(Utilities.getAttribute(this.listaAtributos.get(i), "name"), this.listaAtributos.get(i));
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
+			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributosEntidad.get(i), "name"))) {
+				hashLista.put(Utilities.getAttribute(this.listaAtributosEntidad.get(i), "name"), this.listaAtributosEntidad.get(i));
 			}
 		}
 
@@ -855,6 +1204,36 @@ public class WizardCRUDPage extends WizardPage {
 		return lista;
 	}
 
+	public List<IAttribute> getAttributesDetailAllInOne() {
+
+		// crear hash de atributos
+		HashMap<String, IAttribute> hashLista = new HashMap<String, IAttribute>();
+		// cargar hash
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
+			if (!hashLista.containsKey(Utilities.getAttribute(this.listaAtributosEntidad.get(i), "name"))) {
+				hashLista.put(Utilities.getAttribute(this.listaAtributosEntidad.get(i), "name"), this.listaAtributosEntidad.get(i));
+			}
+		}
+
+		List<IAttribute> lista = new ArrayList<IAttribute>();
+		if (null != this.tableDetailAllInOne && null != this.tableDetailAllInOne.getItems()
+				&& this.tableDetailAllInOne.getItems().length > 0) {
+			for (int i = 0; i < this.tableDetailAllInOne.getItems().length; i++) {
+				if (this.tableDetailAllInOne.getItem(i).getChecked()) {
+					// el text esta compuesto por name + espacio + ( + id +):
+					// obtener el name
+					String name = (null == this.tableDetailAllInOne.getItem(i).getText() ? null : this.tableDetailAllInOne.getItem(i)
+							.getText().split(" \\(")[0]);
+					if (null != name && hashLista.containsKey(name)) {
+						lista.add(hashLista.get(name));
+					}
+				}
+			}
+		}
+
+		return lista;
+	}
+
 	/**
 	 * 
 	 * Nombre: getAttributesIndexDelete Funcion:
@@ -863,9 +1242,9 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public List<IAttribute> getAttributesIndexDelete() {
 		List<IAttribute> lista = new ArrayList<IAttribute>();
-		for (int i = 0; i < this.listaAtributos.size(); i++) {
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
 			if (this.tableIndexDelete.getItem(i).getChecked())
-				lista.add(this.listaAtributos.get(i));
+				lista.add(this.listaAtributosEntidad.get(i));
 		}
 		return lista;
 	}
@@ -878,9 +1257,9 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public List<IAttribute> getAttributesIndexRead() {
 		List<IAttribute> lista = new ArrayList<IAttribute>();
-		for (int i = 0; i < this.listaAtributos.size(); i++) {
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
 			if (this.tableIndexRead.getItem(i).getChecked())
-				lista.add(this.listaAtributos.get(i));
+				lista.add(this.listaAtributosEntidad.get(i));
 		}
 		return lista;
 	}
@@ -893,9 +1272,9 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public List<IAttribute> getAttributesShowUpdate() {
 		List<IAttribute> lista = new ArrayList<IAttribute>();
-		for (int i = 0; i < this.listaAtributos.size(); i++) {
-			if (this.tableShowUpdate.getItem(i).getChecked())
-				lista.add(this.listaAtributos.get(i));
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
+			if (this.tableIndexUpdate.getItem(i).getChecked())
+				lista.add(this.listaAtributosEntidad.get(i));
 		}
 		return lista;
 	}
@@ -909,7 +1288,7 @@ public class WizardCRUDPage extends WizardPage {
 	public List<IAttribute> getAttributesUpdate() {
 		List<IAttribute> lista = new ArrayList<IAttribute>();
 		for (int i = 0; i < this.listaAtributosSinDerivados.size(); i++) {
-			if (this.tableIndexUpdate.getItem(i).getChecked())
+			if (this.tableRelFormUpdate.getItem(i).getChecked())
 				lista.add(this.listaAtributosSinDerivados.get(i));
 		}
 		return lista;
@@ -923,7 +1302,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public IAttribute getBuscadorDelete() {
 		if (this.tableOpcionesDelete.getItem(0).getChecked())
-			return this.listaAtributos.get(this.checkOpcionesDelete.get(0).getSelectionIndex());
+			return this.listaAtributosEntidad.get(this.checkOpcionesDelete.get(0).getSelectionIndex());
 		else
 			return null;
 	}
@@ -936,7 +1315,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public IAttribute getBuscadorRead() {
 		if (this.tableOpcionesRead.getItem(0).getChecked())
-			return this.listaAtributos.get(this.checkOpcionesRead.get(0).getSelectionIndex());
+			return this.listaAtributosEntidad.get(this.checkOpcionesRead.get(0).getSelectionIndex());
 		else
 			return null;
 	}
@@ -949,7 +1328,7 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public IAttribute getBuscadorUpdate() {
 		if (this.tableOpcionesUpdate.getItem(0).getChecked())
-			return this.listaAtributos.get(this.checkOpcionesUpdate.get(0).getSelectionIndex());
+			return this.listaAtributosEntidad.get(this.checkOpcionesUpdate.get(0).getSelectionIndex());
 		else
 			return null;
 	}
@@ -966,7 +1345,7 @@ public class WizardCRUDPage extends WizardPage {
 		try {
 			String key;
 			for (int i = 0; i < this.listaCombosCreate.size(); i++) {
-				if (this.tableIndexCreate.getItems()[i].getChecked()) {
+				if (this.tableRelationsCreate.getItems()[i].getChecked()) {
 					// this.tableIndexCreate.getItems()[i].checked
 					key = this.listaCombosCreate.get(i).getItem(this.listaCombosCreate.get(i).getSelectionIndex()) + " ("
 							+ Utilities.getAttribute(this.entidadesRelacionadas.get(i), "name") + ")";
@@ -992,7 +1371,7 @@ public class WizardCRUDPage extends WizardPage {
 			for (int i = 0; i < this.listaCombosAllInOne.size(); i++) {
 				// RELATION 1.15: solo meter la de aquellos que se
 				// hayan seleccionado
-				if (this.tableFormAllInOne.getItems()[i].getChecked()) {
+				if (this.tableRelationsAll.getItems()[i].getChecked()) {
 					key = this.listaCombosAllInOne.get(i).getItem(this.listaCombosAllInOne.get(i).getSelectionIndex()) + " ("
 							+ Utilities.getAttribute(this.entidadesRelacionadas.get(i), "name") + ")";
 					mapaRelaciones.put(this.entidadesRelacionadas.get(i), this.atributosRelacion.get(key));
@@ -1016,7 +1395,7 @@ public class WizardCRUDPage extends WizardPage {
 		try {
 			String key;
 			for (int i = 0; i < this.listaCombosUpdate.size(); i++) {
-				if (this.tableIndexUpdate.getItem(this.listaAtributosSinDerivados.size() + i).getChecked()) {
+				if (this.tableRelFormUpdate.getItem(this.listaAtributosSinDerivados.size() + i).getChecked()) {
 					key = this.listaCombosUpdate.get(i).getItem(this.listaCombosUpdate.get(i).getSelectionIndex()) + " ("
 							+ Utilities.getAttribute(this.entidadesRelacionadas.get(i), "name") + ")";
 					mapaRelaciones.put(this.entidadesRelacionadas.get(i), this.atributosRelacion.get(key));
@@ -1035,26 +1414,9 @@ public class WizardCRUDPage extends WizardPage {
 	 * @param tipoOperacion
 	 * @return
 	 */
-	public List<ISiteView> getSiteViews(String tipoOperacion) {
-
+	public List<ISiteView> getSiteViewsChecked() {
 		// obtener solamente los checkeados
-		TreeItem[] arrSiteViewSelected = null;
-
-		if ("RETRIEVE".compareTo(tipoOperacion) == 0) {
-			arrSiteViewSelected = this.arbolRead.getItems();
-		}
-		if ("UPDATE".compareTo(tipoOperacion) == 0) {
-			arrSiteViewSelected = this.arbolUpdate.getItems();
-		}
-		if ("DELETE".compareTo(tipoOperacion) == 0) {
-			arrSiteViewSelected = this.arbolDelete.getItems();
-		}
-		if ("CREATE".compareTo(tipoOperacion) == 0) {
-			arrSiteViewSelected = this.arbolCreate.getItems();
-		}
-		if ("ALLINONE".compareTo(tipoOperacion) == 0) {
-			arrSiteViewSelected = this.arbolAllInOne.getItems();
-		}
+		TreeItem[] arrSiteViewSelected = this.arbolSvAreas.getItems();
 
 		List<ISiteView> lista = new ArrayList<ISiteView>();
 		if (null != arrSiteViewSelected && arrSiteViewSelected.length > 0) {
@@ -1217,26 +1579,12 @@ public class WizardCRUDPage extends WizardPage {
 	 * 
 	 * @return
 	 */
-	public List<IArea> getAreas(String tipoOperacion) {
+	public List<IArea> getAreas() {
 
 		List<IArea> lista = new ArrayList<IArea>();
 		Collection<TreeItem> retColItemSelEhijos = new ArrayList<TreeItem>();
 
-		if ("RETRIEVE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolRead.getItems());
-		}
-		if ("UPDATE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolUpdate.getItems());
-		}
-		if ("DELETE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolDelete.getItems());
-		}
-		if ("CREATE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolCreate.getItems());
-		}
-		if ("ALLINONE".compareTo(tipoOperacion) == 0) {
-			obtenerHijosCheckeados(retColItemSelEhijos, this.arbolAllInOne.getItems());
-		}
+		obtenerHijosCheckeados(retColItemSelEhijos, this.arbolSvAreas.getItems());
 
 		if (null != retColItemSelEhijos) {
 			for (Iterator iterator = retColItemSelEhijos.iterator(); iterator.hasNext();) {
@@ -1249,7 +1597,6 @@ public class WizardCRUDPage extends WizardPage {
 			}
 		}
 		return lista;
-
 	}
 
 	/**
@@ -1258,9 +1605,9 @@ public class WizardCRUDPage extends WizardPage {
 	 * 
 	 * @param evt
 	 */
-	private void group2PaintControl(PaintEvent evt) {
-		int tamanio = (this.group2.getSize().x - 10) / 2;
-		TableColumn[] columns = this.tableIndexCreate.getColumns();
+	private void relationsCreateGroupPaintControl(PaintEvent evt) {
+		int tamanio = (this.relationsCreateGroup.getSize().x - 10) / 2;
+		TableColumn[] columns = this.tableRelationsCreate.getColumns();
 		for (int i = 0; i < 2; i++) {
 			columns[i].setWidth(tamanio);
 		}
@@ -1272,9 +1619,9 @@ public class WizardCRUDPage extends WizardPage {
 	 * 
 	 * @param evt
 	 */
-	private void group7PaintControl(PaintEvent evt) {
-		int tamanio = (this.group7.getSize().x - 10) / 2;
-		TableColumn[] columns = this.tableIndexUpdate.getColumns();
+	private void relationsFromGroupPaintControl(PaintEvent evt) {
+		int tamanio = (this.relationsFromGroup.getSize().x - 10) / 2;
+		TableColumn[] columns = this.tableRelFormUpdate.getColumns();
 		for (int i = 0; i < 2; i++) {
 			columns[i].setWidth(tamanio);
 		}
@@ -1286,9 +1633,9 @@ public class WizardCRUDPage extends WizardPage {
 	 * 
 	 * @param evt
 	 */
-	private void group13PaintControl(PaintEvent evt) {
-		int tamanio = (this.group13.getSize().x - 10) / 2;
-		TableColumn[] columns = this.tableFormAllInOne.getColumns();
+	private void relationsAllGroupPaintControl(PaintEvent evt) {
+		int tamanio = (this.relationsAllGroup.getSize().x - 10) / 2;
+		TableColumn[] columns = this.tableRelationsAll.getColumns();
 		for (int i = 0; i < 2; i++) {
 			columns[i].setWidth(tamanio);
 		}
@@ -1317,13 +1664,11 @@ public class WizardCRUDPage extends WizardPage {
 
 				this.entidad = (IEntity) this.pageSelectEntity.getSelectedElement();
 			}
-
 			declaracionEstructuras(entidad);
-
 			this.initRelationShips();
 			// De aqui se obtienen los atributos de la entidad
-			this.listaAtributos = this.entidad.getAllAttributeList();
-			Iterator<IAttribute> iteratorAtributos = this.listaAtributos.iterator();
+			this.listaAtributosEntidad = this.entidad.getAllAttributeList();
+			Iterator<IAttribute> iteratorAtributos = this.listaAtributosEntidad.iterator();
 			IAttribute atributo;
 			while (iteratorAtributos.hasNext()) {
 				atributo = iteratorAtributos.next();
@@ -1334,11 +1679,8 @@ public class WizardCRUDPage extends WizardPage {
 			}
 			this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
-			this.crearAllInOne();
-			this.crearCrear();
-			this.crearObtener();
-			this.crearActualizar();
-			this.crearBorrado();
+			this.crearUI();
+
 			try {
 				this.dispose();
 				this.finalize();
@@ -1404,172 +1746,6 @@ public class WizardCRUDPage extends WizardPage {
 	}
 
 	/**
-	 * ALLINONE
-	 */
-	private void crearAllInOne() {
-		this.composite5 = new Composite(this.tabFolder1, SWT.NONE);
-		FillLayout composite5Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-
-		composite5Layout.marginHeight = 5;
-		composite5Layout.marginWidth = 5;
-		composite5Layout.spacing = 10;
-
-		this.composite5.setLayout(composite5Layout);
-		this.tabItem0.setControl(this.composite5);
-
-		this.group11 = new Group(this.composite5, SWT.NONE);
-		FillLayout group11Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.group11.setLayout(group11Layout);
-		this.group11.setText("SiteViews-Areas");
-
-		this.arbolAllInOne = new Tree(this.group11, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-		// SINGLE, MULTI, CHECK, FULL_SELECTION, FULL_SELECTION SWT.VIRTUAL |
-		// SWT.BORDER)
-		
-		inicializarListaYarbol();
-		//ya utilizo en inicializarListaYarbol el arbolAllInOne para cargarlo y pasarlo a ProjectParameters 
-		//listaSiteAreaToArbol(this.arbolAllInOne);
-
-		arbolAllInOne.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				// S el motivo de la seleccion ha sido el check
-				if (event.detail == SWT.CHECK) {
-					TreeItem item = (TreeItem) event.item;
-					boolean checked = item.getChecked();
-					if (!checked) {
-						checkItems(item, checked);
-					}
-					checkPath(item.getParentItem(), checked, false);
-				}
-			}
-
-		});
-
-		this.group12 = new Group(this.composite5, SWT.NONE);
-		GridLayout groupArbolLayoutIndex = new GridLayout();
-		groupArbolLayoutIndex.numColumns = 1;
-		this.group12.setLayout(groupArbolLayoutIndex);
-		this.group12.setText("Power Index Unit");
-
-		this.tableIndexAllInOne = new Table(this.group12, SWT.CHECK | SWT.V_SCROLL);
-
-		GridData gridDataIndex = new GridData(120, 120);
-		tableIndexAllInOne.setLayoutData(gridDataIndex);
-
-		// boton select all y deselect all
-		Button buttonSelectPower = new Button(this.group12, SWT.PUSH);
-		buttonSelectPower.setText("(Select/Deselect) All");
-		GridData gridDataButtonSelectPower = new GridData(GridData.END, GridData.CENTER, false, false);
-		gridDataButtonSelectPower.horizontalSpan = 3;
-		buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
-		buttonSelectPower.setSelection(Boolean.FALSE);
-
-		buttonSelectPower.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (null != tableIndexAllInOne && null != tableIndexAllInOne.getItems() && tableIndexAllInOne.getItems().length > 0) {
-					Boolean hayCheckeados = Boolean.FALSE;
-
-					for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
-						if (tableIndexAllInOne.getItems()[i].getChecked()) {
-							hayCheckeados = Boolean.TRUE;
-						}
-					}
-
-					if (hayCheckeados) {
-						// si hay elementos seleccionados: deselecciono all
-						// tableIndexRead.deselectAll();
-						for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
-							tableIndexAllInOne.getItems()[i].setChecked(false);
-
-						}
-					} else {
-						// si no hay elementos seleccionados: selecciono all
-						// tableIndexRead.selectAll();
-						for (int i = 0; i < tableIndexAllInOne.getItems().length; i++) {
-							tableIndexAllInOne.getItems()[i].setChecked(true);
-						}
-					}
-				}
-			}
-		});
-		this.group12.setVisible(true);
-
-		// fin boton select all y deselect all
-
-		this.group13 = new Group(this.composite5, SWT.NONE);
-		FillLayout group13Layout = new FillLayout(org.eclipse.swt.SWT.HORIZONTAL);
-		this.group13.setLayout(group13Layout);
-		this.group13.setText("Relations");
-		// Se ha cambiado de NONE a CHECK
-		this.tableFormAllInOne = new Table(this.group13, SWT.CHECK | SWT.V_SCROLL);
-
-		group13.addPaintListener(new PaintListener() {
-			public void paintControl(PaintEvent evt) {
-				group13PaintControl(evt);
-			}
-		});
-
-		// A�adir Data Unit: da opcion a elegir campos que aparecen en
-		// el View
-
-		this.group14 = new Group(this.composite5, SWT.NONE);
-		GridLayout groupArbolLayoutData = new GridLayout();
-		groupArbolLayoutData.numColumns = 1;
-		this.group14.setLayout(groupArbolLayoutData);
-		this.group14.setText("Data Unit");
-
-		this.tableDataAllInOne = new Table(this.group14, SWT.CHECK | SWT.V_SCROLL);
-
-		GridData gridData = new GridData(120, 120);
-		tableDataAllInOne.setLayoutData(gridData);
-
-		// boton select all y deselect all
-		Button buttonSelectData = new Button(this.group14, SWT.PUSH);
-		buttonSelectData.setText("(Select/Deselect) All");
-		GridData gridDatabuttonSelectData = new GridData(GridData.END, GridData.CENTER, false, false);
-		gridDatabuttonSelectData.horizontalSpan = 3;
-		buttonSelectData.setLayoutData(gridDatabuttonSelectData);
-		buttonSelectData.setSelection(Boolean.FALSE);
-
-		buttonSelectData.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (null != tableDataAllInOne && null != tableDataAllInOne.getItems() && tableDataAllInOne.getItems().length > 0) {
-					Boolean hayCheckeados = Boolean.FALSE;
-
-					for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
-						if (tableDataAllInOne.getItems()[i].getChecked()) {
-							hayCheckeados = Boolean.TRUE;
-						}
-					}
-
-					if (hayCheckeados) {
-						// si hay elementos seleccionados: deselecciono all
-						// tableIndexRead.deselectAll();
-						for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
-							tableDataAllInOne.getItems()[i].setChecked(false);
-
-						}
-					} else {
-						// si no hay elementos seleccionados: selecciono all
-						// tableIndexRead.selectAll();
-						for (int i = 0; i < tableDataAllInOne.getItems().length; i++) {
-							tableDataAllInOne.getItems()[i].setChecked(true);
-						}
-					}
-				}
-			}
-		});
-		this.group14.setVisible(true);
-
-		this.addAttributes(this.tableIndexAllInOne, this.checkFormAllInOne, Boolean.FALSE);
-		this.addRelationships(this.tableFormAllInOne, this.listaCombosAllInOne);
-		// A�adir Data Unit: da opcion a elegir campos que aparecen en el View
-		this.addAttributes(this.tableDataAllInOne, this.checkDataAllInOne, Boolean.TRUE);
-
-		this.composite5.layout();
-	}
-
-	/**
 	 * 
 	 * Nombre: inicializarListaYarbol Funcion:
 	 */
@@ -1580,8 +1756,8 @@ public class WizardCRUDPage extends WizardPage {
 		// areas creados
 		List<ObjStViewArea> listaSiteViewArea = new ArrayList();
 
-		arbolAllInOne.removeAll();
-		arbolAllInOne.clearAll(Boolean.TRUE);
+		arbolSvAreas.removeAll();
+		arbolSvAreas.clearAll(Boolean.TRUE);
 
 		if (null != listaSiteViewsPreviaPage && listaSiteViewsPreviaPage.size() > 0) {
 			for (Iterator iterator = listaSiteViewsPreviaPage.iterator(); iterator.hasNext();) {
@@ -1592,7 +1768,7 @@ public class WizardCRUDPage extends WizardPage {
 					objStView.setTipo("STVIEW");
 					listaSiteViewArea.add(objStView);
 
-					TreeItem itemSiteView = new TreeItem(arbolAllInOne, 0);
+					TreeItem itemSiteView = new TreeItem(arbolSvAreas, 0);
 
 					itemSiteView.setText(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
 
@@ -1603,7 +1779,7 @@ public class WizardCRUDPage extends WizardPage {
 			}
 		}
 
-		arbolAllInOne.redraw();
+		arbolSvAreas.redraw();
 		ProjectParameters.setlistaSiteViewArea(listaSiteViewArea);
 	}
 
@@ -1636,7 +1812,7 @@ public class WizardCRUDPage extends WizardPage {
 					TreeItem itemHijo = new TreeItem(itemPadreArbol, 0);
 					itemHijo.setText(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
 
-					arbolAllInOne.select(itemHijo);
+					arbolSvAreas.select(itemHijo);
 
 					montarArbolAreas(itemHijo, objArea1, area.getAreaList());
 				}
@@ -1644,6 +1820,7 @@ public class WizardCRUDPage extends WizardPage {
 
 		}
 	}
+
 	private void aniadirElementoToArbol(Tree nodoArbolPadre, TreeItem nodoItemPadre, List<ObjStViewArea> listaElementosPagePrevia) {
 
 		if (null != listaElementosPagePrevia && listaElementosPagePrevia.size() > 0) {
@@ -1685,9 +1862,9 @@ public class WizardCRUDPage extends WizardPage {
 	 */
 	public List<IAttribute> getAttributesIndexAllInOne() {
 		List<IAttribute> lista = new ArrayList<IAttribute>();
-		for (int i = 0; i < this.listaAtributos.size(); i++) {
+		for (int i = 0; i < this.listaAtributosEntidad.size(); i++) {
 			if (this.tableIndexAllInOne.getItem(i).getChecked())
-				lista.add(this.listaAtributos.get(i));
+				lista.add(this.listaAtributosEntidad.get(i));
 		}
 		return lista;
 	}
