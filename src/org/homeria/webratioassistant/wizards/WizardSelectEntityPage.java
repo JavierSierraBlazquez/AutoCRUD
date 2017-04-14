@@ -23,6 +23,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Scale;
 import org.homeria.webratioassistant.plugin.MyIEntityComparator;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
 import org.homeria.webratioassistant.plugin.Utilities;
@@ -36,11 +37,16 @@ import com.webratio.ide.model.IEntity;
  * generar� el CRUD
  */
 public class WizardSelectEntityPage extends WizardPage {
+	private final int MAX_GENERATION_SPEED = 6;
+	private final int MIN_GENERATION_SPEED = 0;
+
+	private int generationDelay;
 	private Composite container = null;
 	private Group entityGroup = null;
-	private Group speedGenGroup = null;
+	private Group generationSpeedGroup = null;
 	private List<IEntity> listEntity;
 	private org.eclipse.swt.widgets.List widgetListEntity = null;
+	private Scale generationSpeedScale = null;
 
 	public WizardSelectEntityPage() {
 		super("wizardSelectEntityPage");
@@ -67,6 +73,7 @@ public class WizardSelectEntityPage extends WizardPage {
 		containerLayout.marginWidth = 40;
 		this.container.setLayout(containerLayout);
 
+		// Group de selección de entidad
 		this.entityGroup = new Group(this.container, SWT.NONE);
 		FillLayout entityGroupLayout = new FillLayout(SWT.VERTICAL);
 		entityGroupLayout.marginHeight = 10;
@@ -82,6 +89,23 @@ public class WizardSelectEntityPage extends WizardPage {
 			}
 		});
 
+		// Group de velocidad de generación
+		this.generationSpeedGroup = new Group(this.container, SWT.NONE);
+		FillLayout generationSpeedGroupLayout = new FillLayout(SWT.VERTICAL);
+		generationSpeedGroupLayout.marginHeight = 10;
+		generationSpeedGroupLayout.marginWidth = 10;
+		this.generationSpeedGroup.setLayout(generationSpeedGroupLayout);
+		this.generationSpeedGroup.setText("Model generation speed");
+
+		new Label(this.generationSpeedGroup, SWT.CENTER).setText("MIN");
+		this.generationSpeedScale = new Scale(this.generationSpeedGroup, SWT.VERTICAL);
+		this.generationSpeedScale.setMaximum(MAX_GENERATION_SPEED);
+		this.generationSpeedScale.setMinimum(MIN_GENERATION_SPEED);
+		this.generationSpeedScale.setIncrement(1);
+		this.generationSpeedScale.setPageIncrement(2);
+		this.generationSpeedScale.setSelection(this.generationSpeedScale.getMaximum());
+		new Label(this.generationSpeedGroup, SWT.CENTER).setText("MAX");
+
 		initialize();
 		setControl(this.container);
 		this.container.layout(true, true);
@@ -91,21 +115,6 @@ public class WizardSelectEntityPage extends WizardPage {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public IWizardPage getNextPage() {
-		WizardCRUDPage crud = (WizardCRUDPage) this.getWizard().getPage("wizardCRUDPage");
-
-		crud.setEntity((IEntity) this.getSelectedElement());
-
-		crud.initialize();
-
-		return crud;
-	}
-
-	public IMFElement getSelectedElement() {
-		return this.listEntity.get(this.widgetListEntity.getSelectionIndex());
 	}
 
 	private void initialize() {
@@ -128,4 +137,25 @@ public class WizardSelectEntityPage extends WizardPage {
 			}
 		}
 	}
+
+	@Override
+	public IWizardPage getNextPage() {
+		this.generationDelay = 100 * (this.generationSpeedScale.getMaximum() - this.generationSpeedScale.getSelection());
+		WizardCRUDPage crud = (WizardCRUDPage) this.getWizard().getPage("wizardCRUDPage");
+
+		crud.setEntity((IEntity) this.getSelectedElement());
+
+		crud.initialize();
+
+		return crud;
+	}
+
+	public IMFElement getSelectedElement() {
+		return this.listEntity.get(this.widgetListEntity.getSelectionIndex());
+	}
+
+	public int getGenerationDelay() {
+		return generationDelay;
+	}
+
 }

@@ -33,9 +33,8 @@ public class Delete extends CRUD {
 	 * @param areas
 	 * @param index
 	 */
-	public Delete(IMFElement entidad, List<ISiteView> siteViews,
-			List<IArea> areas, List<IAttribute> index) {
-		super(siteViews, areas, entidad, index, null, null);
+	public Delete(IMFElement entidad, List<ISiteView> siteViews, List<IArea> areas, List<IAttribute> index, int generationDelay) {
+		super(siteViews, areas, entidad, index, null, null, generationDelay);
 	}
 
 	/**
@@ -53,24 +52,19 @@ public class Delete extends CRUD {
 		try {
 			ISiteView siteView;
 
-			for (Iterator<ISiteView> iteradorSiteView = this
-					.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
+			for (Iterator<ISiteView> iteradorSiteView = this.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
 				siteView = iteradorSiteView.next();
 
 				List<IArea> listaAreaEnc = null;
 				// metodo que diga si en la lista de areas de entrada hay alguno
 				// que corresponde al siteView del iterator
-				if (null != siteView.getAreaList()
-						&& siteView.getAreaList().size() > 0
-						&& null != this.getListaAreas()
+				if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0 && null != this.getListaAreas()
 						&& this.getListaAreas().size() > 0) {
 
-					for (Iterator iterator = this.getListaAreas().iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = this.getListaAreas().iterator(); iterator.hasNext();) {
 						IArea iAreaSelected = (IArea) iterator.next();
 
-						String[] partesNombreID = iAreaSelected.getRootXPath()
-								.split("'"); // id('stv')
+						String[] partesNombreID = iAreaSelected.getRootXPath().split("'"); // id('stv')
 						String idPadre = partesNombreID[1];
 						if (idPadre.compareTo(siteView.getFinalId()) == 0) {
 							if (null == listaAreaEnc) {
@@ -89,8 +83,7 @@ public class Delete extends CRUD {
 					deleteCrearElementos(subProgressMonitor, unidad, siteView);
 					subProgressMonitor.worked(unidad);
 				} else {
-					for (Iterator iterator = listaAreaEnc.iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = listaAreaEnc.iterator(); iterator.hasNext();) {
 						IArea iArea = (IArea) iterator.next();
 						Utilities.switchSiteView(siteView);
 						deleteCrearElementos(subProgressMonitor, unidad, iArea);
@@ -115,9 +108,10 @@ public class Delete extends CRUD {
 	 * @param subProgressMonitor
 	 * @param unidad
 	 * @param elementIMFE
+	 * @throws InterruptedException
 	 */
-	private void deleteCrearElementos(SubProgressMonitor subProgressMonitor,
-			int unidad, IMFElement elementIMFE) {
+	private void deleteCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE)
+			throws InterruptedException {
 		IPage pagina;
 		IOperationUnit deleteUnit;
 		IContentUnit powerIndexUnit;
@@ -131,33 +125,34 @@ public class Delete extends CRUD {
 
 		pagina = (IPage) this.addPagina(elementIMFE, "Delete", x, y);
 		subProgressMonitor.worked(unidad);
-		powerIndexUnit = (IContentUnit) this.addUnidad(pagina,
-				"PowerIndexUnit", 5, 5, "Index", true, null);
+		Thread.sleep(this.generationDelay);
+		powerIndexUnit = (IContentUnit) this.addUnidad(pagina, "PowerIndexUnit", 5, 5, "Index", true, null);
 		this.addAtributosIndex(powerIndexUnit);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
-		multiMessageUnit = (IContentUnit) this.addUnidad(pagina,
-				"MultiMessageUnit", 5, 155, "Message", false, null);
-
-		subProgressMonitor.worked(unidad);
-		deleteUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DeleteUnit",
-				x + 250, y, "Delete", true, null);
+		multiMessageUnit = (IContentUnit) this.addUnidad(pagina, "MultiMessageUnit", 5, 155, "Message", false, null);
 
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
+		deleteUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DeleteUnit", x + 250, y, "Delete", true, null);
+
+		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		this.addNormalLink(powerIndexUnit, deleteUnit, "Delete");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		IMFElement link = this.addOKLink(deleteUnit, multiMessageUnit);
 		this.setAutomaticCoupling(link);
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"Deleted correctly");
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Deleted correctly");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		link = this.addKOLink(deleteUnit, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"Error deleting data");
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error deleting data");
 	}
 }

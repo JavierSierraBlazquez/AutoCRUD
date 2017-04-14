@@ -33,8 +33,9 @@ public class Read extends CRUD {
 	 * @param index
 	 * @param data
 	 */
-	public Read(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, List<IAttribute> index, List<IAttribute> data) {
-		super(siteViews, areas, entity, index, data, null);
+	public Read(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, List<IAttribute> index, List<IAttribute> data,
+			int generationDelay) {
+		super(siteViews, areas, entity, index, data, null, generationDelay);
 
 	}
 
@@ -116,8 +117,10 @@ public class Read extends CRUD {
 	 * @param subProgressMonitor
 	 * @param unidad
 	 * @param elementIMFE
+	 * @throws InterruptedException
 	 */
-	private void retrieveCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE) {
+	private void retrieveCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE)
+			throws InterruptedException {
 		IPage pagina;
 		IContentUnit dataUnit;
 		IContentUnit powerIndexUnit;
@@ -131,14 +134,17 @@ public class Read extends CRUD {
 
 		pagina = (IPage) this.addPagina(elementIMFE, "Read", x, y);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		powerIndexUnit = (IContentUnit) this.addUnidad(pagina, "PowerIndexUnit", 5, 5, "Index", true, null);
 		this.addAtributosIndex(powerIndexUnit);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		dataUnit = (IContentUnit) this.addUnidad(pagina, "DataUnit", 200, 10, "Data", true, null);
 		this.addAtributosData(dataUnit);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		// A�adimos un link normal entre la powerIndex
 		// y la dataUnit para mostrar el contenido
 		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit, "View");

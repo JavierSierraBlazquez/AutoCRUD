@@ -50,7 +50,7 @@ import com.webratio.ide.model.ISiteView;
 public class WizardCRUD extends Wizard implements INewWizard {
 	public static Create c = null;
 	private WizardCRUDPage crudPage;
-	private WizardSelectEntityPage pageSelectEntity;
+	private WizardSelectEntityPage selectEntityPage;
 
 	private AllInOne allinone;
 	private Create create;
@@ -84,8 +84,8 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 */
 	public void addPages() {
 		if (this.entidadSeleccionada == null) {
-			this.pageSelectEntity = new WizardSelectEntityPage();
-			addPage(this.pageSelectEntity);
+			this.selectEntityPage = new WizardSelectEntityPage();
+			addPage(this.selectEntityPage);
 		}
 
 		this.crudPage = new WizardCRUDPage(this.entidadSeleccionada);
@@ -247,7 +247,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 		try {
 			final IEntity entidad;
 			if (this.entidadSeleccionada == null) {
-				entidad = (IEntity) this.pageSelectEntity.getSelectedElement();
+				entidad = (IEntity) this.selectEntityPage.getSelectedElement();
 			} else {
 				entidad = this.entidadSeleccionada;
 			}
@@ -292,25 +292,29 @@ public class WizardCRUD extends Wizard implements INewWizard {
 						this.crudPage.getSiteViewsChecked(), 
 						this.crudPage.getAreas(),
 						this.crudPage.getRelationShipsCreate(), 
-						this.crudPage.getAttributesDataCreate());
+						this.crudPage.getAttributesDataCreate(),
+						this.selectEntityPage.getGenerationDelay());
 			if (operationsChecked.contains(Utilities.Operations.READ))
 				this.read = new Read(entidad, 
 						this.crudPage.getSiteViewsChecked(), 
 						this.crudPage.getAreas(),
 						this.crudPage.getAttributesIndexRead(), 
-						this.crudPage.getAttributesDataRead());
+						this.crudPage.getAttributesDataRead(),
+						this.selectEntityPage.getGenerationDelay());
 			if (operationsChecked.contains(Utilities.Operations.UPDATE))
 				this.update = new Update(entidad, 
 						this.crudPage.getSiteViewsChecked(), 
 						this.crudPage.getAreas(),
 						this.crudPage.getRelationShipsUpdate(), 
 						this.crudPage.getAttributesUpdate(),
-						this.crudPage.getAttributesShowUpdate());
+						this.crudPage.getAttributesShowUpdate(),
+						this.selectEntityPage.getGenerationDelay());
 			if (operationsChecked.contains(Utilities.Operations.DELETE))
 				this.delete = new Delete(entidad, 
 						this.crudPage.getSiteViewsChecked(), 
 						this.crudPage.getAreas(),
-						this.crudPage.getAttributesIndexDelete());
+						this.crudPage.getAttributesIndexDelete(),
+						this.selectEntityPage.getGenerationDelay());
 			if (operationsChecked.contains(Utilities.Operations.ALLINONE))
 				this.allinone = new AllInOne(entidad, 
 						this.crudPage.getSiteViewsChecked(), 
@@ -318,7 +322,8 @@ public class WizardCRUD extends Wizard implements INewWizard {
 						this.crudPage.getRelationShipsAllInOne(), 
 						this.crudPage.getAttributesIndexAllInOne(),
 						this.crudPage.getAttributesDataAllInOne(),
-						this.crudPage.getAttributesDetailAllInOne());
+						this.crudPage.getAttributesDetailAllInOne(),
+						this.selectEntityPage.getGenerationDelay());
 
 			final Create c = this.create;
 			final Read r = this.read;
@@ -352,9 +357,6 @@ public class WizardCRUD extends Wizard implements INewWizard {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// finally{
-
-		// }
 		return true;
 	}
 

@@ -36,25 +36,20 @@ import com.webratio.ide.model.ISiteView;
  */
 public class AllInOne extends CRUD {
 	private List<IAttribute> listaAtributosDetail;
+
 	/**
 	 * Create.java: Clase que se encarga de generar los elementos encargados de
 	 * realizar la operaci�n de Crear/Create. Es necesario especificar los
 	 * siteviews donde se deber� colocar, adem�s de los atributos y relaciones
 	 * que se deberan mostrar en la unidad EntryUnit.
 	 */
-	public AllInOne(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
-			List<IAttribute> atributosIndex, List<IAttribute> atributosData) {
-		super(siteViews, areas, entity, atributosIndex, atributosData, relation);
 
-	}
-	
-	// se añade la lista de Detail
+	// se añade la lista de Detail y generationDelay
 	public AllInOne(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
-			List<IAttribute> atributosIndex, List<IAttribute> atributosData, List<IAttribute> atributosDetail) {
-		super(siteViews, areas, entity, atributosIndex, atributosData, relation);
+			List<IAttribute> atributosIndex, List<IAttribute> atributosData, List<IAttribute> atributosDetail, int generationDelay) {
+		super(siteViews, areas, entity, atributosIndex, atributosData, relation, generationDelay);
 		this.listaAtributosDetail = atributosDetail;
 	}
-	
 
 	/**
 	 * 
@@ -104,17 +99,20 @@ public class AllInOne extends CRUD {
 					Utilities.switchSiteView(siteView);
 					allInOneCrearElementos(subProgressMonitor, unidad, siteView);
 					subProgressMonitor.worked(unidad);
+					Thread.sleep(this.generationDelay);
 				} else {
 					for (Iterator iterator = listaAreaEnc.iterator(); iterator.hasNext();) {
 						IArea iArea = (IArea) iterator.next();
 						Utilities.switchSiteView(siteView);
 						allInOneCrearElementos(subProgressMonitor, unidad, iArea);
 						subProgressMonitor.worked(unidad);
+						Thread.sleep(this.generationDelay);
 
 					}
 				}
 
 				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -130,8 +128,10 @@ public class AllInOne extends CRUD {
 	 * @param subProgressMonitor
 	 * @param unidad
 	 * @param elementIMFE
+	 * @throws InterruptedException
 	 */
-	private void allInOneCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE) {
+	private void allInOneCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE)
+			throws InterruptedException {
 		IPage pagina;
 		IPage paginaDefault;
 		IPage paginaForm;
@@ -170,9 +170,10 @@ public class AllInOne extends CRUD {
 		y = posicion.y;
 		firstCreate = null;
 
-		// Crear deteUnit
+		// Crear deleteUnit
 		deleteUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DeleteUnit", x, y, "Delete", true, null);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		// Buscamos otra vez primer hueco libre
 		posicion = Utilities.buscarHueco();
 		x = posicion.x;
@@ -181,11 +182,13 @@ public class AllInOne extends CRUD {
 		// Crear Pagina del CRUD AllInOne
 		pagina = (IPage) this.addPagina(elementIMFE, "CRUD", x, y);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir pagina alternativa
 		posx = posy = 5;
 		alternative = (IAlternative) this.addArea(pagina, posx, posy, "Alternative");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// New
 		// Obtenemos la pagina default
@@ -196,11 +199,13 @@ public class AllInOne extends CRUD {
 		// A�adimos una noOpContentUnit para crear un enlace
 		noOpContentUnit = (IContentUnit) this.addUnidad(paginaDefault, "NoOpContentUnit", 5, 5, "New ", false, null);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir multiMessage para los mensajes de las unidades
 		multiMessageUnit = (IContentUnit) this.addUnidad(paginaDefault, "MultiMessageUnit", (posx + Utilities.anchoUnidad), 5, "Message",
 				false, null);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adimos la powerIndex e indicamos los atributos visibles
 		posy = posy + Utilities.altoUnidad;
@@ -211,15 +216,17 @@ public class AllInOne extends CRUD {
 		// TODO CAGUADOF: a�adir que sea sorteable ascending por el oid
 		// SortAttribute
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adimos la pagina donde ir� el formulario
 		paginaDetails = (IPage) this.addPagina(alternative, "Details", 300, 5);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adimos la dataUnit e indicamos todos los atributos visibles
 		dataUnit = (IContentUnit) this.addUnidad(paginaDetails, "DataUnit", 5, 5, "Data", true, null);
 		// A�adimos todos los atributos para mostrarlos en la dataUnit
-		this.addAtributosData(dataUnit,this.listaAtributosDetail);
+		this.addAtributosData(dataUnit, this.listaAtributosDetail);
 
 		// A�adimos un link normal entre la dataUnit
 		// y la pagina para limpiar el contenido
@@ -230,23 +237,27 @@ public class AllInOne extends CRUD {
 		this.setAutomaticCoupling(link);
 		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "The data from " + this.getNombreEntity() + " has been delete.");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		link = this.addKOLink(deleteUnit, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
 		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error deleting data from " + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// PAGINA FORMULARIO
 		// A�adimos la pagina donde ir� el formulario
 		paginaForm = (IPage) this.addPagina(alternative, "Form", 5, 300);
 
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir el formulario y poner los campos
 		entryUnit = (IContentUnit) this.addUnidad(paginaForm, "EntryUnit", 200, 200, "Form", true, null);
 		this.setFields(entryUnit, true, true);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// Enlace Cancel desde entrey a MultiMesage: sin validaci�n
 		link = this.addNormalLink(entryUnit, multiMessageUnit, "Cancel");
@@ -257,6 +268,7 @@ public class AllInOne extends CRUD {
 		selectorEntidad = (IContentUnit) this.addUnidad(paginaForm, "SelectorUnit", posx, posy, "Selector", true, null);
 		IMFElement condicion = this.addKeyCondition(selectorEntidad);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir enlace al formulario para nuevo
 		// usuario desde la noOpContentUnit
@@ -271,21 +283,25 @@ public class AllInOne extends CRUD {
 		guessCouplingFieldAttConValor(this.getEntity(), (IMFElement) selectorEntidad, link, String.valueOf(0));
 
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adimos un link normal entre la powerIndex
 		// y la dataUnit para mostrar el contenido
 		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit, "View");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir el enlace de Modificar entre la
 		// powerIndexUnit y selectorEntidad
 		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) selectorEntidad, "Modify");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adimos un link normal entre la powerIndex
 		// y la deleteUnit para borrar la tupla
 		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) deleteUnit, "Delete");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir link de transporte entre la selectorUnit
 		// y el formulario. Hacer un guessCoupling
@@ -294,6 +310,7 @@ public class AllInOne extends CRUD {
 		this.guessCouplingUnitToEntry(selectorEntidad, this.getEntity(), entryUnit, link);// ,
 																							// preload);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir Selector para precarga formulario (Update)
 		// Solo son validas las relaciones NaN, las dem�s las
@@ -322,6 +339,7 @@ public class AllInOne extends CRUD {
 			}
 		}
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir las selectorUnit que se encarga de rellenar
 		// los campos multiSelectionField y selectionField
@@ -344,6 +362,7 @@ public class AllInOne extends CRUD {
 
 		}
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		posicion = Utilities.buscarHueco();
 		x = posicion.x;
@@ -354,6 +373,7 @@ public class AllInOne extends CRUD {
 		link = this.addNormalLink(entryUnit, isNotNullUnit, "Accept");
 		this.putCoupling(this.getOidField(), isNotNullUnit, "isnotnull", link);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// createUnit y hacer coupling con los datos de la entryUnit
 		// pero con un link de transporte
@@ -362,6 +382,7 @@ public class AllInOne extends CRUD {
 		this.setAutomaticCoupling(link);
 		this.guessCouplingEntryToCreateModify(entryUnit, createUnit, link);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// modifyUnit igual que la create
 		modifyUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ModifyUnit", x, y + Utilities.altoUnidad, "Modify", true, null);
@@ -370,6 +391,7 @@ public class AllInOne extends CRUD {
 		this.setAutomaticCoupling(link);
 		this.guessCouplingEntryToCreateModify(entryUnit, modifyUnit, link);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		anteriorCreate = createUnit;
 		anteriorModify = modifyUnit;
@@ -380,12 +402,14 @@ public class AllInOne extends CRUD {
 
 		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error creating data in" + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		link = this.addKOLink(anteriorModify, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
 		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error modify data in " + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		// Para todas las relaciones creamos las connectUnit y
 		// disconnectUnit que se usaran para crear/modificar
 		// los datos
@@ -409,24 +433,30 @@ public class AllInOne extends CRUD {
 						null);
 				Utilities.setAttribute(connectUnit, "relationship", idRole);
 				this.addOKLink(anteriorCreate, connectUnit);
+				Thread.sleep(this.generationDelay);
+				
 				link = this.addTransportLink(entryUnit, connectUnit, "Load");
 				this.setAutomaticCoupling(link);
 				this.guessCouplingEntryToConnect(entryUnit, connectUnit, entidad, role, link);
 				anteriorCreate = connectUnit;
+				Thread.sleep(this.generationDelay);
 
 				link = this.addKOLink(anteriorCreate, multiMessageUnit);
 				this.setAutomaticCoupling(link);
+				Thread.sleep(this.generationDelay);
 
 				this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error creating/modifying data in " + this.getNombreEntity());
 				if (firstCreate == null)
 					firstCreate = connectUnit;
 
 				this.addTransportLink(modifyUnit, anteriorCreate, "Load");
+				Thread.sleep(this.generationDelay);
 
 				disconnectUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DisconnectUnit", x, y + Utilities.altoUnidad, nombreRole,
 						false, null);
 				Utilities.setAttribute(disconnectUnit, "relationship", idRole);
 				this.convertKeyConditionToRoleCondition(disconnectUnit, idRole);
+				Thread.sleep(this.generationDelay);
 
 				this.addOKLink(anteriorModify, disconnectUnit);
 				anteriorModify = disconnectUnit;
@@ -437,6 +467,7 @@ public class AllInOne extends CRUD {
 			}
 		}
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// KOLink para Nuevo elemento y OKLink para modificar
 
@@ -444,10 +475,12 @@ public class AllInOne extends CRUD {
 		// Quitar coupling automatico
 		this.setAutomaticCoupling(link);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		link = this.addOKLink(isNotNullUnit, modifyUnit);
 		// Quitar coupling automatico
 		this.setAutomaticCoupling(link);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir OKLink y KOLink de las create Y Modify
 		link = this.addOKLink(anteriorCreate, multiMessageUnit);
@@ -455,6 +488,7 @@ public class AllInOne extends CRUD {
 
 		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "The data from " + this.getNombreEntity() + " has been create/modify");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		if (firstCreate == null) {
 			link = this.addOKLink(anteriorModify, multiMessageUnit);

@@ -67,6 +67,7 @@ public class CRUD {
 	private List<IArea> listaAreas;
 	private Map<IRelationshipRole, IAttribute> relaciones;
 	protected int tamanioUnidad = 125;
+	protected int generationDelay;
 
 	/**
 	 * Constructor CRUD
@@ -78,13 +79,14 @@ public class CRUD {
 	 * @param relaciones
 	 */
 	public CRUD(List<ISiteView> listaSiteViews, List<IArea> areas, IMFElement entidad, List<IAttribute> listaAtributosIndex,
-			List<IAttribute> listaAtributosDataOrForm, Map<IRelationshipRole, IAttribute> relaciones) {
+			List<IAttribute> listaAtributosDataOrForm, Map<IRelationshipRole, IAttribute> relaciones, int generationDelay) {
 		this.listaSiteViews = listaSiteViews;
 		this.listaAreas = areas;
 		this.entidad = (IEntity) entidad;
 		this.listaAtributosIndex = listaAtributosIndex;
 		this.listaAtributosDataOrForm = listaAtributosDataOrForm;
 		this.relaciones = relaciones;
+		this.generationDelay = generationDelay;
 	}
 
 	/**
@@ -127,10 +129,12 @@ public class CRUD {
 		Utilities.setAttribute(elemento, "displayAttributes", this.getAtributos(this.listaAtributosDataOrForm));
 	}
 
-	// Método creado posteriormente para añadir atributos a la Detail Unit desde AllInOne
-	protected void addAtributosData(IMFElement elemento,List<IAttribute> listaAttDetail) {
+	// Método creado posteriormente para añadir atributos a la Detail Unit desde
+	// AllInOne
+	protected void addAtributosData(IMFElement elemento, List<IAttribute> listaAttDetail) {
 		Utilities.setAttribute(elemento, "displayAttributes", this.getAtributos(listaAttDetail));
 	}
+
 	/**
 	 * Nombre: addAtritubosIndex Funcion: marca como visibles los atributos que
 	 * se encuentran en la variable listaAtributosIndex

@@ -39,10 +39,9 @@ public class Update extends CRUD {
 	 * @param atributos
 	 * @param atributosIndice
 	 */
-	public Update(IMFElement entity, List<ISiteView> siteViews,
-			List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
-			List<IAttribute> atributos, List<IAttribute> atributosIndice) {// List<IAttribute>
-		super(siteViews, areas, entity, atributosIndice, atributos, relation);
+	public Update(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
+			List<IAttribute> atributos, List<IAttribute> atributosIndice, int generationDelay) {
+		super(siteViews, areas, entity, atributosIndice, atributos, relation, generationDelay);
 	}
 
 	/**
@@ -54,16 +53,14 @@ public class Update extends CRUD {
 	public void ejecutar(SubProgressMonitor subProgressMonitor) {
 
 		int unidad = 1;
-		int totalWork = this.getListaSiteViews().size()
-				* (11 + (8 * this.getRelaciones().keySet().size()));
+		int totalWork = this.getListaSiteViews().size() * (11 + (8 * this.getRelaciones().keySet().size()));
 		subProgressMonitor.beginTask("Update", totalWork);
 
 		try {
 
 			ISiteView siteView;
 
-			for (Iterator<ISiteView> iteradorSiteView = this
-					.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
+			for (Iterator<ISiteView> iteradorSiteView = this.getListaSiteViews().iterator(); iteradorSiteView.hasNext();) {
 
 				siteView = iteradorSiteView.next();
 
@@ -72,17 +69,13 @@ public class Update extends CRUD {
 				List<IArea> listaAreaEnc = null;
 				// metodo que diga si en la lista de areas de entrada hay alguno
 				// que corresponde al siteView del iterator
-				if (null != siteView.getAreaList()
-						&& siteView.getAreaList().size() > 0
-						&& null != this.getListaAreas()
+				if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0 && null != this.getListaAreas()
 						&& this.getListaAreas().size() > 0) {
 
-					for (Iterator iterator = this.getListaAreas().iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = this.getListaAreas().iterator(); iterator.hasNext();) {
 						IArea iAreaSelected = (IArea) iterator.next();
 
-						String[] partesNombreID = iAreaSelected.getRootXPath()
-								.split("'"); // id('stv')
+						String[] partesNombreID = iAreaSelected.getRootXPath().split("'"); // id('stv')
 						String idPadre = partesNombreID[1];
 						if (idPadre.compareTo(siteView.getFinalId()) == 0) {
 							if (null == listaAreaEnc) {
@@ -99,8 +92,7 @@ public class Update extends CRUD {
 					updateCrearElementos(subProgressMonitor, unidad, siteView);
 					subProgressMonitor.worked(unidad);
 				} else {
-					for (Iterator iterator = listaAreaEnc.iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = listaAreaEnc.iterator(); iterator.hasNext();) {
 						IArea iArea = (IArea) iterator.next();
 						Utilities.switchSiteView(siteView);
 						updateCrearElementos(subProgressMonitor, unidad, iArea);
@@ -125,9 +117,10 @@ public class Update extends CRUD {
 	 * @param subProgressMonitor
 	 * @param unidad
 	 * @param elementIMFE
+	 * @throws InterruptedException
 	 */
-	private void updateCrearElementos(SubProgressMonitor subProgressMonitor,
-			int unidad, IMFElement elementIMFE) {
+	private void updateCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE)
+			throws InterruptedException {
 		IPage pagina;
 		IOperationUnit modifyUnit;
 		IContentUnit entryUnit;
@@ -149,48 +142,50 @@ public class Update extends CRUD {
 		// Crear Pagina del CRUD AllInOne
 		pagina = (IPage) this.addPagina(elementIMFE, "Update", x, y);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// Read
 		posx = posy = 5;
 		posy = posy + Utilities.altoUnidad;
 		// A�adimos la powerIndex e indicamos los atributos visibles
-		powerIndexUnit = (IContentUnit) this.addUnidad(pagina,
-				"PowerIndexUnit", posx, posy, "Index", true, null);
+		powerIndexUnit = (IContentUnit) this.addUnidad(pagina, "PowerIndexUnit", posx, posy, "Index", true, null);
 		this.addAtributosIndex(powerIndexUnit);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		posx = posx + Utilities.anchoUnidad;
-		entryUnit = (IContentUnit) this.addUnidad(pagina, "EntryUnit", posx,
-				posy, "Form", true, null);
+		entryUnit = (IContentUnit) this.addUnidad(pagina, "EntryUnit", posx, posy, "Form", true, null);
 		this.setFields(entryUnit, true, true);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		posx = posx + Utilities.anchoUnidad;
 
 		// A�adir multiMessage para los mensajes de las unidades
-		multiMessageUnit = (IContentUnit) this.addUnidad(pagina,
-				"MultiMessageUnit", posx, posy, "Message", false, null);
+		multiMessageUnit = (IContentUnit) this.addUnidad(pagina, "MultiMessageUnit", posx, posy, "Message", false, null);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir el selector de entidad y asignarle una keyCondition
 		posx = posy = 5;
-		selectorEntidad = (IContentUnit) this.addUnidad(pagina, "SelectorUnit",
-				posx, posy, "Selector", true, null);
+		selectorEntidad = (IContentUnit) this.addUnidad(pagina, "SelectorUnit", posx, posy, "Selector", true, null);
 		this.addKeyCondition(selectorEntidad);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir el enlace de Modificar entre la
 		// powerIndexUnit y selectorEntidad
-		this.addNormalLink((IMFElement) powerIndexUnit,
-				(IMFElement) selectorEntidad, "Modify");
+		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) selectorEntidad, "Modify");
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		// A�adir link de transporte entre la selectorUnit
 		// y el formulario. Hacer un guessCoupling
 		link = this.addTransportLink(selectorEntidad, entryUnit, "Load");
 		this.setAutomaticCoupling(link);
-		this.guessCouplingUnitToEntry(selectorEntidad, this.getEntity(),
-				entryUnit, link);// , preload);
+		this.guessCouplingUnitToEntry(selectorEntidad, this.getEntity(), entryUnit, link);// ,
+																							// preload);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		// A�adir Selector para precarga formulario (Update)
 		// Solo son validas las relaciones NaN, las dem�s las
 		// carga la selectorEntidad directamente.
@@ -199,63 +194,58 @@ public class Update extends CRUD {
 		IMFElement roleCondition;
 		IRelationship relation;
 		IRelationshipRole role;
-		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones()
-				.keySet().iterator(); iteradorRole.hasNext();) {
+		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			role = iteradorRole.next();
 			entidadPreload = this.getTargetEntity(role);
 			relation = this.isNtoN(role);
 			if (relation != null) {
 				String idRole = Utilities.getAttribute(role, "id");
-				selectorUnit = (IContentUnit) this.addUnidad(pagina,
-						"SelectorUnit", posx, posy, "Entity", false,
-						entidadPreload);
+				selectorUnit = (IContentUnit) this.addUnidad(pagina, "SelectorUnit", posx, posy, "Entity", false, entidadPreload);
 				roleCondition = this.addRelationShipRoleCondition(selectorUnit);// ,
 				// idRole);
 				this.addRoleCondition((IMFElement) roleCondition, idRole);
 				// A�adir link y hacer guessCoupling
-				link = this.addTransportLink(selectorEntidad, selectorUnit,
-						"Load");
+				link = this.addTransportLink(selectorEntidad, selectorUnit, "Load");
 				link = this.addTransportLink(selectorUnit, entryUnit, "Load");
 				this.setAutomaticCoupling(link);
-				this.guessCouplingUnitToEntry(selectorUnit, entidadPreload,
-						entryUnit, link, role);
+				this.guessCouplingUnitToEntry(selectorUnit, entidadPreload, entryUnit, link, role);
 				posx = posx + Utilities.anchoUnidad;
 
 			}
 			subProgressMonitor.worked(unidad);
+			Thread.sleep(this.generationDelay);
 		}
 
 		// A�adir las selectorUnit que se encarga de rellenar
 		// los campos multiSelectionField y selectionField
 		posx = 5 + Utilities.anchoUnidad;
 		posy = 5;
-		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones()
-				.keySet().iterator(); iteradorRole.hasNext();) {
+		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			role = iteradorRole.next();
 			entidadPreload = this.getTargetEntity(role);
 
-			selectorUnit = (IContentUnit) this
-					.addUnidad(pagina, "SelectorUnit", posx, posy, "Entity",
-							false, entidadPreload);
+			selectorUnit = (IContentUnit) this.addUnidad(pagina, "SelectorUnit", posx, posy, "Entity", false, entidadPreload);
 			subProgressMonitor.worked(unidad);
+			Thread.sleep(this.generationDelay);
 			posx = posx + Utilities.altoUnidad;
 			link = this.addTransportLink(selectorUnit, entryUnit, "Load");
 
 			this.setAutomaticCoupling(link);
 			this.putPreload(entryUnit, role, link);// {
 			subProgressMonitor.worked(unidad);
+			Thread.sleep(this.generationDelay);
 		}
 		posicion = Utilities.buscarHueco();
 		x = posicion.x;
 		y = posicion.y;
 
-		modifyUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ModifyUnit",
-				x, y, "Modify", true, null);
+		modifyUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ModifyUnit", x, y, "Modify", true, null);
 		link = this.addNormalLink(entryUnit, modifyUnit, "Load");
 
 		this.setAutomaticCoupling(link);
 		this.guessCouplingEntryToCreateModify(entryUnit, modifyUnit, link);
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		IEntity entidad;
 		IOperationUnit connectUnit;
@@ -267,13 +257,12 @@ public class Update extends CRUD {
 		link = this.addKOLink(anteriorModify, multiMessageUnit);
 		this.setAutomaticCoupling(link);
 
-		this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-				"Error modify data from " + this.getNombreEntity());
+		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error modify data from " + this.getNombreEntity());
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		IMFElement anteriorCreate = null;
-		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones()
-				.keySet().iterator(); iteradorRole.hasNext();) {
+		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			role = iteradorRole.next();
 			entidad = this.getTargetEntity(role);
 			relation = this.isNtoN(role);
@@ -283,66 +272,60 @@ public class Update extends CRUD {
 				y = posicion.y;
 				nombreRole = Utilities.getAttribute(role, "name");
 				idRole = Utilities.getAttribute(role, "id");
-				connectUnit = (IOperationUnit) this.addUnidad(elementIMFE,
-						"ConnectUnit", x, y, nombreRole, false, null);
+				connectUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ConnectUnit", x, y, nombreRole, false, null);
 				Utilities.setAttribute(connectUnit, "relationship", idRole);
 				if (anteriorCreate != null)
 					this.addOKLink(anteriorCreate, connectUnit);
 				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 				link = this.addTransportLink(entryUnit, connectUnit, "Load");
 				this.setAutomaticCoupling(link);
-				this.guessCouplingEntryToConnect(entryUnit, connectUnit,
-						entidad, role, link);
+				this.guessCouplingEntryToConnect(entryUnit, connectUnit, entidad, role, link);
 				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 				anteriorCreate = connectUnit;
 				link = this.addKOLink(anteriorCreate, multiMessageUnit);
 				this.setAutomaticCoupling(link);
 
-				this.putMessageOnMultiMessageUnit(
-						link,
-						multiMessageUnit,
-						"Error while modifying data from "
-								+ this.getNombreEntity());
+				this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Error while modifying data from " + this.getNombreEntity());
 				if (firstCreate == null)
 					firstCreate = connectUnit;
 
 				this.addTransportLink(modifyUnit, anteriorCreate, "Load");
 
 				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 
-				disconnectUnit = (IOperationUnit) this.addUnidad(elementIMFE,
-						"DisconnectUnit", x, y + Utilities.altoUnidad,
-						nombreRole, false, null);
+				disconnectUnit = (IOperationUnit) this.addUnidad(elementIMFE, "DisconnectUnit", x, y + Utilities.altoUnidad, nombreRole,
+						false, null);
 				Utilities.setAttribute(disconnectUnit, "relationship", idRole);
 				this.convertKeyConditionToRoleCondition(disconnectUnit, idRole);
 				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 				this.addOKLink(anteriorModify, disconnectUnit);
 				anteriorModify = disconnectUnit;
 				link = this.addKOLink(anteriorModify, multiMessageUnit);
 				this.setAutomaticCoupling(link);
 
-				this.putMessageOnMultiMessageUnit(
-						link,
-						multiMessageUnit,
-						"Error while modifying data from entity "
-								+ this.getNombreEntity());
+				this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
+						"Error while modifying data from entity " + this.getNombreEntity());
 
 				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 			}
 		}
 		if (anteriorCreate != null) {
 			link = this.addOKLink(anteriorCreate, multiMessageUnit);
 			this.setAutomaticCoupling(link);
 
-			this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-					"Correctly modify " + this.getNombreEntity());
+			this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Correctly modify " + this.getNombreEntity());
 		}
 		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 		if (firstCreate == null) {
 			link = this.addOKLink(anteriorModify, multiMessageUnit);
 			this.setAutomaticCoupling(link);
-			this.putMessageOnMultiMessageUnit(link, multiMessageUnit,
-					"Correctly modify " + this.getNombreEntity());
+			this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Correctly modify " + this.getNombreEntity());
 
 		} else {
 			link = this.addOKLink(anteriorModify, firstCreate);

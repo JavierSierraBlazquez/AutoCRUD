@@ -1090,30 +1090,6 @@ public class WizardCRUDPage extends WizardPage {
 
 	/**
 	 * 
-	 * Nombre: crearTabs Funcion:
-	 */
-	private void crearTabs() {
-		FillLayout thisLayout = new FillLayout(SWT.HORIZONTAL);
-		this.containerComposite.setLayout(thisLayout);
-		this.tabFolder1 = new TabFolder(this.containerComposite, SWT.NONE);
-		this.tabItem0 = new TabItem(this.tabFolder1, SWT.NONE);
-		this.tabItem0.setText("All In One");
-		this.tabItem1 = new TabItem(this.tabFolder1, SWT.NONE);
-		this.tabItem1.setText("Create");
-		this.tabItem2 = new TabItem(this.tabFolder1, SWT.NONE);
-		this.tabItem2.setText("Read");
-		this.tabItem3 = new TabItem(this.tabFolder1, SWT.NONE);
-		this.tabItem3.setText("Update");
-		this.tabItem4 = new TabItem(this.tabFolder1, SWT.NONE);
-		this.tabItem4.setText("Delete");
-		this.tabFolder1.setSelection(0);
-
-		this.containerComposite.layout();
-
-	}
-
-	/**
-	 * 
 	 */
 	public void createControl(Composite parent) {
 		this.containerComposite = new Composite(parent, SWT.NULL);
