@@ -19,8 +19,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.homeria.webratioassistant.plugin.MyIEntityComparator;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
@@ -36,9 +37,10 @@ import com.webratio.ide.model.IEntity;
  */
 public class WizardSelectEntityPage extends WizardPage {
 	private Composite container = null;
-	private Label labelEntity = null;
-	private List<IEntity> listEntity; // esta ordenada por entidad
-	private Combo selectEntity = null;
+	private Group entityGroup = null;
+	private Group speedGenGroup = null;
+	private List<IEntity> listEntity;
+	private org.eclipse.swt.widgets.List widgetListEntity = null;
 
 	public WizardSelectEntityPage() {
 		super("wizardSelectEntityPage");
@@ -48,7 +50,7 @@ public class WizardSelectEntityPage extends WizardPage {
 
 	@Override
 	public boolean canFlipToNextPage() {
-		if (this.selectEntity.getSelectionIndex() >= 0)
+		if (this.widgetListEntity.getSelectionIndex() >= 0)
 			return true;
 		else
 			return false;
@@ -60,16 +62,29 @@ public class WizardSelectEntityPage extends WizardPage {
 
 	public void createControl(Composite parent) {
 		this.container = new Composite(parent, SWT.NULL);
-		this.container.setLayout(null);
+		FillLayout containerLayout = new FillLayout(SWT.HORIZONTAL);
+		containerLayout.marginHeight = 40;
+		containerLayout.marginWidth = 40;
+		this.container.setLayout(containerLayout);
 
-		this.labelEntity = new Label(this.container, SWT.NONE);
-		this.labelEntity.setText("Select an entity:");
-		this.labelEntity.setBounds(new Rectangle(280 - 150, 45, 150, 25));
-		createSelectEntity();
+		this.entityGroup = new Group(this.container, SWT.NONE);
+		FillLayout entityGroupLayout = new FillLayout(SWT.VERTICAL);
+		entityGroupLayout.marginHeight = 10;
+		entityGroupLayout.marginWidth = 10;
+		this.entityGroup.setLayout(entityGroupLayout);
+		this.entityGroup.setText("Select an Entity");
+
+		this.widgetListEntity = new org.eclipse.swt.widgets.List(this.entityGroup, SWT.SINGLE | SWT.V_SCROLL);
+		this.widgetListEntity.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent evt) {
+				combo1WidgetSelected(evt);
+			}
+		});
 
 		initialize();
 		setControl(this.container);
-		// this.dispose();
+		this.container.layout(true, true);
 		try {
 			this.dispose();
 			this.finalize();
@@ -78,52 +93,22 @@ public class WizardSelectEntityPage extends WizardPage {
 		}
 	}
 
-	public void createSelectEntity() {
-		this.selectEntity = new Combo(this.container, SWT.NONE);
-		this.selectEntity.setBounds(new Rectangle(280, 45, 166, 21));
-		this.selectEntity.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent evt) {
-				combo1WidgetSelected(evt);
-			}
-		});
-
-	}
 	@Override
 	public IWizardPage getNextPage() {
-		
-		// Guardo arbol modificado en projectParameter
-		//ProjectParameters.setArbolPaginaAlta(arbol);
-		//ProjectParameters.setlistaSiteViewArea(listaSiteViewArea);
-		
-		//Cambiado para que vaya a pagina intermedia
-		WizardCRUDPage crud = (WizardCRUDPage) this.getWizard().getPage(
-				"wizardCRUDPage");
-		
+		WizardCRUDPage crud = (WizardCRUDPage) this.getWizard().getPage("wizardCRUDPage");
+
 		crud.setEntity((IEntity) this.getSelectedElement());
-		
+
 		crud.initialize();
 
 		return crud;
 	}
 
-
 	public IMFElement getSelectedElement() {
-
-		return this.listEntity.get(this.selectEntity.getSelectionIndex());
-
+		return this.listEntity.get(this.widgetListEntity.getSelectionIndex());
 	}
 
 	private void initialize() {
-		/*
-		 * if (ProjectParameters.getWebProjectEditor() != null) { try {
-		 * ProjectParameters.init(); } catch (ExecutionException e) {
-		 * e.printStackTrace(); } this.listEntity =
-		 * ProjectParameters.getDataModel().getEntityList(); IMFElement imfe;
-		 * Iterator<IEntity> iter = this.listEntity.iterator(); while
-		 * (iter.hasNext()) { imfe = iter.next();
-		 * this.selectEntity.add(Utilities.getAttribute(imfe, "name")); } }
-		 */
 		if (ProjectParameters.getWebProjectEditor() != null) {
 			try {
 				ProjectParameters.init();
@@ -131,10 +116,7 @@ public class WizardSelectEntityPage extends WizardPage {
 				e.printStackTrace();
 			}
 			this.listEntity = ProjectParameters.getDataModel().getEntityList();
-			this.listEntity = ProjectParameters.getDataModel()
-					.getAllEntityList();
-			// Ordenar entidades: si se quiere ascendetemente o
-			// descente... usar comparator ordenar lista por name
+			this.listEntity = ProjectParameters.getDataModel().getAllEntityList();
 			Collections.sort(this.listEntity, new MyIEntityComparator());
 
 			IMFElement imfe;
@@ -142,15 +124,8 @@ public class WizardSelectEntityPage extends WizardPage {
 			Iterator<IEntity> iter = this.listEntity.iterator();
 			while (iter.hasNext()) {
 				imfe = iter.next();
-				this.selectEntity.add(Utilities.getAttribute(imfe, "name"));
+				this.widgetListEntity.add(Utilities.getAttribute(imfe, "name"));
 			}
-
 		}
-
 	}
-
-	// public void finalize(){
-	// this.dispose();
-	// }
-
 }
