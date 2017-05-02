@@ -8,13 +8,25 @@
  */
 package org.homeria.webratioassistant.plugin;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.EditPartViewer;
+import org.homeria.webratioassistant.temporal.ContentUnit;
+import org.homeria.webratioassistant.temporal.ElementType;
+import org.homeria.webratioassistant.temporal.Link;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
@@ -176,4 +188,70 @@ public class Utilities {
 	public enum Operations {
 		CREATE, READ, UPDATE, DELETE, ALLINONE;
 	}
+
+	private static List<String> getContentUnitTypes() {
+		List<String> unitTypes = new ArrayList<String>();
+		unitTypes.add(ElementType.POWER_INDEX_UNIT);
+		unitTypes.add(ElementType.DATA_UNIT);
+		return unitTypes;
+	}
+
+	private static List<String> getLinkTypes() {
+		List<String> linkTypes = new ArrayList<String>();
+		linkTypes.add(ElementType.NORMAL_NAVIGATION_FLOW);
+		return linkTypes;
+	}
+
+	/**
+	 * Nombre: parseXML Funcion:
+	 * 
+	 * @param path
+	 *            (IN)
+	 * @param contentUnits
+	 *            (OUT)
+	 * @param links
+	 *            (OUT)
+	 */
+	public static void parseXML(String path, List<ContentUnit> contentUnits, List<Link> links) {
+		try {
+			List<String> contentUnitTypes = getContentUnitTypes();
+			List<String> linkTypes = getLinkTypes();
+
+			File fXmlFile = new File(path);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(fXmlFile);
+
+			// Procesamos todas las páginas
+			NodeList pageNodeList = doc.getElementsByTagName("Page");
+			for (int temp = 0; temp < pageNodeList.getLength(); temp++) {
+				Element page = (Element) pageNodeList.item(temp);
+
+				// Obtenemos todas las ContentUnits de la página
+				for (String contentUnitType : contentUnitTypes) {
+					NodeList nodeList = page.getElementsByTagName(contentUnitType);
+					for (int i = 0; i < nodeList.getLength(); i++) {
+						Element element = (Element) nodeList.item(i);
+						contentUnits.add(new ContentUnit(element.getAttribute("id"), element.getAttribute("name"), page.getAttribute("id"),
+								contentUnitType));
+					}
+				}
+			}
+
+			// TODO: procesar las OperationUnits
+
+			// Proceso los links
+			for (String linkType : linkTypes) {
+				NodeList nodeList = doc.getElementsByTagName(linkType);
+				for (int i = 0; i < nodeList.getLength(); i++) {
+					Element element = (Element) nodeList.item(i);
+					links.add(new Link(element.getAttribute("sourceId"), element.getAttribute("destinyId"), linkType));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

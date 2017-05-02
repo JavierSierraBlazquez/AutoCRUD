@@ -41,7 +41,7 @@ public class Create extends CRUD {
 	 * que se deberan mostrar en la unidad EntryUnit.
 	 */
 	public Create(IMFElement entity, List<ISiteView> siteViews, List<IArea> areas, Map<IRelationshipRole, IAttribute> relation,
-			List<IAttribute> atributos,int generationDelay) {
+			List<IAttribute> atributos, int generationDelay) {
 		super(siteViews, areas, entity, atributos, ((IEntity) entity).getAllAttributeList(), relation, generationDelay);
 
 	}
@@ -91,17 +91,20 @@ public class Create extends CRUD {
 				if (null == listaAreaEnc) {
 					Utilities.switchSiteView(siteView);
 					createCrearElementos(subProgressMonitor, unidad, siteView);
-					subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+					subProgressMonitor.worked(unidad);
+					Thread.sleep(this.generationDelay);
 				} else {
 					for (Iterator iterator = listaAreaEnc.iterator(); iterator.hasNext();) {
 						IArea iArea = (IArea) iterator.next();
 						Utilities.switchSiteView(siteView);
 						createCrearElementos(subProgressMonitor, unidad, iArea);
-						subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+						subProgressMonitor.worked(unidad);
+						Thread.sleep(this.generationDelay);
 
 					}
 				}
-				subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,9 +120,10 @@ public class Create extends CRUD {
 	 * @param subProgressMonitor
 	 * @param unidad
 	 * @param elementIMFE
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	private void createCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE) throws InterruptedException {
+	private void createCrearElementos(SubProgressMonitor subProgressMonitor, int unidad, IMFElement elementIMFE)
+			throws InterruptedException {
 		IPage pagina;
 		IOperationUnit createUnit;
 		IContentUnit entryUnit;
@@ -143,7 +147,9 @@ public class Create extends CRUD {
 
 		// Crear Pagina del CRUD AllInOne
 		pagina = (IPage) this.addPagina(elementIMFE, "Create", x, y);
-		subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+		
+		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		posx = posy = 5;
 
@@ -153,14 +159,16 @@ public class Create extends CRUD {
 		// A�adir el formulario y poner los campos
 		entryUnit = (IContentUnit) this.addUnidad(pagina, "EntryUnit", posx, posy, "Form", true, null);
 		this.setFields(entryUnit, false, true);
-		subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// Read
 		posy = posy + Utilities.altoUnidad;
 
 		// A�adir multiMessage para los mensajes de las unidades
 		multiMessageUnit = (IContentUnit) this.addUnidad(pagina, "MultiMessageUnit", posx, posy, "Message", false, null);
-		subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		// A�adir Selector para precarga formulario (Create)
 		// Solo son validas las relaciones NaN, las dem�s las
@@ -175,12 +183,14 @@ public class Create extends CRUD {
 			entidadPreload = this.getTargetEntity(role);
 
 			selectorUnit = (IContentUnit) this.addUnidad(pagina, "SelectorUnit", posx, posy, "Entity", false, entidadPreload);
-			subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+			subProgressMonitor.worked(unidad);
+			Thread.sleep(this.generationDelay);
 			posy = posy + Utilities.anchoUnidad;
 			link = this.addTransportLink(selectorUnit, entryUnit, "Load");
 			this.setAutomaticCoupling(link);
 			this.putPreload(entryUnit, role, link);
-			subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+			subProgressMonitor.worked(unidad);
+			Thread.sleep(this.generationDelay);
 		}
 
 		posicion = Utilities.buscarHueco();
@@ -191,7 +201,8 @@ public class Create extends CRUD {
 		link = this.addNormalLink(entryUnit, createUnit, "Cargar");
 		this.setAutomaticCoupling(link);
 		this.guessCouplingEntryToCreateModify(entryUnit, createUnit, link);
-		subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		IEntity entidad;
 		IOperationUnit connectUnit;
@@ -204,7 +215,8 @@ public class Create extends CRUD {
 		this.setAutomaticCoupling(link);
 
 		this.putMessageOnMultiMessageUnit(link, multiMessageUnit, "Falied creating data in " + this.getNombreEntity());
-		subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+		subProgressMonitor.worked(unidad);
+		Thread.sleep(this.generationDelay);
 
 		for (Iterator<IRelationshipRole> iteradorRole = this.getRelaciones().keySet().iterator(); iteradorRole.hasNext();) {
 			role = iteradorRole.next();
@@ -217,7 +229,8 @@ public class Create extends CRUD {
 				idRole = Utilities.getAttribute(role, "id");
 				connectUnit = (IOperationUnit) this.addUnidad(elementIMFE, "ConnectUnit", x, y, nombreRole, false, null);
 				Utilities.setAttribute(connectUnit, "relationship", idRole);
-				subProgressMonitor.worked(unidad);Thread.sleep(this.generationDelay);
+				subProgressMonitor.worked(unidad);
+				Thread.sleep(this.generationDelay);
 
 				this.addOKLink(anteriorCreate, connectUnit);
 				link = this.addTransportLink(entryUnit, connectUnit, "Load");

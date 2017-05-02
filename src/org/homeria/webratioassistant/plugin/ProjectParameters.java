@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -186,7 +186,7 @@ public class ProjectParameters {
 	}
 
 	public static void initSiteViews() {
-		// Iniciamos la estructura que albergará los siteviews
+		// Iniciamos la estructura que albergarï¿½ los siteviews
 		ProjectParameters.siteViews = new HashMap<ISiteView, MFGraphEditor>();
 		// Obtenemos la lista de editores, en los que estan creados los
 		// siteviews entre muchos mas elementos
@@ -202,11 +202,11 @@ public class ProjectParameters {
 				.getSiteViewList();
 		iterador.next();
 		iterador.next();
-		// Recorremos los editores gráficos que tiene en ese momento WebRatio
+		// Recorremos los editores grï¿½ficos que tiene en ese momento WebRatio
 		while (iterador.hasNext()) {
 			editor = iterador.next();
 			// Obtenemos la estructura XML de un elemento del editor grafico,
-			// podrá ser un siteview o cualquier otro elemento
+			// podrï¿½ ser un siteview o cualquier otro elemento
 			XML = editor.getEditorInput().getName();
 			iteradorSiteView = listaSiteViews.iterator();
 			while (iteradorSiteView.hasNext()) {
@@ -214,7 +214,7 @@ public class ProjectParameters {
 				// nombre de siteviews, para ver cual esta incluido en el XML
 				siteView = iteradorSiteView.next();
 				idSiteView = Utilities.getAttribute(siteView, "id");
-				// Si el XML contiene el patron creado se tratará de ese
+				// Si el XML contiene el patron creado se tratarï¿½ de ese
 				// siteview en concreto
 				if (XML.contains(" id=\"" + idSiteView + "\"")) {
 					// y en ese caso lo almacenamos en el HashMap

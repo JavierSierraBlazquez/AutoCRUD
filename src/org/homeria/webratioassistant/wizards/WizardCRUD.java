@@ -10,7 +10,6 @@
 package org.homeria.webratioassistant.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,8 +48,10 @@ import com.webratio.ide.model.ISiteView;
  */
 public class WizardCRUD extends Wizard implements INewWizard {
 	public static Create c = null;
+	// FIXME Pattern remodelation
 	private WizardCRUDPage crudPage;
 	private WizardSelectEntityPage selectEntityPage;
+	private WizardPatternPage patternPage;
 
 	private AllInOne allinone;
 	private Create create;
@@ -83,13 +84,17 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * 
 	 */
 	public void addPages() {
-		if (this.entidadSeleccionada == null) {
+		// FIXME: Pattern remodelation
+		/*if (this.entidadSeleccionada == null) {
 			this.selectEntityPage = new WizardSelectEntityPage();
 			addPage(this.selectEntityPage);
 		}
 
 		this.crudPage = new WizardCRUDPage(this.entidadSeleccionada);
-		addPage(this.crudPage);
+		addPage(this.crudPage);*/
+
+		this.patternPage = new WizardPatternPage();
+		addPage(this.patternPage);
 
 	}
 
@@ -97,6 +102,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * 
 	 */
 	public boolean canFinish() {
+		//TODO pattern remodelation
 		if (getContainer().getCurrentPage() == this.crudPage && 
 				!this.crudPage.getOperationsChecked().isEmpty() && 
 				!this.crudPage.getSiteViewsChecked().isEmpty())
@@ -113,6 +119,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * @throws CoreException
 	 */
 	private void doInicial(IProgressMonitor monitor) throws CoreException {
+		// TODO pattern remodelation (esto no sirve creo, no se crean sites) 
 		try {
 			// Viene informado con los SiteView y Areas
 			if (null != ProjectParameters.getlistaSiteViewArea() && ProjectParameters.getlistaSiteViewArea().size() > 0) {
@@ -163,9 +170,9 @@ public class WizardCRUD extends Wizard implements INewWizard {
 
 				// buscar el nodo padre del objeto que vamos a crear, para que
 				// lo situe en el
-				ISiteView siteView = crudPage.buscarElementoSiteView(nombreSiteView);
+				ISiteView siteView = this.crudPage.buscarElementoSiteView(nombreSiteView);
 				if (nombreSiteView.compareTo(nombrePadre) != 0 && null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
-					IArea areaEnc = crudPage.buscarElementoAreaRecursivo(siteView.getAreaList(), nombrePadre);
+					IArea areaEnc = this.crudPage.buscarElementoAreaRecursivo(siteView.getAreaList(), nombrePadre);
 					EventoNuevaArea nuevaArea = new EventoNuevaArea(areaEnc, 150, 150, objecthijo.getNombre());
 					nuevaArea.ejecutar();
 				} else {
