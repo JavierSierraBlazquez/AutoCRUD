@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -34,40 +34,36 @@ public final class EventoNuevaPagina extends Evento {
 	/**
  * 
  */
+	// FIXME error de generacion en area: posiblemente estÃ© aqui
 	public IMFElement ejecutar() {
 		try {
-			// Se comprueba que el sitio para rear lal página sea un SiteView o
-			// una página Alternativa
-			if ((this.getPadre() instanceof ISiteView)
-					|| (this.getPadre() instanceof IAlternative)
-					|| (this.getPadre() instanceof IArea)) {
-				// Instanciamos al comando para crear Página de WebRatio
-				SelectionCommand cmd = new AddPageCommand(this.getPadre()
-						.getModelId());
+			// Se comprueba que el sitio para rear lal pï¿½gina sea un SiteView o
+			// una pï¿½gina Alternativa
+			if ((this.getPadre() instanceof ISiteView) || (this.getPadre() instanceof IAlternative) || (this.getPadre() instanceof IArea)) {
+				// Instanciamos al comando para crear Pï¿½gina de WebRatio
+				SelectionCommand cmd = new AddPageCommand(this.getPadre().getModelId());
 				if (this.getPadre() instanceof ISiteView)
 					Utilities.switchSiteView((ISiteView) this.getPadre());
 				// Es necesario incluir en el comando una lista con los
-				// elementos donde se va a insertar la página, en este caso la
-				// lista estará unicamente compuesta por el id del padre
+				// elementos donde se va a insertar la pï¿½gina, en este caso la
+				// lista estarï¿½ unicamente compuesta por el id del padre
 				// (SiteViwe o AlternativePage)
 				List<IMFElement> lista = new ArrayList<IMFElement>();
 				lista.add(this.getPadre());
 				// Seleccionamos el padre como lugar donde colocarlo
 				cmd.setSelection(lista);
-				// Y le indicamos su posición espacial X,Y
+				// Y le indicamos su posiciï¿½n espacial X,Y
 				cmd.setLocation(this.getPunto());
 
 				// Ejecutamos
-				((CommandStack) ProjectParameters.getWorkbenchPart()
-						.getAdapter(CommandStack.class)).execute(cmd);
-				// Retornamos la última página creada
+				((CommandStack) ProjectParameters.getWorkbenchPart().getAdapter(CommandStack.class)).execute(cmd);
+				// Retornamos la ï¿½ltima pï¿½gina creada
 				this.pagina = this.getLastPage(this.getPadre());
 				// Y le modificamos los atributos necesarios
 				Utilities.setAttribute(this.pagina, "name", this.nombre);
 				Utilities.setAttribute(this.pagina, "landmark", "true");
 
-				if (this.getPadre() instanceof IArea
-						&& this.nombre.contains("CRUD")) {
+				if (this.getPadre() instanceof IArea && this.nombre.contains("CRUD")) {
 					// se crea en el xml, pero no se muesta por pantalla
 					Utilities.setAttribute(this.pagina, "default", "true");
 					// default="true" landmark="true" protected="true"
@@ -76,15 +72,11 @@ public final class EventoNuevaPagina extends Evento {
 
 			}
 		} catch (Exception e) {
-			Debug.println(
-					this.getClass().toString()
-							+ " "
-							+ new Exception().getStackTrace()[0]
-									.getMethodName(),
-					"No se ha podido añadir la página");
+			Debug.println(this.getClass().toString() + " " + new Exception().getStackTrace()[0].getMethodName(),
+					"No se ha podido aï¿½adir la pï¿½gina");
 			e.printStackTrace();
 		}
-		return pagina;
+		return this.pagina;
 	}
 
 	/**

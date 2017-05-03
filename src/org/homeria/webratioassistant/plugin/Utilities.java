@@ -245,7 +245,8 @@ public class Utilities {
 				NodeList nodeList = doc.getElementsByTagName(linkType);
 				for (int i = 0; i < nodeList.getLength(); i++) {
 					Element element = (Element) nodeList.item(i);
-					links.add(new Link(element.getAttribute("sourceId"), element.getAttribute("destinyId"), linkType));
+					links.add(new Link(element.getAttribute("name"), linkType, element.getAttribute("sourceId"), element
+							.getAttribute("destinyId")));
 				}
 			}
 

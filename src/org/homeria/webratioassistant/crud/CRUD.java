@@ -103,8 +103,8 @@ public class CRUD {
 	 * @return elemento area que se ha añadido al siteView
 	 */
 	protected IMFElement addArea(IMFElement padre, int x, int y, String nombre) {
-		evento = new EventoNuevaAlternantiva(padre, x, y, nombre + Utilities.getAttribute(this.entidad, "name"));
-		return evento.ejecutar();
+		this.evento = new EventoNuevaAlternantiva(padre, x, y, nombre + Utilities.getAttribute(this.entidad, "name"));
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -154,8 +154,8 @@ public class CRUD {
 	 * @return
 	 */
 	protected IMFElement addAttributesCondition(IMFElement element) {
-		evento = new EventoNuevaSelector(element, "AttributesCondition");
-		return evento.ejecutar();
+		this.evento = new EventoNuevaSelector(element, "AttributesCondition");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -165,8 +165,8 @@ public class CRUD {
 	 * @return
 	 */
 	protected IMFElement addKeyCondition(IMFElement element) {
-		evento = new EventoNuevaSelector(element, "KeyCondition");
-		return evento.ejecutar();
+		this.evento = new EventoNuevaSelector(element, "KeyCondition");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -179,8 +179,8 @@ public class CRUD {
 	 * @return: link creado
 	 */
 	protected IMFElement addKOLink(IMFElement source, IMFElement target) {
-		evento = new EventoNuevoLink("KOLink", source, target, "KOLink");
-		return evento.ejecutar();
+		this.evento = new EventoNuevoLink("KOLink", source, target, "KOLink");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -195,8 +195,8 @@ public class CRUD {
 	 * @return: link creado
 	 */
 	protected IMFElement addNormalLink(IMFElement source, IMFElement target, String nombre) {
-		evento = new EventoNuevoLink(nombre, source, target, "normal");
-		return evento.ejecutar();
+		this.evento = new EventoNuevoLink(nombre, source, target, "normal");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -209,8 +209,8 @@ public class CRUD {
 	 * @return: link creado
 	 */
 	protected IMFElement addOKLink(IMFElement source, IMFElement target) {
-		evento = new EventoNuevoLink("OKLink", source, target, "OKLink");
-		return evento.ejecutar();
+		this.evento = new EventoNuevoLink("OKLink", source, target, "OKLink");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -227,8 +227,8 @@ public class CRUD {
 	 * @return: página creada
 	 */
 	protected IMFElement addPagina(IMFElement padre, String nombre, int x, int y) {
-		evento = new EventoNuevaPagina(padre, x, y, nombre + Utilities.getAttribute(this.entidad, "name"));
-		return evento.ejecutar();
+		this.evento = new EventoNuevaPagina(padre, x, y, nombre + Utilities.getAttribute(this.entidad, "name"));
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -240,8 +240,8 @@ public class CRUD {
 	 * @return: elemento con la condición creada
 	 */
 	protected IMFElement addRelationShipRoleCondition(IMFElement element) {
-		evento = new EventoNuevaSelector(element, "RelationshipRoleCondition");
-		return evento.ejecutar();
+		this.evento = new EventoNuevaSelector(element, "RelationshipRoleCondition");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -271,8 +271,8 @@ public class CRUD {
 	 * @return: link creado
 	 */
 	protected IMFElement addTransportLink(IMFElement source, IMFElement target, String nombre) {
-		evento = new EventoNuevoLink(nombre, source, target, "transport");
-		return evento.ejecutar();
+		this.evento = new EventoNuevoLink(nombre, source, target, "transport");
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -311,8 +311,8 @@ public class CRUD {
 			sEntidad = null;
 		if (entidadRelacion != null)
 			sEntidad = entidadRelacion;
-		evento = new EventoNuevaUnit(padre, tipo, x, y, nombre + Utilities.getAttribute(this.entidad, "name"), sEntidad);
-		return evento.ejecutar();
+		this.evento = new EventoNuevaUnit(padre, tipo, x, y, nombre + Utilities.getAttribute(this.entidad, "name"), sEntidad);
+		return this.evento.ejecutar();
 	}
 
 	/**
@@ -400,7 +400,7 @@ public class CRUD {
 	 */
 	private IMFElement createParameter(IAttribute atributo, ISubUnit subUnit, IMFElement link) {
 		IMFElement linkParameter;
-		IMFElement field = (IMFElement) subUnit;
+		IMFElement field = subUnit;
 		String nombre = Utilities.getAttribute(field, "name");
 		// Creamos un linkParameter con los datos necesarios
 		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
@@ -441,7 +441,7 @@ public class CRUD {
 	private IMFElement createParameterField2Att(IAttribute atributo, IMFElement unidadDestino, ISubUnit subUnit, IMFElement link,
 			boolean key) {
 		IMFElement linkParameter;
-		IMFElement field = (IMFElement) subUnit;
+		IMFElement field = subUnit;
 
 		String nombre = Utilities.getAttribute(field, "name");
 
@@ -679,8 +679,8 @@ public class CRUD {
 			}
 		}
 		if (atributos.length() != 0)
-			// Formateamos correctamente la cadnea eliminando el espacio en
-			// blanco fianl
+			// Formateamos correctamente la cadena eliminando el espacio en
+			// blanco final
 			atributos = atributos.substring(0, atributos.length() - 1);
 		return atributos;
 	}
@@ -734,7 +734,7 @@ public class CRUD {
 		this.initRelationShips();
 		// La variable entidadesRelacionadas es un map compuesto por Role,
 		// targetEntity
-		IRelationshipRole role = this.entidadesRelacionadas.get((IEntity) target);
+		IRelationshipRole role = this.entidadesRelacionadas.get(target);
 
 		return role;
 
@@ -874,7 +874,7 @@ public class CRUD {
 		// Obtener lista FIELDS
 		List<ISubUnit> listaFields = ((IUnit) origen).getSubUnitList();
 		// Obtener lista Atributos de la entidad origen
-		List<IAttribute> listaAtributos = ((IEntity) entidadGuess).getAllAttributeList();
+		List<IAttribute> listaAtributos = (entidadGuess).getAllAttributeList();
 
 		String tipoDestino = destino.getQName().getName();
 

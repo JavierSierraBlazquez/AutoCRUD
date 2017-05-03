@@ -40,8 +40,7 @@ public class Read extends CRUD {
 	}
 
 	/**
-	 * Nombre: ejecutar Funcion: Crea los elementos necesarios para la funcion
-	 * Retrieve del CRUD
+	 * Nombre: ejecutar Funcion: Crea los elementos necesarios para la funcion Retrieve del CRUD
 	 * 
 	 * @param subProgressMonitor
 	 */
@@ -59,16 +58,12 @@ public class Read extends CRUD {
 
 				siteView = iteradorSiteView.next();
 
-				// Si para un siteView de la lista existe un area en la lista de
-				// areas, el READ se hara sobre ese area
-				// puedo hacerlo tb con el id que tiene ese area: EJ: area5
-				// [sv1#area1#area3#area5], id del siteView: sv1
-				// Si para un siteView de la lista no existe un area, el READ se
-				// hara sobre ese siteView
+				// Si para un siteView de la lista existe un area en la lista de areas, el READ se hara sobre ese area puedo hacerlo tb con
+				// el id que tiene ese area: EJ: area5 [sv1#area1#area3#area5], id del siteView: sv1. Si para un siteView de la lista no
+				// existe un area, el READ se hara sobre ese siteView
 
 				List<IArea> listaAreaEnc = null;
-				// metodo que diga si en la lista de areas de entrada hay alguno
-				// que corresponde al siteView del iterator
+				// metodo que diga si en la lista de areas de entrada hay alguno que corresponde al siteView del iterator
 				if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0 && null != this.getListaAreas()
 						&& this.getListaAreas().size() > 0) {
 
@@ -147,6 +142,6 @@ public class Read extends CRUD {
 		Thread.sleep(this.generationDelay);
 		// A�adimos un link normal entre la powerIndex
 		// y la dataUnit para mostrar el contenido
-		this.addNormalLink((IMFElement) powerIndexUnit, (IMFElement) dataUnit, "View");
+		this.addNormalLink(powerIndexUnit, dataUnit, "View");
 	}
 }

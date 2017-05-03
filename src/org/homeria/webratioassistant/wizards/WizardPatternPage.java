@@ -80,6 +80,48 @@ public class WizardPatternPage extends WizardPage {
 		this.rightGroupsList = new ArrayList<Group>();
 	}
 
+	public List<ContentUnit> getContentUnits() {
+		return this.contentUnits;
+	}
+
+	public List<Link> getLinks() {
+		return this.links;
+	}
+
+	public IEntity getEntitySelected() {
+		return this.entitySelected;
+	}
+
+	public List<ISiteView> getSiteViewsChecked() {
+		// obtener solamente los checkeados
+		
+		// FIXME error de generacion en area: posiblemente esté aqui
+		TreeItem[] arrSiteViewSelected = this.arbolSvAreas.getItems();
+
+		List<ISiteView> lista = new ArrayList<ISiteView>();
+		if (null != arrSiteViewSelected && arrSiteViewSelected.length > 0) {
+			for (int i = 0; i < arrSiteViewSelected.length; i++) {
+				if (arrSiteViewSelected[i].getChecked()) {
+					for (int j = 0; j < this.listaSiteViews.size(); j++) {
+						ISiteView siteView = this.listaSiteViews.get(j);
+
+						String valorCompleto = Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")";
+						String valorNameMasEspacio = Utilities.getAttribute(siteView, "name") + " ";
+						if (arrSiteViewSelected[i].getText().compareTo(valorCompleto) == 0
+								|| valorNameMasEspacio.compareTo(arrSiteViewSelected[i].getText() + " ") == 0) {
+							lista.add(this.listaSiteViews.get(j));
+						}
+
+					}
+
+				}
+
+			}
+		}
+
+		return lista;
+	}
+
 	@Override
 	public void createControl(Composite parent) {
 		this.containerComposite = new Composite(parent, SWT.NULL);
@@ -113,10 +155,10 @@ public class WizardPatternPage extends WizardPage {
 		this.scrolledComposite.setExpandHorizontal(true);
 		this.scrolledComposite.setAlwaysShowScrollBars(true);
 		this.scrolledComposite.setMinWidth(900);
-		
+
 		this.innerRightComposite = new Composite(this.scrolledComposite, SWT.NONE);
 		this.innerRightComposite.setLayout(new FillLayout());
-		
+
 		this.scrolledComposite.setContent(this.innerRightComposite);
 		try {
 			this.dispose();
@@ -303,7 +345,7 @@ public class WizardPatternPage extends WizardPage {
 	private void entitySelectionListener() {
 		this.patternCombo.setEnabled(true);
 		this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
-		
+
 		// De aqui se obtienen los atributos de la entidad
 		this.listaAtributosEntidad = this.entitySelected.getAllAttributeList();
 		Iterator<IAttribute> iteratorAtributos = this.listaAtributosEntidad.iterator();
@@ -390,6 +432,7 @@ public class WizardPatternPage extends WizardPage {
 
 	private void addAttributesToTable(Table tabla) {
 		Iterator<IAttribute> iteratorAttribute;
+		// TODO pattern remodelation (update)
 		/*
 		 * if (tabla == this.tableRelFormUpdate) iteratorAttribute =
 		 * this.listaAtributosSinDerivados.iterator(); else
