@@ -3,13 +3,19 @@ package org.homeria.webratioassistant.wizards;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -23,25 +29,34 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.homeria.webratioassistant.plugin.MyIEntityComparator;
 import org.homeria.webratioassistant.plugin.ObjStViewArea;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
 import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.temporal.ContentUnit;
-import org.homeria.webratioassistant.temporal.Link;
+import org.homeria.webratioassistant.temporal.PatternParser;
+import org.homeria.webratioassistant.units.CreateUnit;
+import org.homeria.webratioassistant.units.DataUnit;
+import org.homeria.webratioassistant.units.Link;
+import org.homeria.webratioassistant.units.PowerIndexUnit;
+import org.homeria.webratioassistant.units.Unit;
+import org.homeria.webratioassistant.units.WebRatioElement;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IEntity;
+import com.webratio.ide.model.IRelationship;
+import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISiteView;
 
 public class WizardPatternPage extends WizardPage {
 	// TODO: localización de la carpeta patterns
-	private final String PATTERNS_DIR = "patterns";
+	private final String PATTERNS_DIR = "patterns/";
 	private Combo entityCombo;
 	private Combo patternCombo;
 
@@ -54,20 +69,30 @@ public class WizardPatternPage extends WizardPage {
 	private Group entityGroup;
 	private Group patternGroup;
 	private Group svAreaGroup;
+	private Group relationsGroup;
+
+	private Table tableRelations;
 
 	private Tree arbolSvAreas;
 
+	private List<CCombo> listCombosRelations;
+
 	private List<String> patternFileList;
 	private List<ISiteView> listaSiteViews;
-	private List<IEntity> entityList;
 	private List<IAttribute> listaAtributosEntidad;
 	private List<IAttribute> listaAtributosSinDerivados;
-	private List<ContentUnit> contentUnits;
-	private List<Link> links;
+	private List<IEntity> entityList;
+	private List<IRelationshipRole> relatedEntities;
 	private List<Group> rightGroupsList;
 
+	private List<WebRatioElement> pages;
+	private List<Unit> units;
+	private List<Link> links;
+
 	private IEntity entitySelected;
-	private String patternFileSelected;
+
+	PatternParser xmlParser;
+	private Map<String, IAttribute> atributosRelacion;
 
 	protected WizardPatternPage() {
 		super("WizardPattern");
@@ -78,10 +103,16 @@ public class WizardPatternPage extends WizardPage {
 		this.listaAtributosEntidad = new ArrayList<IAttribute>();
 		this.listaAtributosSinDerivados = new ArrayList<IAttribute>();
 		this.rightGroupsList = new ArrayList<Group>();
+		this.listCombosRelations = new ArrayList<CCombo>();
+		this.atributosRelacion = new HashMap<String, IAttribute>();
 	}
 
-	public List<ContentUnit> getContentUnits() {
-		return this.contentUnits;
+	public List<WebRatioElement> getPages() {
+		return this.pages;
+	}
+
+	public List<Unit> getUnits() {
+		return this.units;
 	}
 
 	public List<Link> getLinks() {
@@ -92,9 +123,13 @@ public class WizardPatternPage extends WizardPage {
 		return this.entitySelected;
 	}
 
+	public boolean canFinish() {
+		return this.getSiteViewsChecked().size() > 0 && this.patternCombo.getSelectionIndex() != -1;
+	}
+
 	public List<ISiteView> getSiteViewsChecked() {
 		// obtener solamente los checkeados
-		
+
 		// FIXME error de generacion en area: posiblemente esté aqui
 		TreeItem[] arrSiteViewSelected = this.arbolSvAreas.getItems();
 
@@ -128,14 +163,14 @@ public class WizardPatternPage extends WizardPage {
 		FormLayout thisLayout = new FormLayout();
 		this.containerComposite.setLayout(thisLayout);
 		this.containerComposite.layout();
-		setControl(this.containerComposite);
+		this.setControl(this.containerComposite);
 
 		// declaracionEstructuras(entidad);
 		// this.initRelationShips();
 
 		this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
-		crearCompositeIzquierdo();
+		this.crearCompositeIzquierdo();
 
 		// Inicializo el composite derecho donde van a ir los elementos
 		// dinámicos (dependiendo el patrón seleccionado)
@@ -197,7 +232,8 @@ public class WizardPatternPage extends WizardPage {
 		this.entityCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				entitySelectionListener();
+				super.widgetSelected(evt);
+				WizardPatternPage.this.entitySelectionListener();
 			}
 		});
 
@@ -230,7 +266,7 @@ public class WizardPatternPage extends WizardPage {
 		this.patternCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				patternSelectionListener();
+				WizardPatternPage.this.patternSelectionListener();
 			}
 		});
 
@@ -264,7 +300,7 @@ public class WizardPatternPage extends WizardPage {
 		 * checkPath(item.getParentItem(), checked, false);
 		 * getWizard().getContainer().updateButtons(); } } });
 		 */
-		inicializarListaYarbol();
+		this.inicializarListaYarbol();
 	}
 
 	private void patternSelectionListener() {
@@ -274,76 +310,113 @@ public class WizardPatternPage extends WizardPage {
 		for (Group group : this.rightGroupsList)
 			group.dispose();
 
-		this.patternFileSelected = this.patternFileList.get(this.patternCombo.getSelectionIndex());
+		String patternFileSelected = this.patternFileList.get(this.patternCombo.getSelectionIndex());
+		this.relatedEntities = this.getRelationshipRoles(this.entitySelected);
 
-		// Obtener elementos del XML
-		this.contentUnits = new ArrayList<ContentUnit>();
-		this.links = new ArrayList<Link>();
-		Utilities.parseXML(this.PATTERNS_DIR + "/" + this.patternFileSelected, this.contentUnits, this.links);
+		// Obtener elementos del XML (salvo las relaciones que se necesita que el usuario elija primero)
+		this.xmlParser = new PatternParser(this.PATTERNS_DIR + patternFileSelected, this.entitySelected);
+		this.xmlParser.parsePagesSection();
+		this.xmlParser.parseOpUnitsSection();
+		this.xmlParser.parseLinksSection();
+
+		this.pages = this.xmlParser.getPages();
+		this.units = this.xmlParser.getUnits();
+		this.links = this.xmlParser.getLinks();
+
+		// Recorro una vez primeramente para colocar el grupo Relations en primer lugar
+		for (Unit unit : this.units) {
+
+			// TODO: Update y Delete: añadir para mostrar la table relations
+			if (unit instanceof CreateUnit) {
+
+				this.relationsGroup = new Group(this.innerRightComposite, SWT.NONE);
+				FillLayout relationsGroupLayout = new FillLayout(SWT.HORIZONTAL);
+				relationsGroupLayout.marginHeight = 5;
+				this.relationsGroup.setLayout(relationsGroupLayout);
+				this.relationsGroup.setText("Relations");
+
+				this.rightGroupsList.add(this.relationsGroup);
+
+				this.tableRelations = new Table(this.relationsGroup, SWT.CHECK | SWT.V_SCROLL);
+				this.relationsGroup.addPaintListener(new PaintListener() {
+					public void paintControl(PaintEvent evt) {
+						WizardPatternPage.this.relationsGroupPaintControl(evt);
+					}
+				});
+
+				this.addRelationRolesToTable(this.tableRelations, this.listCombosRelations);
+
+				// Sólo va a haber una tabla para elegir las relaciones:
+				break;
+			}
+		}
 
 		// crear los grupos>tables>atributos
-		for (ContentUnit contentUnit : this.contentUnits) {
-			// Grupo
-			Group group = new Group(this.innerRightComposite, SWT.NONE);
-			GridLayout groupLayout = new GridLayout();
-			groupLayout.numColumns = 1;
-			group.setLayout(groupLayout);
-			group.setText(contentUnit.getName());
+		for (Unit unit : this.units) {
+			if (unit instanceof PowerIndexUnit || unit instanceof DataUnit) {
+				// Se crea una table con los atributos de la entidad
+				// Grupo
+				Group group = new Group(this.innerRightComposite, SWT.NONE);
+				GridLayout groupLayout = new GridLayout();
+				groupLayout.numColumns = 1;
+				group.setLayout(groupLayout);
+				group.setText(unit.getName());
 
-			this.rightGroupsList.add(group);
+				this.rightGroupsList.add(group);
 
-			// Table
-			final Table table = new Table(group, SWT.CHECK | SWT.V_SCROLL);
+				// Table
+				final Table table = new Table(group, SWT.CHECK | SWT.V_SCROLL);
 
-			GridData gridDataIndex = new GridData(SWT.FILL, SWT.FILL, true, true);
-			table.setLayoutData(gridDataIndex);
+				GridData gridDataIndex = new GridData(SWT.FILL, SWT.FILL, true, true);
+				table.setLayoutData(gridDataIndex);
 
-			// boton select all y deselect all
-			Button buttonSelectPower = new Button(group, SWT.PUSH);
-			buttonSelectPower.setText("(Select/Deselect) All");
-			GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
-			gridDataButtonSelectPower.horizontalSpan = 1;
-			buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
-			buttonSelectPower.setSelection(Boolean.FALSE);
+				// boton select all y deselect all
+				Button buttonSelectPower = new Button(group, SWT.PUSH);
+				buttonSelectPower.setText("(Select/Deselect) All");
+				GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
+				gridDataButtonSelectPower.horizontalSpan = 1;
+				buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
+				buttonSelectPower.setSelection(Boolean.FALSE);
 
-			buttonSelectPower.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
-					if (null != table && null != table.getItems() && table.getItems().length > 0) {
-						Boolean hayCheckeados = Boolean.FALSE;
+				buttonSelectPower.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent e) {
+						if (null != table && null != table.getItems() && table.getItems().length > 0) {
+							Boolean hayCheckeados = Boolean.FALSE;
 
-						for (int i = 0; i < table.getItems().length; i++) {
-							if (table.getItems()[i].getChecked()) {
-								hayCheckeados = Boolean.TRUE;
-							}
-						}
-
-						if (hayCheckeados) {
-							// si hay elementos seleccionados: deselecciono all
-							// tableIndexRead.deselectAll();
 							for (int i = 0; i < table.getItems().length; i++) {
-								table.getItems()[i].setChecked(false);
-
+								if (table.getItems()[i].getChecked()) {
+									hayCheckeados = Boolean.TRUE;
+								}
 							}
-						} else {
-							// si no hay elementos seleccionados: selecciono all
-							// tableIndexRead.selectAll();
-							for (int i = 0; i < table.getItems().length; i++) {
-								table.getItems()[i].setChecked(true);
+
+							if (hayCheckeados) {
+								// si hay elementos seleccionados: deselecciono all
+								for (int i = 0; i < table.getItems().length; i++) {
+									table.getItems()[i].setChecked(false);
+
+								}
+							} else {
+								// si no hay elementos seleccionados: selecciono all
+								for (int i = 0; i < table.getItems().length; i++) {
+									table.getItems()[i].setChecked(true);
+								}
 							}
 						}
 					}
-				}
-			});
-			group.setVisible(true);
-			this.addAttributesToTable(table);
-			contentUnit.setTable(table);
-		}
+				});
+				group.setVisible(true);
+				this.addAttributesToTable(table);
 
+				if (unit instanceof PowerIndexUnit)
+					((PowerIndexUnit) unit).setTable(table);
+				else if (unit instanceof DataUnit)
+					((DataUnit) unit).setTable(table);
+			}
+		}
 		this.containerComposite.layout(true, true);
 	}
 
 	private void entitySelectionListener() {
-		this.patternCombo.setEnabled(true);
 		this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
 
 		// De aqui se obtienen los atributos de la entidad
@@ -355,6 +428,13 @@ public class WizardPatternPage extends WizardPage {
 			if (Utilities.getAttribute(atributo, "derivationQuery").equals("") && !Utilities.getAttribute(atributo, "key").equals("true")) {
 				this.listaAtributosSinDerivados.add(atributo);
 			}
+		}
+
+		if (this.patternCombo.getSelectionIndex() != -1) {
+			this.listCombosRelations.clear();
+			this.patternSelectionListener();
+		} else {
+			this.patternCombo.setEnabled(true);
 		}
 	}
 
@@ -382,7 +462,7 @@ public class WizardPatternPage extends WizardPage {
 					itemSiteView.setText(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
 
 					if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
-						montarArbolAreas(itemSiteView, objStView, siteView.getAreaList());
+						this.montarArbolAreas(itemSiteView, objStView, siteView.getAreaList());
 					}
 				}
 			}
@@ -400,8 +480,7 @@ public class WizardPatternPage extends WizardPage {
 	 * @param objPadre
 	 *            --> con esto voy ir aumentando el arbol
 	 * @param listaAreasPadre
-	 *            ---> cone esto voy a ir recorriendo la lista de Areas de cada
-	 *            SiteView, y areas de areas..
+	 *            ---> cone esto voy a ir recorriendo la lista de Areas de cada SiteView, y areas de areas..
 	 */
 	private void montarArbolAreas(TreeItem itemPadreArbol, ObjStViewArea objPadreArbol, List<IArea> listaAreasPadreRecorrer) {
 
@@ -423,7 +502,7 @@ public class WizardPatternPage extends WizardPage {
 
 					this.arbolSvAreas.select(itemHijo);
 
-					montarArbolAreas(itemHijo, objArea1, area.getAreaList());
+					this.montarArbolAreas(itemHijo, objArea1, area.getAreaList());
 				}
 			}
 
@@ -445,4 +524,148 @@ public class WizardPatternPage extends WizardPage {
 		}
 	}
 
+	private void relationsGroupPaintControl(PaintEvent evt) {
+		int tamanio = (this.relationsGroup.getSize().x - 10) / 2;
+		TableColumn[] columns = this.tableRelations.getColumns();
+		for (int i = 0; i < 2; i++) {
+			columns[i].setWidth(tamanio);
+		}
+	}
+
+	private void addRelationRolesToTable(Table tabla, List<CCombo> list) {
+		for (int i = 0; i < 2; i++) {
+			TableColumn column = new TableColumn(tabla, SWT.NONE);
+			column.setWidth(100);
+		}
+		this.relatedEntities = this.getRelationshipRoles(this.entitySelected);
+		for (int i = 0; i < this.relatedEntities.size(); i++) {
+			new TableItem(tabla, SWT.NONE);
+		}
+		TableItem[] items = tabla.getItems();
+
+		for (int i = 0; i < items.length; i++) {
+			TableEditor editor = new TableEditor(tabla);
+			Text text = new Text(tabla, SWT.NONE);
+			text.setText(Utilities.getAttribute(this.relatedEntities.get(i), "name"));
+			editor.grabHorizontal = true;
+			editor.setEditor(text, items[i], 0);
+			editor = new TableEditor(tabla);
+			CCombo combo = new CCombo(tabla, SWT.NONE);
+			combo = this.addAtributesToCombo(combo, this.relatedEntities.get(i), editor);
+			combo.select(0);
+			// se a�ade posicion que ocupa
+			// el combo, sera igual a la del
+			// editor asociado a dicho combo
+			combo.setData(new Integer(i));// se a�ade posicion que ocupa el combo,
+			// sera igual a la del editor asociado a
+			// dicho combo
+			combo.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent evt) {
+					CCombo combo = (CCombo) evt.getSource();
+					Table table = (Table) combo.getParent();
+
+					table.getItems()[(Integer) combo.getData()].setChecked(true);
+				}
+			});
+			list.add(combo);
+			editor.grabHorizontal = true;
+			editor.setEditor(combo, items[i], 1);
+		}
+	}
+
+	private List<IRelationshipRole> getRelationshipRoles(IEntity entidad) {
+		List<IRelationship> lista = entidad.getOutgoingRelationshipList();
+		lista.addAll(entidad.getIncomingRelationshipList());
+		Iterator<IRelationship> iteratorRelacion = lista.iterator();
+		IRelationship relacion;
+		IRelationshipRole role1, role2;
+		String maxCard;
+		List<IRelationshipRole> relatedEnt = new ArrayList<IRelationshipRole>();
+
+		while (iteratorRelacion.hasNext()) {
+			relacion = iteratorRelacion.next();
+			if (relacion.getSourceEntity() == entidad) {
+				role1 = relacion.getRelationshipRole1();
+				maxCard = Utilities.getAttribute(role1, "maxCard");
+				if (maxCard.equals("1")) {
+					relatedEnt.add(role1);
+				} else {
+					role2 = relacion.getRelationshipRole2();
+					maxCard = Utilities.getAttribute(role2, "maxCard");
+					if (maxCard.equals("N")) {
+						relatedEnt.add(role1);
+					}
+				}
+			} else {
+				role1 = relacion.getRelationshipRole2();
+				maxCard = Utilities.getAttribute(role1, "maxCard");
+				if (maxCard.equals("1")) {
+					relatedEnt.add(role1);
+				} else {
+					role2 = relacion.getRelationshipRole1();
+					maxCard = Utilities.getAttribute(role2, "maxCard");
+					if (maxCard.equals("N")) {
+						relatedEnt.add(role1);
+					}
+				}
+			}
+		}
+
+		return relatedEnt;
+	}
+
+	private CCombo addAtributesToCombo(CCombo combo, IRelationshipRole role, TableEditor editor) {
+		IEntity entidad;
+		IRelationship relation = (IRelationship) role.getParentElement();
+		if (relation.getTargetEntity() == this.entitySelected) {
+			entidad = relation.getSourceEntity();
+		} else
+			entidad = relation.getTargetEntity();
+
+		List<IAttribute> atributos = entidad.getAllAttributeList();
+
+		String texto;
+		for (IAttribute atributo : atributos) {
+			texto = Utilities.getAttribute(atributo, "name") + " (" + Utilities.getAttribute(role, "name") + ")";
+			combo.add(Utilities.getAttribute(atributo, "name"));
+			this.atributosRelacion.put(texto, atributo);
+		}
+
+		return combo;
+	}
+
+	public Map<IRelationshipRole, IAttribute> getRelationshipsSelected() {
+		Map<IRelationshipRole, IAttribute> mapaRelaciones = new HashMap<IRelationshipRole, IAttribute>();
+		String key;
+		try {
+			for (int i = 0; i < this.listCombosRelations.size(); i++) {
+				if (this.tableRelations.getItems()[i].getChecked()) {
+					// this.tableIndexCreate.getItems()[i].checked
+					key = this.listCombosRelations.get(i).getItem(this.listCombosRelations.get(i).getSelectionIndex()) + " ("
+							+ Utilities.getAttribute(this.relatedEntities.get(i), "name") + ")";
+					mapaRelaciones.put(this.relatedEntities.get(i), this.atributosRelacion.get(key));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mapaRelaciones;
+	}
+
+	// Ejecutado desde WizardCRUD para parsear las relaciones
+	public void finalizePage() {
+		// Actualizo los cambios realizados en las listas del xmlParser
+		this.xmlParser.setPages(this.pages);
+		this.xmlParser.setUnits(this.units);
+		this.xmlParser.setLinks(this.links);
+
+		// Ahora parseo las relaciones, y las nuevas unidades se añaden a las anteriores que han sido cambiadas.
+		this.xmlParser.parseRelationsSection(this.getRelationshipsSelected().keySet());
+
+		// Me traigo los elementos con todos los cambios nuevos.
+		this.pages = this.xmlParser.getPages();
+		this.units = this.xmlParser.getUnits();
+		this.links = this.xmlParser.getLinks();
+	}
 }

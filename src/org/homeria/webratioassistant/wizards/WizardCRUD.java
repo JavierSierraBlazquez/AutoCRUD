@@ -15,28 +15,27 @@ import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.homeria.webratioassistant.crud.AllInOne;
-import org.homeria.webratioassistant.crud.Create;
-import org.homeria.webratioassistant.crud.Delete;
-import org.homeria.webratioassistant.crud.Read;
-import org.homeria.webratioassistant.crud.Update;
 import org.homeria.webratioassistant.plugin.Debug;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.temporal.ContentUnit;
-import org.homeria.webratioassistant.temporal.ElementType;
-import org.homeria.webratioassistant.temporal.Generate;
-import org.homeria.webratioassistant.temporal.Link;
+import org.homeria.webratioassistant.units.ConnectUnit;
+import org.homeria.webratioassistant.units.CreateUnit;
+import org.homeria.webratioassistant.units.DataFlow;
+import org.homeria.webratioassistant.units.DeleteUnit;
+import org.homeria.webratioassistant.units.EntryUnit;
+import org.homeria.webratioassistant.units.Link;
+import org.homeria.webratioassistant.units.NormalNavigationFlow;
+import org.homeria.webratioassistant.units.Page;
+import org.homeria.webratioassistant.units.Unit;
+import org.homeria.webratioassistant.units.WebRatioElement;
 
-import com.webratio.ide.model.IContentUnit;
+import com.webratio.commons.mf.IMFElement;
+import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IEntity;
-import com.webratio.ide.model.IPage;
+import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISiteView;
 
 /**
@@ -47,27 +46,14 @@ import com.webratio.ide.model.ISiteView;
  * WizardCRUD: Clase principal encargada del asistente gr�fico
  */
 public class WizardCRUD extends Wizard implements INewWizard {
-	public static Create c = null;
-	// FIXME Pattern remodelation
-	private WizardCRUDPage crudPage;
-	private WizardSelectEntityPage selectEntityPage;
 	private WizardPatternPage patternPage;
-
-	private AllInOne allinone;
-	private Create create;
-	private Read read;
-	private Update update;
-	private Delete delete;
-	private IEntity entidadSeleccionada;
 
 	/**
 	 * 
 	 */
 	public WizardCRUD() {
 		super();
-		setNeedsProgressMonitor(true);
-		this.entidadSeleccionada = null;
-
+		this.setNeedsProgressMonitor(true);
 	}
 
 	/**
@@ -76,84 +62,24 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 */
 	public WizardCRUD(IEntity selection) {
 		super();
-		setNeedsProgressMonitor(true);
-		this.entidadSeleccionada = selection;
+		this.setNeedsProgressMonitor(true);
 	}
 
 	/**
 	 * 
 	 */
 	public void addPages() {
-		// FIXME: Pattern remodelation
-		/*
-		 * if (this.entidadSeleccionada == null) { this.selectEntityPage = new
-		 * WizardSelectEntityPage(); addPage(this.selectEntityPage); }
-		 * 
-		 * this.crudPage = new WizardCRUDPage(this.entidadSeleccionada);
-		 * addPage(this.crudPage);
-		 */
-
 		this.patternPage = new WizardPatternPage();
-		addPage(this.patternPage);
-
+		this.addPage(this.patternPage);
 	}
 
 	/**
 	 * 
 	 */
 	public boolean canFinish() {
-		// TODO pattern remodelation
-		/*
-		if (getContainer().getCurrentPage() == this.crudPage && !this.crudPage.getOperationsChecked().isEmpty()
-				&& !this.crudPage.getSiteViewsChecked().isEmpty())
-			return true;
-		else
-			return false;
-			*/
+		// FIXME canFinish
+		// return this.patternPage.canFinish();
 		return true;
-	}
-
-	/***
-	 * 
-	 * Nombre: doFinish Funcion:
-	 * 
-	 * @param a
-	 * @param c
-	 * @param r
-	 * @param u
-	 * @param d
-	 * @param monitor
-	 * @throws CoreException
-	 */
-	private void doFinish(AllInOne a, Create c, Read r, Update u, Delete d, IProgressMonitor monitor) throws CoreException {
-		try {
-
-			List<Utilities.Operations> operationsChecked = this.crudPage.getOperationsChecked();
-			int numTareas = operationsChecked.size();
-
-			monitor.beginTask("Running READ", numTareas);
-			if (operationsChecked.contains(Utilities.Operations.READ))
-				r.ejecutar(new SubProgressMonitor(monitor, 1));
-			monitor.setTaskName("Running CREATE");
-			if (operationsChecked.contains(Utilities.Operations.CREATE))
-				c.ejecutar(new SubProgressMonitor(monitor, 1));
-			monitor.setTaskName("Running ALLINONE");
-			if (operationsChecked.contains(Utilities.Operations.ALLINONE))
-				a.ejecutar(new SubProgressMonitor(monitor, 1));
-			monitor.setTaskName("Running UPDATE");
-			if (operationsChecked.contains(Utilities.Operations.UPDATE))
-				u.ejecutar(new SubProgressMonitor(monitor, 1));
-			monitor.setTaskName("Running DELETE");
-			if (operationsChecked.contains(Utilities.Operations.DELETE))
-				d.ejecutar(new SubProgressMonitor(monitor, 1));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		finally {
-			monitor.done();
-		}
 	}
 
 	/**
@@ -172,33 +98,78 @@ public class WizardCRUD extends Wizard implements INewWizard {
 		}
 	}
 
+	/***
+	 * 
+	 * Nombre: doFinish Funcion:
+	 * 
+	 * @param a
+	 * @param c
+	 * @param r
+	 * @param u
+	 * @param d
+	 * @param monitor
+	 * @throws CoreException
+	 */
+
 	@Override
 	public boolean performFinish() {
 		try {
-
-			List<ContentUnit> contentUnits = this.patternPage.getContentUnits();
+			this.patternPage.finalizePage();
+			List<WebRatioElement> pages = this.patternPage.getPages();
+			List<Unit> units = this.patternPage.getUnits();
 			List<Link> links = this.patternPage.getLinks();
+			List<ISiteView> siteViews = this.patternPage.getSiteViewsChecked();
+			Map<IRelationshipRole, IAttribute> relshipsSelected = this.patternPage.getRelationshipsSelected();
 			IEntity entity = this.patternPage.getEntitySelected();
-			Map<String, IPage> createdPages = new HashMap<String, IPage>();
-			Map<String, IContentUnit> createdCU = new HashMap<String, IContentUnit>();
-			IPage page;
 
-			for (ISiteView sv : this.patternPage.getSiteViewsChecked()) {
-				for (ContentUnit cu : contentUnits) {
-					if (null == (page = createdPages.get(cu.getParentId()))) {
-						// Creamos pagina nueva
-						page = Generate.page(sv, cu.getParentId());
-						createdPages.put(cu.getParentId(), page);
-					}
+			for (ISiteView siteView : siteViews) {
 
-					if (cu.getType().contentEquals(ElementType.POWER_INDEX_UNIT))
-						createdCU.put(cu.getId(), Generate.powerIndexUnit(page, cu, entity));
-					else if (cu.getType().contentEquals(ElementType.DATA_UNIT))
-						createdCU.put(cu.getId(), Generate.dataUnit(page, cu, entity));
+				// pruebas
+				for (WebRatioElement page : pages) {
+					System.out.println(page.getId() + " - " + page.getName());
+				}
+
+				for (Unit unit : units) {
+
+					System.out.println(unit.getId() + " - " + unit.getName());
 				}
 
 				for (Link link : links) {
-					Generate.normalLink(link.getName(), createdCU.get(link.getSourceId()), createdCU.get(link.getDestinyId()));
+
+					System.out.println(link.getId() + " - " + link.getName() + " - " + link.getSourceId() + " - " + link.getTargetId());
+				}
+
+				// fin pruebas
+				Map<String, IMFElement> createdElements = new HashMap<String, IMFElement>();
+
+				for (WebRatioElement page : pages) {
+					((Page) page).setSiteView(siteView);
+					createdElements.put(page.getId(), page.generate(createdElements));
+				}
+
+				for (Unit unit : units) {
+					if (unit instanceof EntryUnit)
+						((EntryUnit) unit).setRelshipsSelected(relshipsSelected);
+
+					else if (unit instanceof DeleteUnit)
+						((DeleteUnit) unit).setSiteView(siteView);
+
+					else if (unit instanceof CreateUnit)
+						((CreateUnit) unit).setSiteView(siteView);
+
+					else if (unit instanceof ConnectUnit)
+						((ConnectUnit) unit).setSiteView(siteView);
+
+					createdElements.put(unit.getId(), unit.generate(createdElements));
+				}
+
+				for (Link link : links) {
+					if (link instanceof NormalNavigationFlow)
+						((NormalNavigationFlow) link).setRelshipsSelected(relshipsSelected);
+
+					if (link instanceof DataFlow)
+						((DataFlow) link).setRelshipsSelected(relshipsSelected);
+					createdElements.put(link.getId(), link.generate(createdElements));
 				}
 			}
 			/*

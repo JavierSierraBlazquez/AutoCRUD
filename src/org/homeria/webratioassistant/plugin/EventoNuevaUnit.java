@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -37,8 +37,7 @@ public final class EventoNuevaUnit extends Evento {
 	private IUnit unit;
 	private HashMap<String, IUnitType> UnitTypes;
 
-	public EventoNuevaUnit(IMFElement padre, String tipo, int x, int y,
-			String nombre, IEntity entity) {
+	public EventoNuevaUnit(IMFElement padre, String tipo, int x, int y, String nombre, IEntity entity) {
 		super(padre, x, y);
 		this.nombre = nombre;
 		this.loadUnitTypes();
@@ -64,32 +63,29 @@ public final class EventoNuevaUnit extends Evento {
 			cmd.setLocation(point);
 			// Se comprueba si se puede ejecutar esa unidad en el padre
 			// seleccionado, comprueba por ejemplo que las unidades de operacion
-			// no se encuentren dentro de páginas
+			// no se encuentren dentro de pï¿½ginas
 			if (cmd.canExecute()) {
-				((CommandStack) ProjectParameters.getWorkbenchPartWebRatio()
-						.getAdapter(CommandStack.class)).execute(cmd);
+				((CommandStack) ProjectParameters.getWorkbenchPartWebRatio().getAdapter(CommandStack.class)).execute(cmd);
 				this.unit = this.getLastContentUnit(this.getPadre());
 				// Si la unidad es de tipo IsNotNullUnit marcamos como true el
 				// campo emptyStringAsNull, ya que en el asistente siemrpe que
-				// usemos esta entidad será para compara cadenas vacias
+				// usemos esta entidad serï¿½ para compara cadenas vacias
 				if (this.unit.getQName().getName().equals("IsNotNullUnit")) {
-					Utilities.setAttribute(this.unit, "emptyStringAsNull",
-							"true");
+					Utilities.setAttribute(this.unit, "emptyStringAsNull", "true");
 				}
-				// Se añade el nombre
-				Utilities.setAttribute(this.unit, "name", nombre);
-				// Si al crear la instancia añadimos una entidad se la
+				// Se aï¿½ade el nombre
+				Utilities.setAttribute(this.unit, "name", this.nombre);
+				// Si al crear la instancia aï¿½adimos una entidad se la
 				// indicaremos a la unidad creada, para los casos como DataUnit,
 				// PoweIndexUnit y todo tipo de unidades que requieren una
 				// entidad para funcionar
 				if (this.entidad != null)
-					Utilities.setAttribute(this.unit, "entity",
-							this.entidad.getFinalId());
+					Utilities.setAttribute(this.unit, "entity", this.entidad.getFinalId());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return unit;
+		return this.unit;
 	}
 
 	private IUnit getLastContentUnit(IMFElement element) {
@@ -103,20 +99,18 @@ public final class EventoNuevaUnit extends Evento {
 		}
 		if (element instanceof ISiteView) {
 			siteView = (ISiteView) element;
-			return siteView.getOperationUnitList().get(
-					siteView.getOperationUnitList().size() - 1);
+			return siteView.getOperationUnitList().get(siteView.getOperationUnitList().size() - 1);
 		}
 		if (element instanceof IArea) {
 			area = (IArea) element;
-			return area.getOperationUnitList().get(
-					area.getOperationUnitList().size() - 1);
+			return area.getOperationUnitList().get(area.getOperationUnitList().size() - 1);
 		}
 
 		return null;
 	}
 
 	private IUnitType getUnitType(String type) {
-		return UnitTypes.get(type);
+		return this.UnitTypes.get(type);
 	}
 
 	private void loadUnitTypes() {
@@ -124,13 +118,12 @@ public final class EventoNuevaUnit extends Evento {
 		IWebProject webProject = ProjectParameters.getWebProject();
 		// Iniciamos la estructura hashMap para guardar las unidades y un string
 		// para guardar su nombre
-		UnitTypes = new HashMap<String, IUnitType>();
+		this.UnitTypes = new HashMap<String, IUnitType>();
 		// Hacemos las operaciones necesarias con las funciones de WebRatio para
 		// obtener el listado de unidades
 		IProject[] project = new IProject[1];
 		project[0] = MFPlugin.getDefault().getFile(webProject).getProject();
-		List<IUnitProject> IU = UnitsPlugin.getUnitModel().getUnitProjects(
-				project);
+		List<IUnitProject> IU = UnitsPlugin.getUnitModel().getUnitProjects(project);
 		IUnitProject IUP;
 		Iterator<IUnitProject> iter2 = IU.iterator();
 		Iterator<IUnitType> iter;
@@ -143,7 +136,7 @@ public final class EventoNuevaUnit extends Evento {
 			while (iter.hasNext()) {
 				iu = iter.next();
 				// Almacenamos su nombre y la unidad
-				UnitTypes.put(iu.getName(), iu);
+				this.UnitTypes.put(iu.getName(), iu);
 			}
 		}
 	}
