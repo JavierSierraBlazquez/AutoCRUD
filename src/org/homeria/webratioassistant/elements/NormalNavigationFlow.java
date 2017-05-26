@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.units;
+package org.homeria.webratioassistant.elements;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +9,6 @@ import org.homeria.webratioassistant.plugin.Evento;
 import org.homeria.webratioassistant.plugin.EventoNuevoLink;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
 import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.temporal.ElementType;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;

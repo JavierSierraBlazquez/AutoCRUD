@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.temporal;
+package org.homeria.webratioassistant.elements;
 
 public abstract class ElementType {
 	public static final String PAGE = "Page";

@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.units;
+package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 

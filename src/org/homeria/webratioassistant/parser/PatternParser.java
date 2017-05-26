@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.temporal;
+package org.homeria.webratioassistant.parser;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,24 +10,25 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.homeria.webratioassistant.elements.ConnectUnit;
+import org.homeria.webratioassistant.elements.CreateUnit;
+import org.homeria.webratioassistant.elements.DataFlow;
+import org.homeria.webratioassistant.elements.DataUnit;
+import org.homeria.webratioassistant.elements.DeleteUnit;
+import org.homeria.webratioassistant.elements.ElementType;
+import org.homeria.webratioassistant.elements.EntryUnit;
+import org.homeria.webratioassistant.elements.KOLink;
+import org.homeria.webratioassistant.elements.Link;
+import org.homeria.webratioassistant.elements.MultiMessageUnit;
+import org.homeria.webratioassistant.elements.NormalNavigationFlow;
+import org.homeria.webratioassistant.elements.OKLink;
+import org.homeria.webratioassistant.elements.Page;
+import org.homeria.webratioassistant.elements.PowerIndexUnit;
+import org.homeria.webratioassistant.elements.SelectorUnit;
+import org.homeria.webratioassistant.elements.Unit;
+import org.homeria.webratioassistant.elements.UpdateUnit;
+import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.units.ConnectUnit;
-import org.homeria.webratioassistant.units.CreateUnit;
-import org.homeria.webratioassistant.units.DataFlow;
-import org.homeria.webratioassistant.units.DataUnit;
-import org.homeria.webratioassistant.units.DeleteUnit;
-import org.homeria.webratioassistant.units.EntryUnit;
-import org.homeria.webratioassistant.units.KOLink;
-import org.homeria.webratioassistant.units.Link;
-import org.homeria.webratioassistant.units.MultiMessageUnit;
-import org.homeria.webratioassistant.units.NormalNavigationFlow;
-import org.homeria.webratioassistant.units.OKLink;
-import org.homeria.webratioassistant.units.Page;
-import org.homeria.webratioassistant.units.PowerIndexUnit;
-import org.homeria.webratioassistant.units.SelectorUnit;
-import org.homeria.webratioassistant.units.Unit;
-import org.homeria.webratioassistant.units.UpdateUnit;
-import org.homeria.webratioassistant.units.WebRatioElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,6 +40,7 @@ import com.webratio.ide.model.IRelationship;
 import com.webratio.ide.model.IRelationshipRole;
 
 public class PatternParser {
+	private static int SEPARACION_UNIDADES = 120;
 
 	private Document doc;
 	private File fXmlFile;
@@ -172,7 +174,7 @@ public class PatternParser {
 						}
 
 					} else {
-						this.putNumAttElement(element, countRelation);
+						this.replaceMarkerWithNum(element, countRelation);
 						this.createElement(element, role);
 					}
 				}
@@ -190,7 +192,7 @@ public class PatternParser {
 				if (node instanceof Element) {
 					Element element = (Element) node;
 
-					this.putNumAttElement(element, countNM - 1);
+					this.replaceMarkerWithNum(element, countNM - 1);
 					this.createElement(element, this.entity);
 				}
 			}
@@ -202,7 +204,7 @@ public class PatternParser {
 				if (node instanceof Element) {
 					Element element = (Element) node;
 
-					this.putNumAttElement(element, countRelation - 1);
+					this.replaceMarkerWithNum(element, countRelation - 1);
 					this.createElement(element, this.entity);
 				}
 			}
@@ -227,7 +229,7 @@ public class PatternParser {
 							if (node2 instanceof Element) {
 								Element firstRelElement = (Element) node2;
 
-								this.putNumAttElement(firstRelElement, count);
+								this.replaceMarkerWithNum(firstRelElement, count);
 								// Solo va a crearse una vez, dependiendo del tipo que sea:
 								this.createElement(firstRelElement, role);
 								this.createElement(firstRelElement, this.entity);
@@ -243,9 +245,9 @@ public class PatternParser {
 						for (int j = 0; j < notFirstRelElements.getLength(); j++) {
 							Node node2 = notFirstRelElements.item(j);
 							if (node2 instanceof Element) {
-								Element notFirstRelElement = (Element) node;
+								Element notFirstRelElement = (Element) node2;
 
-								this.putNumAttElement(notFirstRelElement, count);
+								this.replaceMarkerWithNum(notFirstRelElement, count);
 								// Solo va a crearse una vez, dependiendo del tipo que sea:
 								this.createElement(notFirstRelElement, role);
 								this.createElement(notFirstRelElement, this.entity);
@@ -255,7 +257,7 @@ public class PatternParser {
 
 				} else {
 
-					this.putNumAttElement(nmElement, count);
+					this.replaceMarkerWithNum(nmElement, count);
 					// Solo va a crearse una vez, dependiendo del tipo que sea:
 					this.createElement(nmElement, role);
 					this.createElement(nmElement, this.entity);
@@ -267,22 +269,28 @@ public class PatternParser {
 
 	// sustituye la almohadilla por el parámetro y opera si fuese necesario #-n #-n
 	// en los atributos id, sourceId y targetId
-	private void putNumAttElement(Element element, int count) {
+	private void replaceMarkerWithNum(Element element, int count) {
 		if (element.getAttribute("id").contains("#") || element.getAttribute("id").contains("%"))
-			element.setAttribute("id", this.putNumString(element.getAttribute("id"), count));
+			element.setAttribute("id", this.replaceMarkerWithNum2(element.getAttribute("id"), count));
 
 		if (element.getAttribute("name").contains("#") || element.getAttribute("name").contains("%"))
-			element.setAttribute("name", this.putNumString(element.getAttribute("name"), count));
+			element.setAttribute("name", this.replaceMarkerWithNum2(element.getAttribute("name"), count));
 
 		if (element.getAttribute("sourceId").contains("#") || element.getAttribute("sourceId").contains("%"))
-			element.setAttribute("sourceId", this.putNumString(element.getAttribute("sourceId"), count));
+			element.setAttribute("sourceId", this.replaceMarkerWithNum2(element.getAttribute("sourceId"), count));
 
 		if (element.getAttribute("targetId").contains("#") || element.getAttribute("targetId").contains("%"))
-			element.setAttribute("targetId", this.putNumString(element.getAttribute("targetId"), count));
+			element.setAttribute("targetId", this.replaceMarkerWithNum2(element.getAttribute("targetId"), count));
+
+		if (element.getAttribute("x").contains("#") || element.getAttribute("x").contains("%"))
+			element.setAttribute("x", this.replaceCoords(element.getAttribute("x"), count));
+
+		if (element.getAttribute("y").contains("#") || element.getAttribute("y").contains("%"))
+			element.setAttribute("y", this.replaceCoords(element.getAttribute("y"), count));
 	}
 
 	// str formato: cadena# || cadena#-n || cadena#+n
-	private String putNumString(String str, int count) {
+	private String replaceMarkerWithNum2(String str, int count) {
 		String marker = "";
 		if (str.contains("#"))
 			marker = "#";
@@ -299,6 +307,22 @@ public class PatternParser {
 			}
 		}
 		s2[0] += String.valueOf(count);
+		return s2[0];
+	}
+
+	// str formato: 200# || 200% RESULTADO: 200*count
+	private String replaceCoords(String str, int count) {
+		String marker = "";
+		if (str.contains("#"))
+			marker = "#";
+		else if (str.contains("%"))
+			marker = "%";
+
+		String s2[] = str.split(marker);
+		int value = Integer.valueOf(s2[0]);
+		value += SEPARACION_UNIDADES * count;
+		s2[0] = String.valueOf(value);
+
 		return s2[0];
 	}
 

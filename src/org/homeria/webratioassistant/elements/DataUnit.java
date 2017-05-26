@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.units;
+package org.homeria.webratioassistant.elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,18 +8,17 @@ import org.eclipse.swt.widgets.Table;
 import org.homeria.webratioassistant.plugin.Evento;
 import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
 import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.temporal.ElementType;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IEntity;
 
-public class PowerIndexUnit extends Unit {
+public class DataUnit extends Unit {
 
 	private String parentId;
 	private Table table;
 
-	public PowerIndexUnit(String id, String name, String parentId, String x, String y, IEntity entity) {
+	public DataUnit(String id, String name, String parentId, String x, String y,IEntity entity) {
 		super(id, name, x, y, entity);
 		this.parentId = parentId;
 	}
@@ -32,15 +31,15 @@ public class PowerIndexUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		Evento evento = new EventoNuevaUnit(parent, ElementType.POWER_INDEX_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		Evento evento = new EventoNuevaUnit(parent, ElementType.DATA_UNIT, this.position.x, this.position.y, this.name, this.entity);
 
-		IMFElement pIndexUnit = evento.ejecutar();
+		IMFElement dataUnit = evento.ejecutar();
 		// Se añaden los atributos
-		Utilities.setAttribute(pIndexUnit, "displayAttributes", this.getSelectedAttributes());
-		return pIndexUnit;
+		Utilities.setAttribute(dataUnit, "displayAttributes", this.getSelectedAttributes());
+		return dataUnit;
 	}
 
-	private String getSelectedAttributes() {
+	public String getSelectedAttributes() {
 		List<IAttribute> entityList = this.entity.getAllAttributeList();
 		List<IAttribute> itemsCheckedList = new ArrayList<IAttribute>();
 
