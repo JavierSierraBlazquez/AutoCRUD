@@ -13,6 +13,14 @@ public abstract class ElementType {
 	public static final String CONNECT_UNIT = "ConnectUnit";
 	public static final String SELECTOR_UNIT = "SelectorUnit";
 
+	// ENTRY UNIT TYPES
+	public static String ENTRYUNIT_PRELOADED = "preloaded";
+	
+	// SELECTOR UNIT TYPES
+	public static String SELECTOR_KEYCONDITION = "keyCondition";
+	public static String SELECTOR_ROLECONDITION = "roleCondition";
+	
+	// LINKS
 	public static final String NORMAL_NAVIGATION_FLOW = "NormalNavigationFlow";
 	public static final String DATA_FLOW = "DataFlow";
 	public static final String OK_LINK = "OKLink";
@@ -23,9 +31,10 @@ public abstract class ElementType {
 	public static final String DATAFLOW_PRELOAD = "preload";
 	public static final String DATAFLOW_ENTRY_TO_CONNECT = "entryToConnect";
 	public static final String DATAFLOW_UNIT_TO_ENTRY = "unitToEntry";
+	public static final String DATAFLOW_UNIT_TO_ENTRY_ROLE = "unitToEntryRole";
 	
 	// NORMAL NAVIGATION FLOW TYPES:
 	public static final String NORMALFLOW_ENTRY_TO_CREATE = "entryToCreate";
-	public static final String NORMALFLOW_ENTRY_TO_MODIFY = "entryToModify";
+	public static final String NORMALFLOW_ENTRY_TO_UPDATE = "entryToUpdate";
 	
 }

@@ -16,14 +16,15 @@ import com.webratio.ide.model.IRelationship;
 import com.webratio.ide.model.IRelationshipRole;
 
 public class EntryUnit extends Unit {
-
 	private String parentId;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
+	private String type;
 
-	public EntryUnit(String id, String name, String parentId, String x, String y, IEntity entity) {
+	public EntryUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
 		this.parentId = parentId;
 		this.entity = entity;
+		this.type = type;
 	}
 
 	public void setRelshipsSelected(Map<IRelationshipRole, IAttribute> relshipsSelected) {
@@ -51,23 +52,31 @@ public class EntryUnit extends Unit {
 		List<IAttribute> listaAtributos = this.entity.getAllAttributeList();
 		// Recorremos la lista final de atributos para crear los campos en el formulario
 		for (IAttribute atributo : listaAtributos) {
-			nombre = Utilities.getAttribute(atributo, "name");
-			tipo = Utilities.getAttribute(atributo, "type");
-			field = cmd.addSubUnit(Utilities.getSubUnitType(element, "Field"), element);
-			// Si el tipo es password lo pasamos a tipo string por comodidad a la hora de modificar el formulario
-			if (tipo.equals("password"))
-				tipo = "string";
-			Utilities.setAttribute(field, "type", tipo);
-			new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
+			// No att. derivados:
+			if (null == Utilities.getAttribute(atributo, "derivationQuery")
+					|| Utilities.getAttribute(atributo, "derivationQuery").isEmpty()) {
+				nombre = Utilities.getAttribute(atributo, "name");
+				tipo = Utilities.getAttribute(atributo, "type");
+				field = cmd.addSubUnit(Utilities.getSubUnitType(element, "Field"), element);
+				// Si el tipo es password lo pasamos a tipo string por comodidad a la hora de modificar el formulario
+				if (tipo.equals("password"))
+					tipo = "string";
+				Utilities.setAttribute(field, "type", tipo);
 
-			if ((Utilities.getAttribute(atributo, "name").contains("oid") || Utilities.getAttribute(atributo, "name").contains("OID"))
-					&& Utilities.getAttribute(atributo, "key").equals("true")) {
-				Utilities.setAttribute(field, "hidden", "true");
-				Utilities.setAttribute(field, "modifiable", "false");
+				if (this.type.equals(ElementType.ENTRYUNIT_PRELOADED))
+					Utilities.setAttribute(field, "preloaded", "true");
 
-				// Mantener el contenType de los campos en el formulario.
-				if (null != Utilities.getAttribute(atributo, "contentType")) {
-					Utilities.setAttribute(field, "contentType", Utilities.getAttribute(atributo, "contentType"));
+				new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
+
+				if ((Utilities.getAttribute(atributo, "name").contains("oid") || Utilities.getAttribute(atributo, "name").contains("OID"))
+						&& Utilities.getAttribute(atributo, "key").equals("true")) {
+					Utilities.setAttribute(field, "hidden", "true");
+					Utilities.setAttribute(field, "modifiable", "false");
+
+					// Mantener el contenType de los campos en el formulario.
+					if (null != Utilities.getAttribute(atributo, "contentType")) {
+						Utilities.setAttribute(field, "contentType", Utilities.getAttribute(atributo, "contentType"));
+					}
 				}
 			}
 		}

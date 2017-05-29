@@ -326,7 +326,7 @@ public class WizardPatternPage extends WizardPage {
 		// Recorro una vez primeramente para colocar el grupo Relations en primer lugar
 		for (Unit unit : this.units) {
 
-			// TODO: Update y Delete: añadir para mostrar la table relations
+			// TODO: Update y Delete: añadir para mostrar la table relations (delete no hace falta, WR lo hace solo)
 			if (unit instanceof CreateUnit) {
 
 				this.relationsGroup = new Group(this.innerRightComposite, SWT.NONE);

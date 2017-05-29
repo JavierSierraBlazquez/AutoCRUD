@@ -124,22 +124,6 @@ public class WizardCRUD extends Wizard implements INewWizard {
 
 			for (ISiteView siteView : siteViews) {
 
-				// pruebas
-				for (WebRatioElement page : pages) {
-					System.out.println(page.getId() + " - " + page.getName());
-				}
-
-				for (Unit unit : units) {
-
-					System.out.println(unit.getId() + " - " + unit.getName());
-				}
-
-				for (Link link : links) {
-
-					System.out.println(link.getId() + " - " + link.getName() + " - " + link.getSourceId() + " - " + link.getTargetId());
-				}
-
-				// fin pruebas
 				Map<String, IMFElement> createdElements = new HashMap<String, IMFElement>();
 
 				for (WebRatioElement page : pages) {

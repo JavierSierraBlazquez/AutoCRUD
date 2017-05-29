@@ -50,7 +50,6 @@ public class DataFlow extends Link {
 
 		if (this.type.equals(ElementType.DATAFLOW_PRELOAD)) {
 			this.removeAutomaticCoupling(link);
-			// target have to be entryUnit
 			this.putPreload(target, this.role, link);
 
 		} else if (this.type.equals(ElementType.DATAFLOW_ENTRY_TO_CONNECT)) {
@@ -59,8 +58,11 @@ public class DataFlow extends Link {
 
 		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY)) {
 			this.removeAutomaticCoupling(link);
-			// FIXME TODO DataFlow unit to entry (update) entidadPreload?
-			// this.guessCouplingUnitToEntry(selectorUnit, entidadPreload, entryUnit, link, this.role);
+			this.guessCouplingUnitToEntry(source, target, this.entity, link);
+			
+		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY_ROLE)) {
+			this.removeAutomaticCoupling(link);
+			this.guessCouplingUnitToEntry(source, target, this.entity, link, this.role);
 		}
 
 		return link;
@@ -119,6 +121,39 @@ public class DataFlow extends Link {
 	}
 
 	/**
+	 * Nombre: createParameter Funcion: Añade un parametro a un link, para conectar un atributo con un campo de formulario
+	 * 
+	 * @param atributo
+	 *            : atributo que queremos conectar
+	 * @param subUnit
+	 *            : campo del formulario que queremos conectar
+	 * @param link
+	 *            : link que contendrá el parametro
+	 * @return: el parametro creado
+	 */
+	private IMFElement createParameter(IAttribute atributo, ISubUnit subUnit, IMFElement link) {
+		IMFElement linkParameter;
+		IMFElement field = subUnit;
+		String nombre = Utilities.getAttribute(field, "name");
+		// Creamos un linkParameter con los datos necesarios
+		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+				link.getFinalId());
+		// Id: se forma de las id del link más las id de los elementos
+		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
+				+ linkParameter.getFinalId(), link.getRootElement()).execute();
+		// Nombre: se forma con el nombre del field
+		new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nombre, link.getRootElement()).execute();
+		// Origen: con los datos del atributo
+		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array",
+				link.getRootElement()).execute();
+		// Destino: se crea con los campos del field del formulario
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(field.getIdsByFinalId().toString()) + "_slot",
+				link.getRootElement()).execute();
+
+		return linkParameter;
+	}
+
+	/**
 	 * Nombre: createParameterPreload Funcion: Crea un parametro en un link para poder hacer el preload de atributos
 	 * 
 	 * @param atributo
@@ -132,7 +167,6 @@ public class DataFlow extends Link {
 	 * @param entidadOrigen
 	 *            : entidad de la que proceden los atributos
 	 */
-
 	private void createParameterPreload(IAttribute atributo, ISubUnit field, IAttribute atributoSeleccion, IMFElement link,
 			IEntity entidadOrigen) {
 		IMFElement linkParameter;
@@ -233,21 +267,78 @@ public class DataFlow extends Link {
 	}
 
 	/**
+	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guessCoupling entre cualquier unidad y una entryUnit llamando a los metodos
+	 * creados anteriormente
+	 * 
+	 * @param origen
+	 *            : unidad (SelectorUnit, contentUnit...)
+	 * @param destino
+	 *            : entryUnit
+	 * @param entidadOrigen
+	 *            : entidad que esta seleccionada en la unidad de origen
+	 * @param link
+	 *            : link sobre el que se creara el linkParameter
+	 */
+	private void guessCouplingUnitToEntry(IMFElement origen, IMFElement destino, IEntity entidadOrigen, IMFElement link) {
+
+		// Obtener lista FIELDS
+		List<ISubUnit> listaFields = ((IUnit) destino).getSubUnitList();
+		// Obtener lista Atributos de la entidad origen
+		List<IAttribute> listaAtributos = entidadOrigen.getAllAttributeList();
+
+		// Generar mapas para las listas de campos y atributos
+		Map<String, IAttribute> mapaAtributos = new HashMap<String, IAttribute>();
+		Map<String, ISubUnit> mapaCampos = new HashMap<String, ISubUnit>();
+
+		// Iniciar los hashMap
+		for (ISubUnit field : listaFields)
+			mapaCampos.put(Utilities.getAttribute(field, "name"), field);
+
+		for (IAttribute atributo : listaAtributos)
+			mapaAtributos.put(Utilities.getAttribute(atributo, "name"), atributo);
+
+		ISubUnit field;
+		IAttribute atributo;
+		String tipoCampo;
+		IMFElement linkParameter;
+		IRelationshipRole relationRole;
+		// Recorremos todos los campos
+		for (String nombreCampo : mapaCampos.keySet()) {
+			atributo = mapaAtributos.get(nombreCampo);
+			// Si nos retorna un atributo es un coupling por atributo
+			if (atributo != null) {
+				linkParameter = this.createParameter(atributo, mapaCampos.get(nombreCampo), link);
+				((MFElement) link).addChild(linkParameter, null);
+			} else {
+				// En caso contrario es un coupling con selection o multiselection
+				relationRole = this.buscarRelation(nombreCampo, this.entity);
+
+				field = mapaCampos.get(nombreCampo);
+				tipoCampo = field.getQName().getName();
+				if (tipoCampo.equals("SelectionField")) {
+					linkParameter = this.createParameterRoleToField(relationRole, field, link, false);
+					((MFElement) link).addChild(linkParameter, null);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guess Coupling entre cualquier unidad y la entryUnit
 	 * 
 	 * @param origen
 	 *            : unidad origen
-	 * @param entidadOrigen
-	 *            : entidad que esta seleccionada en la unidad origen
 	 * @param destino
 	 *            : unidad destino, en este caso entryUnit
+	 * @param entidadOrigen
+	 *            : entidad que esta seleccionada en la unidad origen
 	 * @param link
 	 *            : link sobre el que se creara el linkPArameter
 	 * @param role
 	 *            : role que de la unidad origen, en caso de tenerla
 	 */
-	private void guessCouplingUnitToEntry(IMFElement origen, IEntity entidadOrigen, IMFElement destino, IMFElement link,
-			IRelationshipRole role) {// , boolean preload){
+	private void guessCouplingUnitToEntry(IMFElement origen, IMFElement destino, IEntity entidadOrigen, IMFElement link,
+			IRelationshipRole role) {
 		ISubUnit field;
 		ISubUnit preselect = null;
 		String nombreCampo;

@@ -342,7 +342,7 @@ public class PatternParser {
 
 		} else if (xmlUnit.getNodeName().equals(ElementType.ENTRY_UNIT)) {
 			this.units.add(new EntryUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
+					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
 		} else if (xmlUnit.getNodeName().equals(ElementType.CREATE_UNIT)) {
 			this.units.add(new CreateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
@@ -383,7 +383,7 @@ public class PatternParser {
 
 		} else if (xmlUnit.getNodeName().equals(ElementType.SELECTOR_UNIT)) {
 			this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this.getTargetEntity(role)));
+					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this.getTargetEntity(role), role));
 		}
 	}
 

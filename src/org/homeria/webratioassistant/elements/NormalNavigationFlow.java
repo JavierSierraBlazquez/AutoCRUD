@@ -1,7 +1,6 @@
 package org.homeria.webratioassistant.elements;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import com.webratio.commons.mf.IMFElement;
 import com.webratio.commons.mf.operations.SetAttributeMFOperation;
 import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IEntity;
-import com.webratio.ide.model.IRelationship;
 import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISubUnit;
 import com.webratio.ide.model.IUnit;
@@ -43,7 +41,7 @@ public class NormalNavigationFlow extends Link {
 		Evento evento = new EventoNuevoLink(this.name, source, target, "normal");
 		IMFElement link = evento.ejecutar();
 
-		if (this.type.equals(ElementType.NORMALFLOW_ENTRY_TO_CREATE) || this.type.equals(ElementType.NORMALFLOW_ENTRY_TO_CREATE)) {
+		if (this.type.equals(ElementType.NORMALFLOW_ENTRY_TO_CREATE) || this.type.equals(ElementType.NORMALFLOW_ENTRY_TO_UPDATE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingEntryToCreateModify(source, target, link);
 		}
@@ -108,7 +106,7 @@ public class NormalNavigationFlow extends Link {
 			} else {
 				// En caso contrario es un coupling con selection o
 				// multiselection
-				role = this.buscarRelation(nombreCampo);
+				role = this.buscarRelation(nombreCampo, this.entity);
 
 				field = mapaCampos.get(nombreCampo);
 				tipoCampo = field.getQName().getName();
@@ -230,32 +228,4 @@ public class NormalNavigationFlow extends Link {
 
 		return linkParameter;
 	}
-
-	/**
-	 * Nombre: buscarRelation Funcion: Busca una relacion por su nombre
-	 * 
-	 * @param nombreCampo
-	 *            : nombre por el que buscar
-	 * @return la relacion si se encuentra, null en caso contrario
-	 */
-	private IRelationshipRole buscarRelation(String nombreCampo) {
-
-		List<IRelationship> listaRelation = this.entity.getIncomingRelationshipList();
-		listaRelation.addAll(this.entity.getOutgoingRelationshipList());
-		IRelationship relation;
-		IRelationshipRole role;
-		for (Iterator<IRelationship> iter = listaRelation.iterator(); iter.hasNext();) {
-			relation = iter.next();
-			role = relation.getRelationshipRole1();
-			if (Utilities.getAttribute(role, "name").equals(nombreCampo)) {
-				return role;
-			}
-			role = relation.getRelationshipRole2();
-			if (Utilities.getAttribute(role, "name").equals(nombreCampo)) {
-				return role;
-			}
-		}
-		return null;
-	}
-
 }

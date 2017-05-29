@@ -1,12 +1,18 @@
 package org.homeria.webratioassistant.elements;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.homeria.webratioassistant.plugin.ProjectParameters;
 import org.homeria.webratioassistant.plugin.Utilities;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.commons.mf.operations.SetAttributeMFOperation;
+import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.ILinkParameter;
+import com.webratio.ide.model.IRelationship;
+import com.webratio.ide.model.IRelationshipRole;
 
 public abstract class Link extends WebRatioElement {
 
@@ -66,5 +72,32 @@ public abstract class Link extends WebRatioElement {
 	 */
 	protected String cleanIds(String cadena) {
 		return cadena.substring(1, cadena.length() - 1);
+	}
+
+	/**
+	 * Nombre: buscarRelation Funcion: Busca una relacion por su nombre
+	 * 
+	 * @param nombreCampo
+	 *            : nombre por el que buscar
+	 * @return la relacion si se encuentra, null en caso contrario
+	 */
+	protected IRelationshipRole buscarRelation(String nombreCampo, IEntity entity) {
+
+		List<IRelationship> listaRelation = entity.getIncomingRelationshipList();
+		listaRelation.addAll(entity.getOutgoingRelationshipList());
+		IRelationship relation;
+		IRelationshipRole role;
+		for (Iterator<IRelationship> iter = listaRelation.iterator(); iter.hasNext();) {
+			relation = iter.next();
+			role = relation.getRelationshipRole1();
+			if (Utilities.getAttribute(role, "name").equals(nombreCampo)) {
+				return role;
+			}
+			role = relation.getRelationshipRole2();
+			if (Utilities.getAttribute(role, "name").equals(nombreCampo)) {
+				return role;
+			}
+		}
+		return null;
 	}
 }
