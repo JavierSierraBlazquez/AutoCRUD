@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<Pattern id="p2" name="Update (default)">
+	<!-- PAGES SECTION-->
+	<Page id="UpdatePage" name="Update Page" x="30" y="30">
+		<EntryUnit id="entryUnit" name="EntryUnit" type="preloaded" x="200" y="200"/>
+		<PowerIndexUnit id="piuUpdate" name="PowerIndexUnit" x="0" y="0"/>
+		<MultiMessageUnit id="mmsgUpdate" name="MultiMessageUnit" x="150" y="300"/>
+		<SelectorUnit id="selectorEntidad" name="selector" type="keyCondition" x="200" y="0"/>
+	</Page>
+
+
+	<!-- OPERATION UNITS SECTION -->
+	<OperationUnits>
+		<UpdateUnit id="updateUnit" name="UpdateUnit"  x="500" y="170"/>
+	</OperationUnits>
+
+
+
+	<!-- LINKS SECTION -->
+	<Links>
+		<NormalNavigationFlow id="nnfUpdate" name ="Modify" sourceId="piuUpdate" targetId="selectorEntidad" />
+		<NormalNavigationFlow id="nnfEntryUpdate" name ="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
+		<DataFlow id="dfSelectorEntry" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
+		<KOLink id="koUpdate" sourceId="updateUnit" targetId="mmsgUpdate" message="Failed modifying data"/>
+	</Links>
+
+
+	<!-- RELATIONS SECTION -->
+	<forEachRelation>
+		<SelectorUnit id="selector#" name="selector#" entity="entityRelated" parentId="UpdatePage" x="300#" y="0"/>
+		<DataFlow id="flowSelectorForm#" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
+
+		<IfNMRelation>
+			<SelectorUnit id="selectorNM%" name="selectorNM%" entity="entityRelated" parentId="UpdatePage" type="roleCondition" x="0" y="150%"/>
+			<DataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>
+			<DataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="entryUnit" type="unitToEntryRole"/>
+
+			<ReconnectUnit id="reconnect%" name="reconnect%" entity="entityRelated" x="500" y="300%"/>
+			<DataFlow id="flowFormReconnect%" name="Load" sourceId="entryUnit" targetId="reconnect%" type="entryToReconnect"/>
+			<KOLink id="koReconnect%" sourceId="reconnect%" targetId="mmsgUpdate" message="Failed modifying data"/>
+			
+			<IfFirstRelation>
+				<OKLink id="okReconnect%" name="okReconnect%" sourceId="updateUnit" targetId="reconnect%" message=""/>				
+			</IfFirstRelation>
+
+			<IfNotFirstRelation>
+				<OKLink id="okReconnect%" name="okReconnect%" sourceId="reconnect%-1" targetId="reconnect%" message=""/>
+			</IfNotFirstRelation>
+		</IfNMRelation>
+	</forEachRelation>
+
+	<IfSomeNMRelation>
+		<OKLink id="okReconnect%+1" name="okReconnect%+1" sourceId="reconnect%" targetId="mmsgUpdate" message="Data modified correctly"/>
+	</IfSomeNMRelation>
+
+	<IfNotSomeNMRelation>
+		<OKLink id="okReconnect" name="okReconnect" sourceId="updateUnit" targetId="mmsgUpdate" message="Data modified correctly"/>		
+	</IfNotSomeNMRelation>
+
+</Pattern>
+
+
+	<!-- # = número iterativo por cada relación -->
+	<!-- % = número iterativo por cada relación NM-->

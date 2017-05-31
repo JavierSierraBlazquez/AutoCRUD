@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<Pattern id="p1" name="Create (default)">
+
+	<!-- PAGES SECTION-->
+	<Page id="CreatePage" name="Create Page" x="30" y="30">
+		<EntryUnit id="formCreate" name="EntryUnit" x="150" y="0"/>
+		<MultiMessageUnit id="mmsgCreate" name="MultiMessageUnit" x="150" y="100"/>
+	</Page>
+
+
+	<!-- OPERATION UNITS SECTION -->
+	<OperationUnits>
+		<CreateUnit id="createUnit" name="CreateUnit" x="450" y="30"/>
+	</OperationUnits>
+
+
+	<!-- LINKS SECTION -->
+	<Links>
+		<NormalNavigationFlow id="nnfLoad" name ="Load" sourceId="formCreate" targetId="createUnit" type="entryToCreate"/>
+		<KOLink id="koCreate" sourceId="createUnit" targetId="mmsgCreate" message="Failed creating data"/>
+	</Links>
+
+
+	<!-- RELATIONS SECTION -->
+	<forEachRelation>
+		<SelectorUnit id="selector#" name="selector#" entity="entityRelated" parentId="CreatePage" x="0" y="0#"/>
+		<DataFlow id="flowSelectorForm#" name="Load" sourceId="selector#" targetId="formCreate" type="preload"/>
+
+		<IfNMRelation>
+			<ConnectUnit id="connect%" name="connect%" entity="entityRelated" x="450" y="130%"/>
+			<DataFlow id="flowFormConnect%" name="Load" sourceId="formCreate" targetId="connect%" type="entryToConnect"/>
+
+			<KOLink id="koConnect%" sourceId="connect%" targetId="mmsgCreate" message="Failed creating data"/>
+
+			<IfFirstRelation>
+				<OKLink id="okConnect%" name="okConnect%" sourceId="createUnit" targetId="connect%" message=""/>				
+			</IfFirstRelation>
+
+			<IfNotFirstRelation>
+				<OKLink id="okConnect%" name="okConnect%" sourceId="connect%-1" targetId="connect%" message=""/>
+			</IfNotFirstRelation>
+		</IfNMRelation>
+	</forEachRelation>
+
+	<IfSomeNMRelation>
+		<OKLink id="okConnect%+1" name="okConnect%+1" sourceId="connect%" targetId="mmsgCreate" message="Data created correctly"/>		
+	</IfSomeNMRelation>
+	<IfNotSomeNMRelation>
+		<OKLink id="okConnect" name="okConnect" sourceId="createUnit" targetId="mmsgCreate" message="Data created correctly"/>		
+	</IfNotSomeNMRelation>
+
+</Pattern>
+
+
+	<!-- # = número iterativo por cada relación -->
+	<!-- % = número iterativo por cada relación NM-->
