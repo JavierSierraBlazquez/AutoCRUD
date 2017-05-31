@@ -36,6 +36,12 @@ public class DataFlow extends Link {
 
 	}
 
+	public DataFlow(String id, String name, String sourceId, String destinyId, String type, IEntity entity) {
+		super(id, name, sourceId, destinyId);
+		this.type = type;
+		this.entity = entity;
+	}
+
 	public void setRelshipsSelected(Map<IRelationshipRole, IAttribute> relshipsSelected) {
 		this.relshipsSelected = relshipsSelected;
 	}
@@ -52,14 +58,14 @@ public class DataFlow extends Link {
 			this.removeAutomaticCoupling(link);
 			this.putPreload(target, this.role, link);
 
-		} else if (this.type.equals(ElementType.DATAFLOW_ENTRY_TO_CONNECT)) {
+		} else if (this.type.equals(ElementType.DATAFLOW_ENTRY_TO_CONNECT) || this.type.equals(ElementType.DATAFLOW_ENTRY_TO_RECONNECT)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingEntryToConnect(source, target, this.getTargetEntity(this.role), this.role, link);
 
 		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingUnitToEntry(source, target, this.entity, link);
-			
+
 		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY_ROLE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingUnitToEntry(source, target, this.entity, link, this.role);

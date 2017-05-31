@@ -22,7 +22,7 @@ public class UpdateUnit extends Unit {
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
-		Evento evento = new EventoNuevaUnit(this.siteView, ElementType.UPDATE_UNIT, this.position.x, this.position.y, this.name,
+		Evento evento = new EventoNuevaUnit(this.siteView, ElementType.MODIFY_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
 		return evento.ejecutar();
 	}

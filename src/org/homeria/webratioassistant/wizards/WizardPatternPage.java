@@ -39,6 +39,7 @@ import org.homeria.webratioassistant.elements.DataUnit;
 import org.homeria.webratioassistant.elements.Link;
 import org.homeria.webratioassistant.elements.PowerIndexUnit;
 import org.homeria.webratioassistant.elements.Unit;
+import org.homeria.webratioassistant.elements.UpdateUnit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.parser.PatternParser;
 import org.homeria.webratioassistant.plugin.MyIEntityComparator;
@@ -55,8 +56,7 @@ import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISiteView;
 
 public class WizardPatternPage extends WizardPage {
-	// TODO: localización de la carpeta patterns
-	private final String PATTERNS_DIR = "patterns/";
+	private String PATTERNS_DIR;
 	private Combo entityCombo;
 	private Combo patternCombo;
 
@@ -94,7 +94,7 @@ public class WizardPatternPage extends WizardPage {
 	PatternParser xmlParser;
 	private Map<String, IAttribute> atributosRelacion;
 
-	protected WizardPatternPage() {
+	public WizardPatternPage() {
 		super("WizardPattern");
 
 		this.patternFileList = new ArrayList<String>();
@@ -105,6 +105,8 @@ public class WizardPatternPage extends WizardPage {
 		this.rightGroupsList = new ArrayList<Group>();
 		this.listCombosRelations = new ArrayList<CCombo>();
 		this.atributosRelacion = new HashMap<String, IAttribute>();
+
+		this.PATTERNS_DIR = Utilities.getPatternsPath();
 	}
 
 	public List<WebRatioElement> getPages() {
@@ -310,6 +312,7 @@ public class WizardPatternPage extends WizardPage {
 		for (Group group : this.rightGroupsList)
 			group.dispose();
 
+		this.listCombosRelations.clear();
 		String patternFileSelected = this.patternFileList.get(this.patternCombo.getSelectionIndex());
 		this.relatedEntities = this.getRelationshipRoles(this.entitySelected);
 
@@ -326,8 +329,7 @@ public class WizardPatternPage extends WizardPage {
 		// Recorro una vez primeramente para colocar el grupo Relations en primer lugar
 		for (Unit unit : this.units) {
 
-			// TODO: Update y Delete: añadir para mostrar la table relations (delete no hace falta, WR lo hace solo)
-			if (unit instanceof CreateUnit) {
+			if (unit instanceof CreateUnit || unit instanceof UpdateUnit) {
 
 				this.relationsGroup = new Group(this.innerRightComposite, SWT.NONE);
 				FillLayout relationsGroupLayout = new FillLayout(SWT.HORIZONTAL);
@@ -431,7 +433,6 @@ public class WizardPatternPage extends WizardPage {
 		}
 
 		if (this.patternCombo.getSelectionIndex() != -1) {
-			this.listCombosRelations.clear();
 			this.patternSelectionListener();
 		} else {
 			this.patternCombo.setEnabled(true);

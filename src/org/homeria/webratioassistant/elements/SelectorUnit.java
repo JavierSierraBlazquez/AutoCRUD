@@ -25,6 +25,13 @@ public class SelectorUnit extends Unit {
 		this.role = role;
 	}
 
+	public SelectorUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity) {
+		super(id, name, x, y, entity);
+		this.parentId = parentId;
+		this.entity = entity;
+		this.type = type;
+	}
+
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);

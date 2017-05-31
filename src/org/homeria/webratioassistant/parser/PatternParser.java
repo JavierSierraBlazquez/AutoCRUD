@@ -24,6 +24,7 @@ import org.homeria.webratioassistant.elements.NormalNavigationFlow;
 import org.homeria.webratioassistant.elements.OKLink;
 import org.homeria.webratioassistant.elements.Page;
 import org.homeria.webratioassistant.elements.PowerIndexUnit;
+import org.homeria.webratioassistant.elements.ReconnectUnit;
 import org.homeria.webratioassistant.elements.SelectorUnit;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UpdateUnit;
@@ -230,9 +231,10 @@ public class PatternParser {
 								Element firstRelElement = (Element) node2;
 
 								this.replaceMarkerWithNum(firstRelElement, count);
+
 								// Solo va a crearse una vez, dependiendo del tipo que sea:
-								this.createElement(firstRelElement, role);
-								this.createElement(firstRelElement, this.entity);
+								if (!this.createElement(firstRelElement, role))
+									this.createElement(firstRelElement, this.entity);
 							}
 						}
 					}
@@ -249,8 +251,8 @@ public class PatternParser {
 
 								this.replaceMarkerWithNum(notFirstRelElement, count);
 								// Solo va a crearse una vez, dependiendo del tipo que sea:
-								this.createElement(notFirstRelElement, role);
-								this.createElement(notFirstRelElement, this.entity);
+								if (!this.createElement(notFirstRelElement, role))
+									this.createElement(notFirstRelElement, this.entity);
 							}
 						}
 					}
@@ -258,9 +260,10 @@ public class PatternParser {
 				} else {
 
 					this.replaceMarkerWithNum(nmElement, count);
+					
 					// Solo va a crearse una vez, dependiendo del tipo que sea:
-					this.createElement(nmElement, role);
-					this.createElement(nmElement, this.entity);
+					if (!this.createElement(nmElement, role))
+						this.createElement(nmElement, this.entity);
 				}
 			}
 		}
@@ -344,6 +347,10 @@ public class PatternParser {
 			this.units.add(new EntryUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
 					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
+		} else if (xmlUnit.getNodeName().equals(ElementType.SELECTOR_UNIT)) {
+			this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
+					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
+
 		} else if (xmlUnit.getNodeName().equals(ElementType.CREATE_UNIT)) {
 			this.units.add(new CreateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
 					.getAttribute("y"), entity));
@@ -360,6 +367,10 @@ public class PatternParser {
 			this.links.add(new NormalNavigationFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
 					.getAttribute("sourceId"), xmlUnit.getAttribute("targetId"), xmlUnit.getAttribute("type"), entity));
 
+		} else if (xmlUnit.getNodeName().equals(ElementType.DATA_FLOW)) {
+			this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
+					.getAttribute("targetId"), xmlUnit.getAttribute("type"), entity));
+
 		} else if (xmlUnit.getNodeName().equals(ElementType.OK_LINK)) {
 			this.links.add(new OKLink(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
 					.getAttribute("targetId"), xmlUnit.getAttribute("message")));
@@ -372,19 +383,28 @@ public class PatternParser {
 
 	}
 
-	private void createElement(Element xmlUnit, IRelationshipRole role) {
+	private boolean createElement(Element xmlUnit, IRelationshipRole role) {
+		boolean created = false;
+
 		if (xmlUnit.getNodeName().equals(ElementType.DATA_FLOW)) {
-			this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
-					.getAttribute("targetId"), xmlUnit.getAttribute("type"), this.entity, role));
+			created = this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
+					.getAttribute("sourceId"), xmlUnit.getAttribute("targetId"), xmlUnit.getAttribute("type"), this.entity, role));
 
 		} else if (xmlUnit.getNodeName().equals(ElementType.CONNECT_UNIT)) {
-			this.units.add(new ConnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
-					.getAttribute("y"), this.entity, role));
+			created = this.units.add(new ConnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
+					xmlUnit.getAttribute("y"), this.entity, role));
+
+		} else if (xmlUnit.getNodeName().equals(ElementType.RECONNECT_UNIT)) {
+			created = this.units.add(new ReconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
+					xmlUnit.getAttribute("y"), this.entity, role));
 
 		} else if (xmlUnit.getNodeName().equals(ElementType.SELECTOR_UNIT)) {
-			this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this.getTargetEntity(role), role));
+			created = this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
+					.getAttribute("parentId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this
+					.getTargetEntity(role), role));
 		}
+
+		return created;
 	}
 
 	private IEntity getTargetEntity(IRelationshipRole role) {

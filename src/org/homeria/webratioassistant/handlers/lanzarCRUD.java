@@ -36,25 +36,21 @@ public class lanzarCRUD extends AbstractHandler {
 			// página
 			// del asistente, en caso de estar seleccionado otro elemento el
 			// asistente será completo
-			IWorkbenchWindow window = HandlerUtil
-					.getActiveWorkbenchWindowChecked(event);
+			IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 			IWorkbenchPage page = window.getActivePage();
 			IEditorPart editor = page.getActiveEditor();
 
 			ISelection selection = null;
 			IStructuredSelection structuredSelection = null;
 			if (editor != null) {
-				selection = editor.getSite().getSelectionProvider()
-						.getSelection();
+				selection = editor.getSite().getSelectionProvider().getSelection();
 				// }
-				if (((selection instanceof IStructuredSelection))
-						& (!((IStructuredSelection) selection).isEmpty())) {
+				if (((selection instanceof IStructuredSelection)) & (!((IStructuredSelection) selection).isEmpty())) {
 					structuredSelection = (IStructuredSelection) selection;
 				}
 
 				IMFElement element;
-				element = SelectionHelper.getModelElement(structuredSelection,
-						true);
+				element = SelectionHelper.getModelElement(structuredSelection, true);
 
 				WizardCRUD wizard;
 
@@ -70,10 +66,9 @@ public class lanzarCRUD extends AbstractHandler {
 					wizard = new WizardCRUD();
 				}
 				wizard.init(window.getWorkbench(), structuredSelection);
-				WizardDialog dialog = new WizardDialog(window.getShell(),
-						wizard);
+				WizardDialog dialog = new WizardDialog(window.getShell(), wizard);
 				dialog.setPageSize(1000, 440);
-				
+
 				dialog.open();
 			}
 		} catch (Exception e) {

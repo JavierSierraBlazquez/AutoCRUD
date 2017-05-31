@@ -12,9 +12,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.EditPartViewer;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.ResourceUtil;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
@@ -171,5 +177,19 @@ public class Utilities {
 		} else
 			return relation.getTargetEntity();
 
+	}
+
+	public static String getPatternsPath() {
+		// TODO exception no file found
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (window != null) {
+			IWorkbenchPage iworkbenchpage = window.getActivePage();
+			IEditorInput ieditorpart = iworkbenchpage.getActiveEditor().getEditorInput();
+			IPath path = ResourceUtil.getFile(ieditorpart).getLocation();
+			// remove file (example: Model.wr):
+			path = path.removeLastSegments(1).addTrailingSeparator().append("patterns").addTrailingSeparator();
+			return path.toString();
+		}
+		return "";
 	}
 }

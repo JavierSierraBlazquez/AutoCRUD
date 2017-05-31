@@ -8,9 +8,11 @@ public abstract class ElementType {
 	public static final String MULTI_MESSAGE_UNIT = "MultiMessageUnit";
 	public static final String ENTRY_UNIT = "EntryUnit";
 	public static final String CREATE_UNIT = "CreateUnit";
-	public static final String UPDATE_UNIT = "ModifyUnit";
+	public static final String UPDATE_UNIT = "UpdateUnit";
+	public static final String MODIFY_UNIT = "ModifyUnit";
 	public static final String DELETE_UNIT = "DeleteUnit";
 	public static final String CONNECT_UNIT = "ConnectUnit";
+	public static final String RECONNECT_UNIT = "ReconnectUnit";
 	public static final String SELECTOR_UNIT = "SelectorUnit";
 
 	// ENTRY UNIT TYPES
@@ -30,6 +32,7 @@ public abstract class ElementType {
 	public static final String DATAFLOW_AUTOMATIC = "automatic";
 	public static final String DATAFLOW_PRELOAD = "preload";
 	public static final String DATAFLOW_ENTRY_TO_CONNECT = "entryToConnect";
+	public static final String DATAFLOW_ENTRY_TO_RECONNECT = "entryToReconnect";
 	public static final String DATAFLOW_UNIT_TO_ENTRY = "unitToEntry";
 	public static final String DATAFLOW_UNIT_TO_ENTRY_ROLE = "unitToEntryRole";
 	
