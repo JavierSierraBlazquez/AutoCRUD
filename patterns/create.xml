@@ -2,10 +2,12 @@
 <Pattern id="p1" name="Create (default)">
 
 	<!-- PAGES SECTION-->
-	<Page id="CreatePage" name="Create Page" x="30" y="30">
-		<EntryUnit id="formCreate" name="EntryUnit" x="150" y="0"/>
-		<MultiMessageUnit id="mmsgCreate" name="MultiMessageUnit" x="150" y="100"/>
-	</Page>
+	<Pages>
+		<Page id="CreatePage" name="Create Page" x="30" y="30">
+			<EntryUnit id="formCreate" name="EntryUnit" x="150" y="0"/>
+			<MultiMessageUnit id="mmsgCreate" name="MultiMessageUnit" x="150" y="100"/>
+		</Page>
+	</Pages>
 
 
 	<!-- OPERATION UNITS SECTION -->
@@ -54,3 +56,4 @@
 
 	<!-- # = número iterativo por cada relación -->
 	<!-- % = número iterativo por cada relación NM-->
+

@@ -105,23 +105,29 @@ public class PatternParser {
 
 	public void parsePagesSection() {
 		// Procesamos todas las páginas:
-		NodeList pageNodeList = this.doc.getElementsByTagName("Page");
-		for (int iPage = 0; iPage < pageNodeList.getLength(); iPage++) {
+		NodeList pagesNodeList = this.doc.getElementsByTagName("Pages").item(0).getChildNodes();
+		for (int iPage = 0; iPage < pagesNodeList.getLength(); iPage++) {
+			Node nodePage = pagesNodeList.item(iPage);
+			if (nodePage instanceof Element) {
+				
+				Element page = (Element) nodePage;
+				// Creo la página:
+				this.pages
+						.add(new Page(page.getAttribute("id"), page.getAttribute("name"), page.getAttribute("x"), page.getAttribute("y")));
 
-			Element page = (Element) pageNodeList.item(iPage);
-			// Creo la página:
-			this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), page.getAttribute("x"), page.getAttribute("y")));
-
-			// Proceso los elementos dentro de cada página:
-			NodeList pageChild = page.getChildNodes();
-			for (int iUnit = 0; iUnit < pageChild.getLength(); iUnit++) {
-				Node node = pageChild.item(iUnit);
-				if (node instanceof Element) {
-					Element unit = (Element) node;
-					unit.setAttribute("parentId", page.getAttribute("id"));
-					// Creo la unit
-					this.createElement(unit, this.entity);
+				// Proceso los elementos dentro de cada página:
+				NodeList pageChild = page.getChildNodes();
+				for (int iUnit = 0; iUnit < pageChild.getLength(); iUnit++) {
+					Node nodeElement = pageChild.item(iUnit);
+					if (nodeElement instanceof Element) {
+						
+						Element unit = (Element) nodeElement;
+						unit.setAttribute("parentId", page.getAttribute("id"));
+						// Creo la unit
+						this.createElement(unit, this.entity);
+					}
 				}
+				
 			}
 		}
 	}
@@ -260,7 +266,7 @@ public class PatternParser {
 				} else {
 
 					this.replaceMarkerWithNum(nmElement, count);
-					
+
 					// Solo va a crearse una vez, dependiendo del tipo que sea:
 					if (!this.createElement(nmElement, role))
 						this.createElement(nmElement, this.entity);

@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
 <Pattern id="p2" name="Update (default)">
 	<!-- PAGES SECTION-->
-	<Page id="UpdatePage" name="Update Page" x="30" y="30">
-		<EntryUnit id="entryUnit" name="EntryUnit" type="preloaded" x="200" y="200"/>
-		<PowerIndexUnit id="piuUpdate" name="PowerIndexUnit" x="0" y="0"/>
-		<MultiMessageUnit id="mmsgUpdate" name="MultiMessageUnit" x="150" y="300"/>
-		<SelectorUnit id="selectorEntidad" name="selector" type="keyCondition" x="200" y="0"/>
-	</Page>
+	<Pages>
+		<Page id="UpdatePage" name="Update Page" x="30" y="30">
+			<EntryUnit id="entryUnit" name="EntryUnit" type="preloaded" x="200" y="200"/>
+			<PowerIndexUnit id="piuUpdate" name="PowerIndexUnit" x="0" y="0"/>
+			<MultiMessageUnit id="mmsgUpdate" name="MultiMessageUnit" x="150" y="300"/>
+			<SelectorUnit id="selectorEntidad" name="selector" type="keyCondition" x="200" y="0"/>
+		</Page>
+	</Pages>		
 
 
 	<!-- OPERATION UNITS SECTION -->
@@ -62,3 +64,4 @@
 
 	<!-- # = número iterativo por cada relación -->
 	<!-- % = número iterativo por cada relación NM-->
+
