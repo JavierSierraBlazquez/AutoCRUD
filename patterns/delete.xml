@@ -3,10 +3,12 @@
 
 
 	<!-- PAGES SECTION-->
-	<Page id="ReadPage" name="Delete Page" x="30" y="30">
-		<PowerIndexUnit id="piuDelete" name="PowerIndexUnit" x="0" y="0"/>
-		<MultiMessageUnit id="mmsgDelete" name="MultiMessageUnit" x="0" y="100"/>
-	</Page>
+	<Pages>
+		<Page id="ReadPage" name="Delete Page" x="30" y="30">
+			<PowerIndexUnit id="piuDelete" name="PowerIndexUnit" x="0" y="0"/>
+			<MultiMessageUnit id="mmsgDelete" name="MultiMessageUnit" x="0" y="100"/>
+		</Page>
+	</Pages>		
 
 	<!-- OPERATION UNITS SECTION -->
 	<OperationUnits>

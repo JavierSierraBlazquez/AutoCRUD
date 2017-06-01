@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <Pattern id="p2" name="Read (default)">
 
-
 	<!-- PAGES SECTION-->
-	<Page id="ReadPage" name="Read Page" x="30" y="30">
-		<PowerIndexUnit id="piuRead" name="PowerIndexUnit" x="0" y="0"/>
-		<DataUnit id="duRead" name="DataUnit" x="200" y="0"/>
-	</Page>
+	<Pages>
+		<Page id="ReadPage" name="Read Page" x="30" y="30">
+			<PowerIndexUnit id="piuRead" name="PowerIndexUnit" x="0" y="0"/>
+			<DataUnit id="duRead" name="DataUnit" x="200" y="0"/>
+		</Page>
+	</Pages>		
 
 	<!-- OPERATION UNITS SECTION -->
 	<OperationUnits>

@@ -79,9 +79,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * 
 	 */
 	public boolean canFinish() {
-		// FIXME canFinish
-		// return this.patternPage.canFinish();
-		return true;
+		return this.patternPage.canFinish();
 	}
 
 	/**

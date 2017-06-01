@@ -27,7 +27,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -293,19 +295,20 @@ public class WizardPatternPage extends WizardPage {
 		this.svAreaGroup.setVisible(true);
 
 		this.arbolSvAreas = new Tree(this.svAreaGroup, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-		/*
-		 * this.arbolSvAreas.addListener(SWT.Selection, new Listener() { public
-		 * void handleEvent(Event event) { // Si el motivo de la seleccion ha
-		 * sido el check if (event.detail == SWT.CHECK) { TreeItem item =
-		 * (TreeItem) event.item; boolean checked = item.getChecked(); if
-		 * (!checked) { checkItems(item, checked); }
-		 * checkPath(item.getParentItem(), checked, false);
-		 * getWizard().getContainer().updateButtons(); } } });
-		 */
+
+		this.arbolSvAreas.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) { // Si el motivo de la seleccion ha sido el check
+				if (event.detail == SWT.CHECK) {
+					WizardPatternPage.this.getWizard().getContainer().updateButtons();
+				}
+			}
+		});
 		this.inicializarListaYarbol();
 	}
 
 	private void patternSelectionListener() {
+		// Actualizo el estado del botón Finish
+		this.getWizard().getContainer().updateButtons();
 
 		// elimino los elementos gráficos que se hayan generado por una
 		// selección previa:
