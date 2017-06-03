@@ -3,7 +3,9 @@ package org.homeria.webratioassistant.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -49,12 +51,12 @@ public class PatternParser {
 
 	private IEntity entity;
 
-	private List<WebRatioElement> pages;
+	private Queue<WebRatioElement> pages;
 	private List<Unit> units;
 	private List<Link> links;
 
 	public PatternParser(String path, IEntity entity) {
-		this.pages = new ArrayList<WebRatioElement>();
+		this.pages = new LinkedList<WebRatioElement>();
 		this.units = new ArrayList<Unit>();
 		this.links = new ArrayList<Link>();
 		this.entity = entity;
@@ -69,11 +71,11 @@ public class PatternParser {
 		this.generateDoc();
 	}
 
-	public List<WebRatioElement> getPages() {
+	public Queue<WebRatioElement> getPages() {
 		return this.pages;
 	}
 
-	public void setPages(List<WebRatioElement> pages) {
+	public void setPages(Queue<WebRatioElement> pages) {
 		this.pages = pages;
 	}
 
@@ -109,27 +111,36 @@ public class PatternParser {
 		for (int iPage = 0; iPage < pagesNodeList.getLength(); iPage++) {
 			Node nodePage = pagesNodeList.item(iPage);
 			if (nodePage instanceof Element) {
-				
-				Element page = (Element) nodePage;
-				// Creo la página:
-				this.pages
-						.add(new Page(page.getAttribute("id"), page.getAttribute("name"), page.getAttribute("x"), page.getAttribute("y")));
 
-				// Proceso los elementos dentro de cada página:
-				NodeList pageChild = page.getChildNodes();
-				for (int iUnit = 0; iUnit < pageChild.getLength(); iUnit++) {
-					Node nodeElement = pageChild.item(iUnit);
-					if (nodeElement instanceof Element) {
-						
-						Element unit = (Element) nodeElement;
-						unit.setAttribute("parentId", page.getAttribute("id"));
-						// Creo la unit
-						this.createElement(unit, this.entity);
-					}
-				}
-				
+				Element page = (Element) nodePage;
+				// null because is the first page. Its parent is the siteView selected in the UI
+				this.parsePage(page, null);
 			}
 		}
+	}
+
+	private void parsePage(Element page, String parentId) {
+		// Creo la página:
+		this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("x"), page
+				.getAttribute("y")));
+
+		// Proceso los elementos dentro de cada página:
+		NodeList pageChild = page.getChildNodes();
+		for (int iUnit = 0; iUnit < pageChild.getLength(); iUnit++) {
+			Node nodeElement = pageChild.item(iUnit);
+			if (nodeElement instanceof Element) {
+
+				Element element = (Element) nodeElement;
+				if (element.getTagName().equals(ElementType.PAGE))
+					this.parsePage(element, page.getAttribute("id"));
+				else {
+					element.setAttribute("parentId", page.getAttribute("id"));
+					// Creo la unit
+					this.createElement(element, this.entity);
+				}
+			}
+		}
+
 	}
 
 	public void parseOpUnitsSection() {

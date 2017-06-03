@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardPage;
@@ -87,7 +88,7 @@ public class WizardPatternPage extends WizardPage {
 	private List<IRelationshipRole> relatedEntities;
 	private List<Group> rightGroupsList;
 
-	private List<WebRatioElement> pages;
+	private Queue<WebRatioElement> pages;
 	private List<Unit> units;
 	private List<Link> links;
 
@@ -111,7 +112,7 @@ public class WizardPatternPage extends WizardPage {
 		this.PATTERNS_DIR = Utilities.getPatternsPath();
 	}
 
-	public List<WebRatioElement> getPages() {
+	public Queue<WebRatioElement> getPages() {
 		return this.pages;
 	}
 

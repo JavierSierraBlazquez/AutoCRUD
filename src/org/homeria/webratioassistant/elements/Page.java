@@ -12,11 +12,13 @@ import com.webratio.ide.model.ISiteView;
 public class Page extends WebRatioElement {
 
 	private ISiteView siteView;
-	protected Point position;
+	private Point position;
+	private String parentId;
 
-	public Page(String id, String name, String x, String y) {
+	public Page(String id, String name, String parentId, String x, String y) {
 		super(id, name);
 		this.position = new Point(Integer.valueOf(x), Integer.valueOf(y));
+		this.parentId = parentId;
 	}
 
 	public void setSiteView(ISiteView siteView) {
@@ -25,7 +27,13 @@ public class Page extends WebRatioElement {
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
-		Evento evento = new EventoNuevaPagina(this.siteView, this.position.x, this.position.y, this.name);
+		IMFElement parent;
+		if (null == this.parentId)
+			parent = this.siteView;
+		else
+			parent = createdElements.get(this.parentId);
+
+		Evento evento = new EventoNuevaPagina(parent, this.position.x, this.position.y, this.name);
 		return evento.ejecutar();
 	}
 

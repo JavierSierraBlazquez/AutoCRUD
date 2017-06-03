@@ -12,6 +12,7 @@ package org.homeria.webratioassistant.wizards;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.CoreException;
@@ -115,7 +116,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		try {
 			this.patternPage.finalizePage();
-			List<WebRatioElement> pages = this.patternPage.getPages();
+			Queue<WebRatioElement> pages = this.patternPage.getPages();
 			List<Unit> units = this.patternPage.getUnits();
 			List<Link> links = this.patternPage.getLinks();
 			List<ISiteView> siteViews = this.patternPage.getSiteViewsChecked();
