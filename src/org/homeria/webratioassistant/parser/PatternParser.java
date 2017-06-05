@@ -31,6 +31,7 @@ import org.homeria.webratioassistant.elements.SelectorUnit;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UpdateUnit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
+import org.homeria.webratioassistant.elements.XOR;
 import org.homeria.webratioassistant.plugin.Utilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -120,9 +121,13 @@ public class PatternParser {
 	}
 
 	private void parsePage(Element page, String parentId) {
-		// Creo la página:
-		this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("x"), page
-				.getAttribute("y")));
+		if (page.getTagName().equals(ElementType.PAGE))
+			this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("default"), page
+					.getAttribute("landmark"), page.getAttribute("x"), page.getAttribute("y")));
+
+		else if (page.getTagName().equals(ElementType.XOR_PAGE))
+			this.pages.add(new XOR(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("x"), page
+					.getAttribute("y")));
 
 		// Proceso los elementos dentro de cada página:
 		NodeList pageChild = page.getChildNodes();
@@ -131,7 +136,7 @@ public class PatternParser {
 			if (nodeElement instanceof Element) {
 
 				Element element = (Element) nodeElement;
-				if (element.getTagName().equals(ElementType.PAGE))
+				if (element.getTagName().equals(ElementType.PAGE) || element.getTagName().equals(ElementType.XOR_PAGE))
 					this.parsePage(element, page.getAttribute("id"));
 				else {
 					element.setAttribute("parentId", page.getAttribute("id"));

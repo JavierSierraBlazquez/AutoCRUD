@@ -128,7 +128,8 @@ public class WizardCRUD extends Wizard implements INewWizard {
 				Map<String, IMFElement> createdElements = new HashMap<String, IMFElement>();
 
 				for (WebRatioElement page : pages) {
-					((Page) page).setSiteView(siteView);
+					if (page instanceof Page)
+						((Page) page).setSiteView(siteView);
 					createdElements.put(page.getId(), page.generate(createdElements));
 				}
 

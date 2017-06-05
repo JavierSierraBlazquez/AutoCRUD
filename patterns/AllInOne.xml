@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<Pattern id="p2" name="AllInOne (default)">
+	
+	<!-- PAGES SECTION-->
+	<Pages>
+		<Page id="CRUDPage" name="CRUDPage" landmark="true" x="30" y="30">
+			<XOR id="Alternative" name="Alternative" x="0" y="0">
+				<Page id="DefaultPage" name="DefaultPage" default="true" x="30" y="30">
+					<PowerIndexUnit id="piuRead" name="PowerIndexUnit" x="0" y="0"/>
+					<DataUnit id="duRead" name="DataUnit" x="200" y="0"/>
+				</Page>
+			</XOR>
+		</Page>
+	</Pages>		
+
+
+	<!-- OPERATION UNITS SECTION -->
+	<OperationUnits>
+		
+	</OperationUnits>
+
+
+
+	<!-- LINKS SECTION -->
+	<Links>
+
+	</Links>
+
+
+	<!-- RELATIONS SECTION -->
+	<forEachRelation>
+
+
+		<IfNMRelation>
+			
+
+			<IfFirstRelation>
+				
+
+			</IfFirstRelation>
+
+			<IfNotFirstRelation>
+				
+
+			</IfNotFirstRelation>
+		</IfNMRelation>
+	</forEachRelation>
+
+	<IfSomeNMRelation>
+		
+
+	</IfSomeNMRelation>
+
+	<IfNotSomeNMRelation>
+
+	</IfNotSomeNMRelation>
+
+</Pattern>
+
+
+	<!-- # = número iterativo por cada relación -->
+	<!-- % = número iterativo por cada relación NM-->
+

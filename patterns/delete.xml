@@ -4,7 +4,7 @@
 
 	<!-- PAGES SECTION-->
 	<Pages>
-		<Page id="ReadPage" name="Delete Page" x="30" y="30">
+		<Page id="ReadPage" name="Delete Page" landmark="true" x="30" y="30">
 			<PowerIndexUnit id="piuDelete" name="PowerIndexUnit" x="0" y="0"/>
 			<MultiMessageUnit id="mmsgDelete" name="MultiMessageUnit" x="0" y="100"/>
 		</Page>

@@ -25,10 +25,12 @@ public final class EventoNuevaPagina extends Evento {
 
 	private String nombre;
 	private IMFElement pagina;
+	private Boolean isLandmark;
 
-	public EventoNuevaPagina(IMFElement padre, int x, int y, String nombre) {
+	public EventoNuevaPagina(IMFElement padre, int x, int y, String nombre, Boolean isLandmark) {
 		super(padre, x, y);
 		this.nombre = nombre;
+		this.isLandmark = isLandmark;
 	}
 
 	/**
@@ -61,15 +63,7 @@ public final class EventoNuevaPagina extends Evento {
 				this.pagina = this.getLastPage(this.getPadre());
 				// Y le modificamos los atributos necesarios
 				Utilities.setAttribute(this.pagina, "name", this.nombre);
-				Utilities.setAttribute(this.pagina, "landmark", "true");
-
-				if (this.getPadre() instanceof IArea && this.nombre.contains("CRUD")) {
-					// se crea en el xml, pero no se muesta por pantalla
-					Utilities.setAttribute(this.pagina, "default", "true");
-					// default="true" landmark="true" protected="true"
-					// secure="true"
-				}
-
+				Utilities.setAttribute(this.pagina, "landmark", this.isLandmark.toString());
 			}
 		} catch (Exception e) {
 			Debug.println(this.getClass().toString() + " " + new Exception().getStackTrace()[0].getMethodName(),

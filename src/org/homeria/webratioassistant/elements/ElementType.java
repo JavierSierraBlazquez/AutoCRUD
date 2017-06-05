@@ -2,6 +2,7 @@ package org.homeria.webratioassistant.elements;
 
 public abstract class ElementType {
 	public static final String PAGE = "Page";
+	public static final String XOR_PAGE = "XOR";
 	
 	public static final String POWER_INDEX_UNIT = "PowerIndexUnit";
 	public static final String DATA_UNIT = "DataUnit";

@@ -3,7 +3,7 @@
 
 	<!-- PAGES SECTION-->
 	<Pages>
-		<Page id="ReadPage" name="Read Page" x="30" y="30">
+		<Page id="ReadPage" name="Read Page" landmark="true" x="30" y="30">
 			<PowerIndexUnit id="piuRead" name="PowerIndexUnit" x="0" y="0"/>
 			<DataUnit id="duRead" name="DataUnit" x="200" y="0"/>
 		</Page>
