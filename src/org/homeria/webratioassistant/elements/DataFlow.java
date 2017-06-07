@@ -24,20 +24,18 @@ import com.webratio.ide.model.IUnit;
 
 public class DataFlow extends Link {
 	private IRelationshipRole role;
-	private String type;
 	private IEntity entity;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 
 	public DataFlow(String id, String name, String sourceId, String destinyId, String type, IEntity entity, IRelationshipRole role) {
-		super(id, name, sourceId, destinyId);
-		this.type = type;
+		super(id, name, sourceId, destinyId, type);
 		this.entity = entity;
 		this.role = role;
 
 	}
 
 	public DataFlow(String id, String name, String sourceId, String destinyId, String type, IEntity entity) {
-		super(id, name, sourceId, destinyId);
+		super(id, name, sourceId, destinyId, type);
 		this.type = type;
 		this.entity = entity;
 	}
@@ -69,6 +67,10 @@ public class DataFlow extends Link {
 		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY_ROLE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingUnitToEntry(source, target, this.entity, link, this.role);
+
+		} else if (this.type.equals(ElementType.FLOW_ENTRY_TO_CREATE)) {
+			this.removeAutomaticCoupling(link);
+			this.guessCouplingEntryToCreateModify(source, target, link, this.entity, this.relshipsSelected);
 		}
 
 		return link;

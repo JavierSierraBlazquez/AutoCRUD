@@ -20,7 +20,7 @@
 	<Links>
 		<NormalNavigationFlow id="nnfDelete" name ="Delete" sourceId="piuDelete" targetId="deleteUnit" type="automatic"/>
 		<KOLink id="koDelete" sourceId="deleteUnit" targetId="mmsgDelete" message="Failed deleting data"/>
-		<OKLink id="okDelete" name="okDelete" sourceId="deleteUnit" targetId="mmsgDelete" message="Data deleted correctly"/>	
+		<OKLink id="okDelete" sourceId="deleteUnit" targetId="mmsgDelete" message="Data deleted correctly"/>	
 	</Links>
 
 

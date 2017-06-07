@@ -23,6 +23,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import com.webratio.commons.mf.IMFElement;
 import com.webratio.commons.mf.ui.MFUIPlugin;
 import com.webratio.commons.mf.ui.editors.MFGraphEditor;
 import com.webratio.commons.mf.ui.editors.MFMultiEditor;
@@ -52,6 +53,9 @@ public class ProjectParameters {
 	private static List<ObjStViewArea> listaSiteViewArea = null;
 
 	private static MFMultiEditor multiEditor;
+	/** To save the key(oid) field with the unitEntry. Needed to coupling.
+	 * Syntax: Map (entryUnit,fieldOid) */
+	public static Map<IMFElement, IMFElement> entryKeyfieldMap;
 
 	static public MFMultiEditor getMultiEditor() {
 		return ProjectParameters.multiEditor;
@@ -123,59 +127,47 @@ public class ProjectParameters {
 
 	static public void init(IWorkbench workbench) throws ExecutionException {
 		ProjectParameters.toNullValues();
+		entryKeyfieldMap = new HashMap<IMFElement, IMFElement>();
 
 		try {
-			ProjectParameters.activeWindow = MFUIPlugin
-					.getActiveWorkbenchWindow();
+			ProjectParameters.activeWindow = MFUIPlugin.getActiveWorkbenchWindow();
 
 			if (ProjectParameters.activeWindow == null)
 				throw new ExecutionException("No active workbench window");
 
-			ProjectParameters.activePage = ProjectParameters.activeWindow
-					.getActivePage();
+			ProjectParameters.activePage = ProjectParameters.activeWindow.getActivePage();
 			if (ProjectParameters.activePage == null)
 				throw new ExecutionException("no active page");
 
 			ProjectParameters.activeWindow.getActivePage().activate(
-					(IWorkbenchPart) ProjectParameters.activePage
-							.getActiveEditor().getAdapter(
-									WebProjectEditor.class));
+					(IWorkbenchPart) ProjectParameters.activePage.getActiveEditor().getAdapter(WebProjectEditor.class));
 
-			ProjectParameters.workbenchPart = MFUIPlugin
-					.getActiveWorkbenchWindow().getPartService()
-					.getActivePart();
+			ProjectParameters.workbenchPart = MFUIPlugin.getActiveWorkbenchWindow().getPartService().getActivePart();
 
 			// if (ProjectParameters.workbenchPartWebRatio == null)
 			ProjectParameters.workbenchPartWebRatio = ProjectParameters.workbenchPart;
 			if (ProjectParameters.workbenchPart == null)
 				throw new ExecutionException("no workbenchPart");
 
-			ProjectParameters.activeEditor = ProjectParameters.activePage
-					.getActiveEditor();
+			ProjectParameters.activeEditor = ProjectParameters.activePage.getActiveEditor();
 
 			if (ProjectParameters.activeEditor == null)
 				throw new ExecutionException("No active editor");
-			ProjectParameters.editPartViewer = (EditPartViewer) ProjectParameters.activeEditor
-					.getAdapter(EditPartViewer.class);
+			ProjectParameters.editPartViewer = (EditPartViewer) ProjectParameters.activeEditor.getAdapter(EditPartViewer.class);
 			if ((ProjectParameters.activeEditor instanceof WebProjectEditor))
 				ProjectParameters.webProjectEditor = (WebProjectEditor) ProjectParameters.activeEditor;
 			else
-				throw new ExecutionException(
-						"This active editor is not instance of WebProjectEditor");
+				throw new ExecutionException("This active editor is not instance of WebProjectEditor");
 
 			if (ProjectParameters.getWebProjectEditor() != null) {
-				ProjectParameters.webProject = (IWebProject) ProjectParameters
-						.getWebProjectEditor().getInputModel();
-				ProjectParameters.dataModel = (IDataModel) ProjectParameters.webProject
-						.selectSingleElement("DataModel");
-				ProjectParameters.webModel = (IWebModel) ProjectParameters.webProject
-						.selectSingleElement("WebModel");
+				ProjectParameters.webProject = (IWebProject) ProjectParameters.getWebProjectEditor().getInputModel();
+				ProjectParameters.dataModel = (IDataModel) ProjectParameters.webProject.selectSingleElement("DataModel");
+				ProjectParameters.webModel = (IWebModel) ProjectParameters.webProject.selectSingleElement("WebModel");
 
 			}
 
 			// Crear siteView
 			ProjectParameters.multiEditor = MFUIPlugin.getActiveMultiEditor();
-
 
 		} catch (ExecutionException e) {
 			Debug.println(ProjectParameters.class.toString(), e.getMessage());
@@ -190,16 +182,14 @@ public class ProjectParameters {
 		ProjectParameters.siteViews = new HashMap<ISiteView, MFGraphEditor>();
 		// Obtenemos la lista de editores, en los que estan creados los
 		// siteviews entre muchos mas elementos
-		List<MFGraphEditor> multiEditors = MFUIPlugin.getActiveMultiEditor()
-				.getGraphEditorList();
+		List<MFGraphEditor> multiEditors = MFUIPlugin.getActiveMultiEditor().getGraphEditorList();
 		Iterator<MFGraphEditor> iterador = multiEditors.iterator();
 		Iterator<ISiteView> iteradorSiteView;
 		MFGraphEditor editor;
 		String XML, idSiteView;
 		ISiteView siteView;
 		// Obtenemos la lista con los nombres de los siteviews
-		List<ISiteView> listaSiteViews = ProjectParameters.getWebModel()
-				.getSiteViewList();
+		List<ISiteView> listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 		iterador.next();
 		iterador.next();
 		// Recorremos los editores gr�ficos que tiene en ese momento WebRatio

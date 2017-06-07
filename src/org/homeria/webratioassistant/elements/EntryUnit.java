@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.homeria.webratioassistant.plugin.Evento;
 import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
+import org.homeria.webratioassistant.plugin.ProjectParameters;
 import org.homeria.webratioassistant.plugin.Utilities;
 import org.homeria.webratioassistant.webratioaux.CompositeMFCommand;
 
@@ -19,6 +20,7 @@ public class EntryUnit extends Unit {
 	private String parentId;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 	private String type;
+	private IMFElement fieldOid;
 
 	public EntryUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
@@ -39,6 +41,7 @@ public class EntryUnit extends Unit {
 		IMFElement entryUnit = evento.ejecutar();
 		this.setFields(entryUnit);
 
+		ProjectParameters.entryKeyfieldMap.put(entryUnit, this.fieldOid);
 		return entryUnit;
 
 	}
@@ -72,6 +75,7 @@ public class EntryUnit extends Unit {
 						&& Utilities.getAttribute(atributo, "key").equals("true")) {
 					Utilities.setAttribute(field, "hidden", "true");
 					Utilities.setAttribute(field, "modifiable", "false");
+					this.fieldOid = field;
 
 					// Mantener el contenType de los campos en el formulario.
 					if (null != Utilities.getAttribute(atributo, "contentType")) {

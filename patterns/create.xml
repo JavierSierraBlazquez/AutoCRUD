@@ -35,20 +35,20 @@
 			<KOLink id="koConnect%" sourceId="connect%" targetId="mmsgCreate" message="Failed creating data"/>
 
 			<IfFirstRelation>
-				<OKLink id="okConnect%" name="okConnect%" sourceId="createUnit" targetId="connect%" message=""/>				
+				<OKLink id="okConnect%" sourceId="createUnit" targetId="connect%" message=""/>				
 			</IfFirstRelation>
 
 			<IfNotFirstRelation>
-				<OKLink id="okConnect%" name="okConnect%" sourceId="connect%-1" targetId="connect%" message=""/>
+				<OKLink id="okConnect%" sourceId="connect%-1" targetId="connect%" message=""/>
 			</IfNotFirstRelation>
 		</IfNMRelation>
 	</forEachRelation>
 
 	<IfSomeNMRelation>
-		<OKLink id="okConnect%+1" name="okConnect%+1" sourceId="connect%" targetId="mmsgCreate" message="Data created correctly"/>		
+		<OKLink id="okConnect%+1" sourceId="connect%" targetId="mmsgCreate" message="Data created correctly"/>		
 	</IfSomeNMRelation>
 	<IfNotSomeNMRelation>
-		<OKLink id="okConnect" name="okConnect" sourceId="createUnit" targetId="mmsgCreate" message="Data created correctly"/>		
+		<OKLink id="okConnect" sourceId="createUnit" targetId="mmsgCreate" message="Data created correctly"/>		
 	</IfNotSomeNMRelation>
 
 </Pattern>

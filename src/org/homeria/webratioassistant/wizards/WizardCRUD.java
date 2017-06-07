@@ -25,6 +25,7 @@ import org.homeria.webratioassistant.elements.CreateUnit;
 import org.homeria.webratioassistant.elements.DataFlow;
 import org.homeria.webratioassistant.elements.DeleteUnit;
 import org.homeria.webratioassistant.elements.EntryUnit;
+import org.homeria.webratioassistant.elements.IsNotNullUnit;
 import org.homeria.webratioassistant.elements.Link;
 import org.homeria.webratioassistant.elements.NormalNavigationFlow;
 import org.homeria.webratioassistant.elements.Page;
@@ -151,6 +152,9 @@ public class WizardCRUD extends Wizard implements INewWizard {
 
 					else if (unit instanceof ReconnectUnit)
 						((ReconnectUnit) unit).setSiteView(siteView);
+
+					else if (unit instanceof IsNotNullUnit)
+						((IsNotNullUnit) unit).setSiteView(siteView);
 
 					createdElements.put(unit.getId(), unit.generate(createdElements));
 				}

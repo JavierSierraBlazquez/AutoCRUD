@@ -43,21 +43,21 @@
 			<KOLink id="koReconnect%" sourceId="reconnect%" targetId="mmsgUpdate" message="Failed modifying data"/>
 			
 			<IfFirstRelation>
-				<OKLink id="okReconnect%" name="okReconnect%" sourceId="updateUnit" targetId="reconnect%" message=""/>				
+				<OKLink id="okReconnect%" sourceId="updateUnit" targetId="reconnect%" message=""/>				
 			</IfFirstRelation>
 
 			<IfNotFirstRelation>
-				<OKLink id="okReconnect%" name="okReconnect%" sourceId="reconnect%-1" targetId="reconnect%" message=""/>
+				<OKLink id="okReconnect%" sourceId="reconnect%-1" targetId="reconnect%" message=""/>
 			</IfNotFirstRelation>
 		</IfNMRelation>
 	</forEachRelation>
 
 	<IfSomeNMRelation>
-		<OKLink id="okReconnect%+1" name="okReconnect%+1" sourceId="reconnect%" targetId="mmsgUpdate" message="Data modified correctly"/>
+		<OKLink id="okReconnect%+1" sourceId="reconnect%" targetId="mmsgUpdate" message="Data modified correctly"/>
 	</IfSomeNMRelation>
 
 	<IfNotSomeNMRelation>
-		<OKLink id="okReconnect" name="okReconnect" sourceId="updateUnit" targetId="mmsgUpdate" message="Data modified correctly"/>		
+		<OKLink id="okReconnect" sourceId="updateUnit" targetId="mmsgUpdate" message="Data modified correctly"/>		
 	</IfNotSomeNMRelation>
 
 </Pattern>

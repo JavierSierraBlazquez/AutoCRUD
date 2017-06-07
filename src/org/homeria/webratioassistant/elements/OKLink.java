@@ -10,8 +10,8 @@ import com.webratio.commons.mf.IMFElement;
 public class OKLink extends Link {
 	private String message;
 
-	public OKLink(String id, String name, String sourceId, String destinyId, String message) {
-		super(id, name, sourceId, destinyId);
+	public OKLink(String id, String name, String sourceId, String destinyId, String message, String type) {
+		super(id, name, sourceId, destinyId, type);
 		if (null == message)
 			this.message = "";
 		else
@@ -26,12 +26,14 @@ public class OKLink extends Link {
 		Evento evento = new EventoNuevoLink(this.name, source, target, "OKLink");
 		IMFElement link = evento.ejecutar();
 
-		if (!this.message.isEmpty()) {
+		if (this.type.equals(ElementType.OK_LINK_NO_COUPLING)) {
+			this.removeAutomaticCoupling(link);
+
+		} else if (!this.message.isEmpty()) {
 			this.putMessageOnMultiMessageUnit(link, target, this.message);
 			this.removeAutomaticCoupling(link);
 		}
 
 		return link;
 	}
-
 }
