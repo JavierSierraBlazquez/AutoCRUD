@@ -7,26 +7,30 @@ import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
-import com.webratio.ide.model.ISiteView;
 
 public class IsNotNullUnit extends Unit {
-
-	private String parentId;
-	private ISiteView siteView;
+	private IMFElement parent;
 
 	public IsNotNullUnit(String id, String name, String parentId, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
-		this.parentId = parentId;
 	}
 
-	public void setSiteView(ISiteView siteView) {
-		this.siteView = siteView;
+	/**
+	 * Set the SiteView or Area which is the parent of the unit
+	 * 
+	 * @param parent
+	 *            the SiteView or Area
+	 */
+
+	public void setParent(IMFElement parent) {
+		this.parent = parent;
 	}
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
-		Evento evento = new EventoNuevaUnit(this.siteView, ElementType.IS_NOT_NULL_UNIT, this.position.x, this.position.y, this.name, this.entity);
 
+		Evento evento = new EventoNuevaUnit(this.parent, ElementType.IS_NOT_NULL_UNIT, this.position.x, this.position.y, this.name,
+				this.entity);
 		return evento.ejecutar();
 	}
 

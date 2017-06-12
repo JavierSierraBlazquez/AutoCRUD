@@ -391,9 +391,10 @@ public class DataFlow extends Link {
 		List<IAttribute> listaAt = entidadParent.getAllAttributeList();
 
 		for (int i = 0; i < listaAt.size(); i++) {
-			if (Utilities.getAttribute(listaAt.get(i), "key").equals("true"))
+			if (Utilities.getAttribute(listaAt.get(i), "key").equals("true")) {
 				atributo = listaAt.get(i);
-			break;
+				break;
+			}
 		}
 
 		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),

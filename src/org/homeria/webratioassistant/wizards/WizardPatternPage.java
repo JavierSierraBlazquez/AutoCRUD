@@ -2,6 +2,7 @@ package org.homeria.webratioassistant.wizards;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -129,37 +130,7 @@ public class WizardPatternPage extends WizardPage {
 	}
 
 	public boolean canFinish() {
-		return this.getSiteViewsChecked().size() > 0 && this.patternCombo.getSelectionIndex() != -1;
-	}
-
-	public List<ISiteView> getSiteViewsChecked() {
-		// obtener solamente los checkeados
-
-		// FIXME error de generacion en area: posiblemente esté aqui
-		TreeItem[] arrSiteViewSelected = this.arbolSvAreas.getItems();
-
-		List<ISiteView> lista = new ArrayList<ISiteView>();
-		if (null != arrSiteViewSelected && arrSiteViewSelected.length > 0) {
-			for (int i = 0; i < arrSiteViewSelected.length; i++) {
-				if (arrSiteViewSelected[i].getChecked()) {
-					for (int j = 0; j < this.listaSiteViews.size(); j++) {
-						ISiteView siteView = this.listaSiteViews.get(j);
-
-						String valorCompleto = Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")";
-						String valorNameMasEspacio = Utilities.getAttribute(siteView, "name") + " ";
-						if (arrSiteViewSelected[i].getText().compareTo(valorCompleto) == 0
-								|| valorNameMasEspacio.compareTo(arrSiteViewSelected[i].getText() + " ") == 0) {
-							lista.add(this.listaSiteViews.get(j));
-						}
-
-					}
-
-				}
-
-			}
-		}
-
-		return lista;
+		return this.getSvAreasChecked().size() > 0 && this.patternCombo.getSelectionIndex() != -1;
 	}
 
 	@Override
@@ -446,8 +417,7 @@ public class WizardPatternPage extends WizardPage {
 	private void inicializarListaYarbol() {
 		List<ISiteView> listaSiteViewsPreviaPage = ProjectParameters.getWebModel().getSiteViewList();
 
-		// Inicializa elementos del arbol para volver a version de siteView-
-		// areas creados
+		// Inicializa elementos del arbol para volver a version de siteView-areas creados
 		List<ObjStViewArea> listaSiteViewArea = new ArrayList();
 
 		this.arbolSvAreas.removeAll();
@@ -465,6 +435,7 @@ public class WizardPatternPage extends WizardPage {
 					TreeItem itemSiteView = new TreeItem(this.arbolSvAreas, 0);
 
 					itemSiteView.setText(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
+					itemSiteView.setData(objStView);
 
 					if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
 						this.montarArbolAreas(itemSiteView, objStView, siteView.getAreaList());
@@ -504,6 +475,7 @@ public class WizardPatternPage extends WizardPage {
 
 					TreeItem itemHijo = new TreeItem(itemPadreArbol, 0);
 					itemHijo.setText(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
+					itemHijo.setData(objArea1);
 
 					this.arbolSvAreas.select(itemHijo);
 
@@ -638,6 +610,160 @@ public class WizardPatternPage extends WizardPage {
 		}
 
 		return combo;
+	}
+
+	public List<IMFElement> getSvAreasChecked() {
+		// obtener solamente los checkeados
+
+		TreeItem[] arrSiteViewSelected = this.arbolSvAreas.getItems();
+
+		List<IMFElement> lista = new ArrayList<IMFElement>();
+		if (null != arrSiteViewSelected && arrSiteViewSelected.length > 0) {
+			for (int i = 0; i < arrSiteViewSelected.length; i++) {
+				if (arrSiteViewSelected[i].getChecked()) {
+					for (int j = 0; j < this.listaSiteViews.size(); j++) {
+						ISiteView siteView = this.listaSiteViews.get(j);
+
+						String valorCompleto = Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")";
+						String valorNameMasEspacio = Utilities.getAttribute(siteView, "name") + " ";
+						if (arrSiteViewSelected[i].getText().compareTo(valorCompleto) == 0
+								|| valorNameMasEspacio.compareTo(arrSiteViewSelected[i].getText() + " ") == 0) {
+							lista.add(this.listaSiteViews.get(j));
+						}
+					}
+				}
+			}
+		}
+		lista.addAll(this.getAreas());
+
+		return lista;
+	}
+
+	private List<IArea> getAreas() {
+
+		List<IArea> lista = new ArrayList<IArea>();
+		Collection<TreeItem> retColItemSelEhijos = new ArrayList<TreeItem>();
+
+		this.obtenerHijosCheckeados(retColItemSelEhijos, this.arbolSvAreas.getItems());
+
+		if (null != retColItemSelEhijos) {
+			for (Iterator iterator = retColItemSelEhijos.iterator(); iterator.hasNext();) {
+				TreeItem treeItem = (TreeItem) iterator.next();
+
+				IArea area = this.buscarElementoArea(((ObjStViewArea) treeItem.getData()).getNombre());
+				if (null != area) {
+					lista.add(area);
+				}
+			}
+		}
+		return lista;
+
+	}
+
+	public IArea buscarElementoAreaRecursivo(List<IArea> listArea, String nombre) {
+
+		if (null != listArea && listArea.size() > 0) {
+			for (Iterator iterator = listArea.iterator(); iterator.hasNext();) {
+				IArea area = (IArea) iterator.next();
+
+				String valorCompleto = Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")";
+				// 2 (sv11)
+				if (nombre.compareTo(valorCompleto) == 0 || valorCompleto.startsWith(nombre + " ")) {
+					// if(nombre.contains(valor)){
+					return area;
+				} else {
+					if (null != area.getAreaList() && area.getAreaList().size() > 0) {
+						IArea areabuscar = this.buscarElementoAreaRecursivo(area.getAreaList(), nombre);
+						if (null != areabuscar) {
+							return areabuscar;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * Nombre: buscarElementoArea Funcion:
+	 * 
+	 * @param nombre
+	 * @return
+	 */
+
+	public IArea buscarElementoArea(String nombre) {
+
+		IArea areaEnc = null;
+		for (int j = 0; j < this.listaSiteViews.size(); j++) {
+			ISiteView siteView = this.listaSiteViews.get(j);
+
+			if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
+
+				areaEnc = this.buscarElementoAreaRecursivo(siteView.getAreaList(), nombre);
+				if (null != areaEnc) {
+					return areaEnc;
+				}
+			}
+
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * Nombre: obtenerHijosCheckeados Funcion:
+	 * 
+	 * @param retColItemSelEhijos
+	 * @param arrItemRecorrer
+	 */
+	private void obtenerHijosCheckeados(Collection<TreeItem> retColItemSelEhijos, TreeItem[] arrItemRecorrer) {
+
+		if (null != arrItemRecorrer && arrItemRecorrer.length > 0) {
+
+			for (int i = 0; i < arrItemRecorrer.length; i++) {
+				// primero selecciona que el nodo este checkeado
+				if (null != arrItemRecorrer[i]) {
+					if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("STVIEW")
+							&& null != arrItemRecorrer[i].getItems()) {
+						this.obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
+					} else {
+
+						// segundo comprueba si es de tipo area y no tiene hijos
+						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("AREA")
+								&& null == arrItemRecorrer[i].getItems() && arrItemRecorrer[i].getChecked()) {
+
+							retColItemSelEhijos.add(arrItemRecorrer[i]);
+
+						}
+
+						// tercero comprueba si es de tipo area y ninguno de sus
+						// hijos siguientes tiene checkeado
+						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("AREA")
+								&& null != arrItemRecorrer[i].getItems() && arrItemRecorrer[i].getChecked()) {
+
+							int contador = 0;
+							for (int j = 0; j < arrItemRecorrer[i].getItems().length; j++) {
+								if (null != arrItemRecorrer[i].getItems()[j] && arrItemRecorrer[i].getItems()[j].getChecked()) {
+									contador++;
+									this.obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
+									break;
+								}
+							}
+
+							if (contador == 0) {
+								retColItemSelEhijos.add(arrItemRecorrer[i]);
+							}
+
+						}
+					}
+
+				}
+
+			}
+
+		}
+
 	}
 
 	public Map<IRelationshipRole, IAttribute> getRelationshipsSelected() {

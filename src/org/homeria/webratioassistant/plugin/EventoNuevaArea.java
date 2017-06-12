@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -33,7 +33,7 @@ public final class EventoNuevaArea extends Evento {
 
 	public IMFElement ejecutar() {
 		try {
-			// Comprobamos que el padre sea una siteView o Area, el área
+			// Comprobamos que el padre sea una siteView o Area, el ï¿½rea
 			// solo puede ir dentro de una siteView u otro Area
 			if ((this.getPadre() instanceof ISiteView)
 					|| (this.getPadre() instanceof IArea)) {
@@ -64,7 +64,7 @@ public final class EventoNuevaArea extends Evento {
 					"No se ha podido aï¿½adir el area");
 			e.printStackTrace();
 		}
-		return elemento;
+		return this.elemento;
 
 	}
 

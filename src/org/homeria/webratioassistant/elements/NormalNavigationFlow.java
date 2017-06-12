@@ -26,7 +26,7 @@ public class NormalNavigationFlow extends Link {
 	private boolean validate;
 
 	public NormalNavigationFlow(String id, String name, String sourceId, String destinyId, String type, String validate, IEntity entity) {
-		super(id, name, sourceId, destinyId,type);
+		super(id, name, sourceId, destinyId, type);
 		this.entity = entity;
 
 		if (validate.equals("false"))

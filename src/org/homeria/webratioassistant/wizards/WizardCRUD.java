@@ -40,7 +40,6 @@ import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationshipRole;
-import com.webratio.ide.model.ISiteView;
 
 /**
  * @author Carlos Aguado Fuentes
@@ -120,17 +119,15 @@ public class WizardCRUD extends Wizard implements INewWizard {
 			Queue<WebRatioElement> pages = this.patternPage.getPages();
 			List<Unit> units = this.patternPage.getUnits();
 			List<Link> links = this.patternPage.getLinks();
-			List<ISiteView> siteViews = this.patternPage.getSiteViewsChecked();
+			List<IMFElement> siteViewsAreas = this.patternPage.getSvAreasChecked();
 			Map<IRelationshipRole, IAttribute> relshipsSelected = this.patternPage.getRelationshipsSelected();
-			IEntity entity = this.patternPage.getEntitySelected();
-
-			for (ISiteView siteView : siteViews) {
+			for (IMFElement parent : siteViewsAreas) {
 
 				Map<String, IMFElement> createdElements = new HashMap<String, IMFElement>();
 
 				for (WebRatioElement page : pages) {
 					if (page instanceof Page)
-						((Page) page).setSiteView(siteView);
+						((Page) page).setParent(parent);
 					createdElements.put(page.getId(), page.generate(createdElements));
 				}
 
@@ -139,22 +136,22 @@ public class WizardCRUD extends Wizard implements INewWizard {
 						((EntryUnit) unit).setRelshipsSelected(relshipsSelected);
 
 					else if (unit instanceof DeleteUnit)
-						((DeleteUnit) unit).setSiteView(siteView);
+						((DeleteUnit) unit).setParent(parent);
 
 					else if (unit instanceof CreateUnit)
-						((CreateUnit) unit).setSiteView(siteView);
+						((CreateUnit) unit).setParent(parent);
 
 					else if (unit instanceof UpdateUnit)
-						((UpdateUnit) unit).setSiteView(siteView);
+						((UpdateUnit) unit).setParent(parent);
 
 					else if (unit instanceof ConnectUnit)
-						((ConnectUnit) unit).setSiteView(siteView);
+						((ConnectUnit) unit).setParent(parent);
 
 					else if (unit instanceof ReconnectUnit)
-						((ReconnectUnit) unit).setSiteView(siteView);
+						((ReconnectUnit) unit).setParent(parent);
 
 					else if (unit instanceof IsNotNullUnit)
-						((IsNotNullUnit) unit).setSiteView(siteView);
+						((IsNotNullUnit) unit).setParent(parent);
 
 					createdElements.put(unit.getId(), unit.generate(createdElements));
 				}
@@ -168,57 +165,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 					createdElements.put(link.getId(), link.generate(createdElements));
 				}
 			}
-			/*
-						if (operationsChecked.contains(Utilities.Operations.CREATE))
-							this.create = new Create(entidad, this.crudPage.getSiteViewsChecked(), this.crudPage.getAreas(),
-									this.crudPage.getRelationShipsCreate(), this.crudPage.getAttributesDataCreate(),
-									this.selectEntityPage.getGenerationDelay());
-						if (operationsChecked.contains(Utilities.Operations.READ))
-							this.read = new Read(entidad, this.crudPage.getSiteViewsChecked(), this.crudPage.getAreas(),
-									this.crudPage.getAttributesIndexRead(), this.crudPage.getAttributesDataRead(),
-									this.selectEntityPage.getGenerationDelay());
-						if (operationsChecked.contains(Utilities.Operations.UPDATE))
-							this.update = new Update(entidad, this.crudPage.getSiteViewsChecked(), this.crudPage.getAreas(),
-									this.crudPage.getRelationShipsUpdate(), this.crudPage.getAttributesUpdate(),
-									this.crudPage.getAttributesShowUpdate(), this.selectEntityPage.getGenerationDelay());
-						if (operationsChecked.contains(Utilities.Operations.DELETE))
-							this.delete = new Delete(entidad, this.crudPage.getSiteViewsChecked(), this.crudPage.getAreas(),
-									this.crudPage.getAttributesIndexDelete(), this.selectEntityPage.getGenerationDelay());
-						if (operationsChecked.contains(Utilities.Operations.ALLINONE))
-							this.allinone = new AllInOne(entidad, this.crudPage.getSiteViewsChecked(), this.crudPage.getAreas(),
-									this.crudPage.getRelationShipsAllInOne(), this.crudPage.getAttributesIndexAllInOne(),
-									this.crudPage.getAttributesDataAllInOne(), this.crudPage.getAttributesDetailAllInOne(),
-									this.selectEntityPage.getGenerationDelay());
-
-						final Create c = this.create;
-						final Read r = this.read;
-						final Update u = this.update;
-						final Delete d = this.delete;
-						final AllInOne a = this.allinone;
-						IRunnableWithProgress op2 = new IRunnableWithProgress() {
-							public void run(IProgressMonitor monitor) throws InvocationTargetException {
-								try {
-									doFinish(a, c, r, u, d, monitor);
-								} catch (CoreException e) {
-									throw new InvocationTargetException(e);
-								} finally {
-									monitor.done();
-								}
-							}
-						};
-						try {
-							getContainer().run(false, false, op2);
-
-							ProjectParameters.getActiveEditor().doSave(null);
-						} catch (InterruptedException e) {
-							return false;
-						} catch (InvocationTargetException e) {
-							Throwable realException = e.getTargetException();
-							MessageDialog.openError(getShell(), "Error", realException.getMessage());
-							e.printStackTrace();
-							return false;
-						}
-			*/
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -231,7 +178,6 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	public void finalize() {
 		try {
 			this.dispose();
-			// this.finalize();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

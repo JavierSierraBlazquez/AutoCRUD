@@ -10,11 +10,10 @@ import org.homeria.webratioassistant.plugin.Utilities;
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAlternative;
 import com.webratio.ide.model.IPage;
-import com.webratio.ide.model.ISiteView;
 
 public class Page extends WebRatioElement {
 
-	private ISiteView siteView;
+	private IMFElement parent;
 	private Point position;
 	private String parentId;
 	private boolean isLandmark;
@@ -37,15 +36,15 @@ public class Page extends WebRatioElement {
 
 	}
 
-	public void setSiteView(ISiteView siteView) {
-		this.siteView = siteView;
+	public void setParent(IMFElement parent) {
+		this.parent = parent;
 	}
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent;
 		if (null == this.parentId)
-			parent = this.siteView;
+			parent = this.parent;
 		else
 			parent = createdElements.get(this.parentId);
 

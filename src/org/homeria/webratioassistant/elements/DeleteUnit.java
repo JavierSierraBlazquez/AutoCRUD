@@ -7,23 +7,22 @@ import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
-import com.webratio.ide.model.ISiteView;
 
 public class DeleteUnit extends Unit {
-	private ISiteView siteView;
+	private IMFElement parent;
 
 	public DeleteUnit(String id, String name, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
 	}
 
-	public void setSiteView(ISiteView siteView) {
-		this.siteView = siteView;
+	public void setParent(IMFElement parent) {
+		this.parent = parent;
 	}
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 
-		Evento evento = new EventoNuevaUnit(this.siteView, ElementType.DELETE_UNIT, this.position.x, this.position.y, this.name,
+		Evento evento = new EventoNuevaUnit(this.parent, ElementType.DELETE_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
 		return evento.ejecutar();
 	}
