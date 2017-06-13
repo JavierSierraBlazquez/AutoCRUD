@@ -11,21 +11,10 @@ import com.webratio.ide.model.IEntity;
 /**
  * This class contains the data previously parsed that is needed to generate the CreateUnit using generate method
  */
-public class CreateUnit extends Unit {
-	private IMFElement parent;
+public class CreateUnit extends UnitOutsidePage {
 
 	public CreateUnit(String id, String name, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
-	}
-
-	/**
-	 * Set the SiteView which is the parent of the unit
-	 * 
-	 * @param parent
-	 *            the SiteView
-	 */
-	public void setParent(IMFElement parent) {
-		this.parent = parent;
 	}
 
 	/* (non-Javadoc)

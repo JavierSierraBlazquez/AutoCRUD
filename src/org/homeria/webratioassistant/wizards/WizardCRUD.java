@@ -15,26 +15,22 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.homeria.webratioassistant.elements.ConnectUnit;
-import org.homeria.webratioassistant.elements.CreateUnit;
 import org.homeria.webratioassistant.elements.DataFlow;
-import org.homeria.webratioassistant.elements.DeleteUnit;
 import org.homeria.webratioassistant.elements.EntryUnit;
-import org.homeria.webratioassistant.elements.IsNotNullUnit;
 import org.homeria.webratioassistant.elements.Link;
 import org.homeria.webratioassistant.elements.NormalNavigationFlow;
 import org.homeria.webratioassistant.elements.Page;
-import org.homeria.webratioassistant.elements.ReconnectUnit;
 import org.homeria.webratioassistant.elements.Unit;
-import org.homeria.webratioassistant.elements.UpdateUnit;
+import org.homeria.webratioassistant.elements.UnitOutsidePage;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.plugin.Debug;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
+import org.homeria.webratioassistant.plugin.Utilities;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
@@ -99,19 +95,6 @@ public class WizardCRUD extends Wizard implements INewWizard {
 		}
 	}
 
-	/***
-	 * 
-	 * Nombre: doFinish Funcion:
-	 * 
-	 * @param a
-	 * @param c
-	 * @param r
-	 * @param u
-	 * @param d
-	 * @param monitor
-	 * @throws CoreException
-	 */
-
 	@Override
 	public boolean performFinish() {
 		try {
@@ -121,13 +104,22 @@ public class WizardCRUD extends Wizard implements INewWizard {
 			List<Link> links = this.patternPage.getLinks();
 			List<IMFElement> siteViewsAreas = this.patternPage.getSvAreasChecked();
 			Map<IRelationshipRole, IAttribute> relshipsSelected = this.patternPage.getRelationshipsSelected();
+			Point coords;
+
 			for (IMFElement parent : siteViewsAreas) {
+				coords = new Point(0, 0);
+				// obtenemos las coordenadas del elemento más a la derecha para no superponer unidades
+
+				coords = Utilities.buscarHueco();
 
 				Map<String, IMFElement> createdElements = new HashMap<String, IMFElement>();
 
 				for (WebRatioElement page : pages) {
-					if (page instanceof Page)
+					if (page instanceof Page) {
 						((Page) page).setParent(parent);
+						((Page) page).addToCurrentPosition(coords);
+					}
+
 					createdElements.put(page.getId(), page.generate(createdElements));
 				}
 
@@ -135,23 +127,10 @@ public class WizardCRUD extends Wizard implements INewWizard {
 					if (unit instanceof EntryUnit)
 						((EntryUnit) unit).setRelshipsSelected(relshipsSelected);
 
-					else if (unit instanceof DeleteUnit)
-						((DeleteUnit) unit).setParent(parent);
-
-					else if (unit instanceof CreateUnit)
-						((CreateUnit) unit).setParent(parent);
-
-					else if (unit instanceof UpdateUnit)
-						((UpdateUnit) unit).setParent(parent);
-
-					else if (unit instanceof ConnectUnit)
-						((ConnectUnit) unit).setParent(parent);
-
-					else if (unit instanceof ReconnectUnit)
-						((ReconnectUnit) unit).setParent(parent);
-
-					else if (unit instanceof IsNotNullUnit)
-						((IsNotNullUnit) unit).setParent(parent);
+					else if (unit instanceof UnitOutsidePage) {
+						((UnitOutsidePage) unit).setParent(parent);
+						((UnitOutsidePage) unit).addToCurrentPosition(coords);
+					}
 
 					createdElements.put(unit.getId(), unit.generate(createdElements));
 				}
@@ -165,7 +144,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 					createdElements.put(link.getId(), link.generate(createdElements));
 				}
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

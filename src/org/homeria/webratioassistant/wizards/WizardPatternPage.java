@@ -141,9 +141,6 @@ public class WizardPatternPage extends WizardPage {
 		this.containerComposite.layout();
 		this.setControl(this.containerComposite);
 
-		// declaracionEstructuras(entidad);
-		// this.initRelationShips();
-
 		this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
 		this.crearCompositeIzquierdo();
@@ -530,12 +527,8 @@ public class WizardPatternPage extends WizardPage {
 			CCombo combo = new CCombo(tabla, SWT.NONE);
 			combo = this.addAtributesToCombo(combo, this.relatedEntities.get(i), editor);
 			combo.select(0);
-			// se a�ade posicion que ocupa
-			// el combo, sera igual a la del
-			// editor asociado a dicho combo
-			combo.setData(new Integer(i));// se a�ade posicion que ocupa el combo,
-			// sera igual a la del editor asociado a
-			// dicho combo
+			// se a�ade posicion que ocupa el combo, sera igual a la del editor asociado a dicho combo
+			combo.setData(new Integer(i));
 			combo.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent evt) {

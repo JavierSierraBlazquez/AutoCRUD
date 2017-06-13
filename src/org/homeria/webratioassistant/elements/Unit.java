@@ -1,6 +1,6 @@
 package org.homeria.webratioassistant.elements;
 
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.draw2d.geometry.Point;
 
 import com.webratio.ide.model.IEntity;
 

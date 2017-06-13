@@ -68,7 +68,6 @@ public class lanzarCRUD extends AbstractHandler {
 				wizard.init(window.getWorkbench(), structuredSelection);
 				WizardDialog dialog = new WizardDialog(window.getShell(), wizard);
 				dialog.setPageSize(1000, 440);
-
 				dialog.open();
 			}
 		} catch (Exception e) {

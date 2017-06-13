@@ -10,24 +10,12 @@ import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationshipRole;
 
-public class ReconnectUnit extends Unit {
+public class ReconnectUnit extends UnitOutsidePage {
 	private IRelationshipRole role;
-	private IMFElement parent;
 
 	public ReconnectUnit(String id, String name, String x, String y, IEntity entity, IRelationshipRole role) {
 		super(id, name, x, y, entity);
 		this.role = role;
-	}
-
-	/**
-	 * Set the SiteView or Area which is the parent of the unit
-	 * 
-	 * @param parent
-	 *            the SiteView or Area
-	 */
-
-	public void setParent(IMFElement parent) {
-		this.parent = parent;
 	}
 
 	@Override

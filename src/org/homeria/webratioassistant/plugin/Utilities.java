@@ -30,6 +30,7 @@ import com.webratio.commons.mf.operations.MFUpdater;
 import com.webratio.commons.mf.ui.commands.SetAttributeCommand;
 import com.webratio.commons.mf.ui.editors.MFMultiEditor;
 import com.webratio.ide.core.UnitHelper;
+import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.ILinkParameter;
 import com.webratio.ide.model.IRelationship;
@@ -62,6 +63,7 @@ public class Utilities {
 			Map mapa = editP.getVisualPartMap();
 			Set<IFigure> figuras = mapa.keySet();
 
+			IArea a;
 			Iterator<IFigure> it = figuras.iterator();
 			IFigure figura;
 			int maximoDerecha = 0;
