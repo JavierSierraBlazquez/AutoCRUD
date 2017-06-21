@@ -26,5 +26,10 @@ public class CreateUnit extends UnitOutsidePage {
 		Evento evento = new EventoNuevaUnit(this.parent, ElementType.CREATE_UNIT, this.position.x, this.position.y, this.name, this.entity);
 		return evento.ejecutar();
 	}
+	
+	@Override
+	public WebRatioElement getCopy() {
+		return new CreateUnit(this.id, this.name, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity);
+	}
 
 }

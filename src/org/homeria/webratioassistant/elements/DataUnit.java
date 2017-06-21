@@ -16,11 +16,13 @@ import com.webratio.ide.model.IEntity;
 public class DataUnit extends Unit {
 
 	private String parentId;
+	private String selectedAttributes;
 	private Table table;
 
-	public DataUnit(String id, String name, String parentId, String x, String y,IEntity entity) {
+	public DataUnit(String id, String name, String parentId, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
 		this.parentId = parentId;
+		this.selectedAttributes = "";
 	}
 
 	public void setTable(Table table) {
@@ -35,8 +37,12 @@ public class DataUnit extends Unit {
 
 		IMFElement dataUnit = evento.ejecutar();
 		// Se añaden los atributos
-		Utilities.setAttribute(dataUnit, "displayAttributes", this.getSelectedAttributes());
+		Utilities.setAttribute(dataUnit, "displayAttributes", this.selectedAttributes);
 		return dataUnit;
+	}
+
+	public void extractTableAttributes() {
+		this.selectedAttributes = this.getSelectedAttributes();
 	}
 
 	public String getSelectedAttributes() {
@@ -68,6 +74,11 @@ public class DataUnit extends Unit {
 			atributos = atributos.substring(0, atributos.length() - 1);
 
 		return atributos;
+	}
+
+	@Override
+	public WebRatioElement getCopy() {
+		return new DataUnit(this.id, this.name, this.parentId, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity);
 	}
 
 }

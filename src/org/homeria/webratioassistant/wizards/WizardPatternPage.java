@@ -383,6 +383,7 @@ public class WizardPatternPage extends WizardPage {
 
 				if (unit instanceof PowerIndexUnit)
 					((PowerIndexUnit) unit).setTable(table);
+
 				else if (unit instanceof DataUnit)
 					((DataUnit) unit).setTable(table);
 			}
@@ -791,5 +792,14 @@ public class WizardPatternPage extends WizardPage {
 		this.pages = this.xmlParser.getPages();
 		this.units = this.xmlParser.getUnits();
 		this.links = this.xmlParser.getLinks();
+
+		// Need to extract the table attributes checked before the widget disposes
+		for (Unit unit : this.units) {
+			if (unit instanceof PowerIndexUnit)
+				((PowerIndexUnit) unit).extractTableAttributes();
+
+			else if (unit instanceof DataUnit)
+				((DataUnit) unit).extractTableAttributes();
+		}
 	}
 }

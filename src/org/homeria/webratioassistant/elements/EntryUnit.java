@@ -113,4 +113,10 @@ public class EntryUnit extends Unit {
 			new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
 		}
 	}
+
+	@Override
+	public WebRatioElement getCopy() {
+		return new EntryUnit(this.id, this.name, this.parentId, this.type, String.valueOf(this.position.x), String.valueOf(this.position.y),
+				this.entity);
+	}
 }

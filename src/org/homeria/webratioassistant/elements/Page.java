@@ -14,11 +14,12 @@ import com.webratio.ide.model.ISiteView;
 
 public class Page extends WebRatioElement {
 
-	private IMFElement parent;
 	private Point position;
 	private String parentId;
 	private boolean isLandmark;
 	private boolean isDefaultPage;
+
+	private IMFElement parent;
 
 	public Page(String id, String name, String parentId, String defaultPage, String landmark, String x, String y) {
 		super(id, name);
@@ -40,6 +41,10 @@ public class Page extends WebRatioElement {
 
 	public void setParent(IMFElement parent) {
 		this.parent = parent;
+	}
+
+	public IMFElement getParent() {
+		return this.parent;
 	}
 
 	public void addToCurrentPosition(Point coords) {
@@ -69,4 +74,9 @@ public class Page extends WebRatioElement {
 		return evento.ejecutar();
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new Page(this.id, this.name, this.parentId, String.valueOf(this.isDefaultPage), String.valueOf(this.isLandmark),
+				String.valueOf(this.position.x), String.valueOf(this.position.y));
+	}
 }

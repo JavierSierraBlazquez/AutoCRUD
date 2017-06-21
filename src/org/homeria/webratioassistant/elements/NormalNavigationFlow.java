@@ -25,8 +25,8 @@ public class NormalNavigationFlow extends Link {
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 	private boolean validate;
 
-	public NormalNavigationFlow(String id, String name, String sourceId, String destinyId, String type, String validate, IEntity entity) {
-		super(id, name, sourceId, destinyId, type);
+	public NormalNavigationFlow(String id, String name, String sourceId, String targetId, String type, String validate, IEntity entity) {
+		super(id, name, sourceId, targetId, type);
 		this.entity = entity;
 
 		if (validate.equals("false"))
@@ -194,5 +194,11 @@ public class NormalNavigationFlow extends Link {
 				link.getRootElement()).execute();
 
 		((MFElement) link).addChild(linkParameter, null);
+	}
+
+	@Override
+	public WebRatioElement getCopy() {
+		return new NormalNavigationFlow(this.id, this.name, this.sourceId, this.targetId, this.type, String.valueOf(this.validate),
+				this.entity);
 	}
 }

@@ -6,14 +6,13 @@ import org.homeria.webratioassistant.plugin.Evento;
 import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
 
 import com.webratio.commons.mf.IMFElement;
-import com.webratio.ide.model.IEntity;
 
 public class MultiMessageUnit extends Unit {
 
 	private String parentId;
 
-	public MultiMessageUnit(String id, String name, String parentId, String x, String y, IEntity entity) {
-		super(id, name, x, y, entity);
+	public MultiMessageUnit(String id, String name, String parentId, String x, String y) {
+		super(id, name, x, y, null);
 		this.parentId = parentId;
 	}
 
@@ -27,4 +26,8 @@ public class MultiMessageUnit extends Unit {
 		return evento.ejecutar();
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new MultiMessageUnit(this.id, this.name, this.parentId, String.valueOf(this.position.x), String.valueOf(this.position.y));
+	}
 }

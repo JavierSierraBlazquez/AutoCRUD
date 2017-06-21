@@ -21,6 +21,7 @@ public abstract class WebRatioElement {
 		return this.name;
 	}
 
-	public abstract IMFElement generate(Map<String, IMFElement> createdElements);
+	public abstract WebRatioElement getCopy();
 
+	public abstract IMFElement generate(Map<String, IMFElement> createdElements);
 }

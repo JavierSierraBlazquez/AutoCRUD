@@ -27,4 +27,8 @@ public class XOR extends WebRatioElement {
 		return evento.ejecutar();
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new XOR(this.id, this.name, this.parentId, String.valueOf(this.position.x), String.valueOf(this.position.y));
+	}
 }

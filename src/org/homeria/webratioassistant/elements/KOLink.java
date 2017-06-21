@@ -10,8 +10,8 @@ import com.webratio.commons.mf.IMFElement;
 public class KOLink extends Link {
 	private String message;
 
-	public KOLink(String id, String name, String sourceId, String destinyId, String message, String type) {
-		super(id, name, sourceId, destinyId, type);
+	public KOLink(String id, String name, String sourceId, String targetId, String message, String type) {
+		super(id, name, sourceId, targetId, type);
 		this.message = message;
 		if (null == message)
 			this.message = "";
@@ -38,4 +38,8 @@ public class KOLink extends Link {
 		return link;
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new OKLink(this.id, this.name, this.sourceId, this.targetId, this.message, this.type);
+	}
 }

@@ -36,4 +36,9 @@ public class ConnectUnit extends UnitOutsidePage {
 		return connectUnit;
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new ConnectUnit(this.id, this.name, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity, this.role);
+	}
+
 }

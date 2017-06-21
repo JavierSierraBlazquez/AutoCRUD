@@ -20,4 +20,9 @@ public class UpdateUnit extends UnitOutsidePage {
 		return evento.ejecutar();
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new UpdateUnit(this.id, this.name, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity);
+	}
+
 }

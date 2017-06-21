@@ -29,4 +29,10 @@ public class ReconnectUnit extends UnitOutsidePage {
 		return reconnectUnit;
 	}
 
+
+	@Override
+	public WebRatioElement getCopy() {
+		return new ReconnectUnit(this.id, this.name, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity,
+				this.role);
+	}
 }

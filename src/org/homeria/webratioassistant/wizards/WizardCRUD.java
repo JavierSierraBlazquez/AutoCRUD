@@ -9,28 +9,20 @@
 
 package org.homeria.webratioassistant.wizards;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.homeria.webratioassistant.elements.DataFlow;
-import org.homeria.webratioassistant.elements.EntryUnit;
 import org.homeria.webratioassistant.elements.Link;
-import org.homeria.webratioassistant.elements.NormalNavigationFlow;
-import org.homeria.webratioassistant.elements.Page;
 import org.homeria.webratioassistant.elements.Unit;
-import org.homeria.webratioassistant.elements.UnitOutsidePage;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.plugin.Debug;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
@@ -47,6 +39,12 @@ import com.webratio.ide.model.IRelationshipRole;
 public class WizardCRUD extends Wizard implements INewWizard {
 	private WizardPatternPage patternPage;
 
+	private Queue<WebRatioElement> pages;
+	private List<Unit> units;
+	private List<Link> links;
+	private List<IMFElement> siteViewsAreas;
+	private Map<IRelationshipRole, IAttribute> relshipsSelected;
+
 	/**
 	 * 
 	 */
@@ -62,6 +60,26 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	public WizardCRUD(IEntity selection) {
 		super();
 		this.setNeedsProgressMonitor(true);
+	}
+
+	public Queue<WebRatioElement> getPagesGen() {
+		return this.pages;
+	}
+
+	public List<Unit> getUnits() {
+		return this.units;
+	}
+
+	public List<Link> getLinks() {
+		return this.links;
+	}
+
+	public List<IMFElement> getSiteViewsAreas() {
+		return this.siteViewsAreas;
+	}
+
+	public Map<IRelationshipRole, IAttribute> getRelshipsSelected() {
+		return this.relshipsSelected;
 	}
 
 	/**
@@ -98,53 +116,14 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 		try {
+
 			this.patternPage.finalizePage();
-			Queue<WebRatioElement> pages = this.patternPage.getPages();
-			List<Unit> units = this.patternPage.getUnits();
-			List<Link> links = this.patternPage.getLinks();
-			List<IMFElement> siteViewsAreas = this.patternPage.getSvAreasChecked();
-			Map<IRelationshipRole, IAttribute> relshipsSelected = this.patternPage.getRelationshipsSelected();
-			Point coords;
-
-			for (IMFElement parent : siteViewsAreas) {
-				coords = new Point(0, 0);
-				// obtenemos las coordenadas del elemento más a la derecha para no superponer unidades
-
-				coords = Utilities.buscarHueco();
-
-				Map<String, IMFElement> createdElements = new HashMap<String, IMFElement>();
-
-				for (WebRatioElement page : pages) {
-					if (page instanceof Page) {
-						((Page) page).setParent(parent);
-						((Page) page).addToCurrentPosition(coords);
-					}
-
-					createdElements.put(page.getId(), page.generate(createdElements));
-				}
-
-				for (Unit unit : units) {
-					if (unit instanceof EntryUnit)
-						((EntryUnit) unit).setRelshipsSelected(relshipsSelected);
-
-					else if (unit instanceof UnitOutsidePage) {
-						((UnitOutsidePage) unit).setParent(parent);
-						((UnitOutsidePage) unit).addToCurrentPosition(coords);
-					}
-
-					createdElements.put(unit.getId(), unit.generate(createdElements));
-				}
-
-				for (Link link : links) {
-					if (link instanceof NormalNavigationFlow)
-						((NormalNavigationFlow) link).setRelshipsSelected(relshipsSelected);
-
-					if (link instanceof DataFlow)
-						((DataFlow) link).setRelshipsSelected(relshipsSelected);
-					createdElements.put(link.getId(), link.generate(createdElements));
-				}
-			}
-
+			this.pages = this.patternPage.getPages();
+			this.units = this.patternPage.getUnits();
+			this.links = this.patternPage.getLinks();
+			this.siteViewsAreas = this.patternPage.getSvAreasChecked();
+			this.relshipsSelected = this.patternPage.getRelationshipsSelected();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

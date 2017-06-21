@@ -55,4 +55,9 @@ public class SelectorUnit extends Unit {
 		return selector;
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new SelectorUnit(this.id, this.name, this.parentId, this.type, String.valueOf(this.position.x),
+				String.valueOf(this.position.y), this.entity, this.role);
+	}
 }

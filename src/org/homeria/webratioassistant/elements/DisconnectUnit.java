@@ -29,4 +29,9 @@ public class DisconnectUnit extends UnitOutsidePage {
 		return disconnectUnit;
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new DisconnectUnit(this.id, this.name, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity, this.role);
+	}
+
 }

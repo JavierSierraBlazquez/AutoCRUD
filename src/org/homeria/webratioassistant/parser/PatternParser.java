@@ -367,7 +367,7 @@ public class PatternParser {
 
 		} else if (nodeName.equals(ElementType.MULTI_MESSAGE_UNIT)) {
 			this.units.add(new MultiMessageUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
+					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y")));
 
 		} else if (nodeName.equals(ElementType.ENTRY_UNIT)) {
 			this.units.add(new EntryUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
@@ -382,8 +382,8 @@ public class PatternParser {
 					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
 		} else if (nodeName.equals(ElementType.IS_NOT_NULL_UNIT)) {
-			this.units.add(new IsNotNullUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), null));
+			this.units.add(new IsNotNullUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
+					.getAttribute("y"), null));
 
 		} else if (nodeName.equals(ElementType.CREATE_UNIT)) {
 			this.units.add(new CreateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
@@ -431,8 +431,8 @@ public class PatternParser {
 					xmlUnit.getAttribute("y"), this.entity, role));
 
 		} else if (nodeName.equals(ElementType.DISCONNECT_UNIT)) {
-			created = this.units.add(new DisconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
-					xmlUnit.getAttribute("y"), this.entity, role));
+			created = this.units.add(new DisconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"),
+					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this.entity, role));
 
 		} else if (nodeName.equals(ElementType.RECONNECT_UNIT)) {
 			created = this.units.add(new ReconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),

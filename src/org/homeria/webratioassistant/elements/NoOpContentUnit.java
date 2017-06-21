@@ -26,4 +26,10 @@ public class NoOpContentUnit extends Unit {
 
 		return evento.ejecutar();
 	}
+
+	@Override
+	public WebRatioElement getCopy() {
+		return new NoOpContentUnit(this.id, this.name, this.parentId, String.valueOf(this.position.x), String.valueOf(this.position.y),
+				this.entity);
+	}
 }

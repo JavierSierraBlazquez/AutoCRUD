@@ -27,15 +27,15 @@ public class DataFlow extends Link {
 	private IEntity entity;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 
-	public DataFlow(String id, String name, String sourceId, String destinyId, String type, IEntity entity, IRelationshipRole role) {
-		super(id, name, sourceId, destinyId, type);
+	public DataFlow(String id, String name, String sourceId, String targetId, String type, IEntity entity, IRelationshipRole role) {
+		super(id, name, sourceId, targetId, type);
 		this.entity = entity;
 		this.role = role;
 
 	}
 
-	public DataFlow(String id, String name, String sourceId, String destinyId, String type, IEntity entity) {
-		super(id, name, sourceId, destinyId, type);
+	public DataFlow(String id, String name, String sourceId, String targetId, String type, IEntity entity) {
+		super(id, name, sourceId, targetId, type);
 		this.type = type;
 		this.entity = entity;
 	}
@@ -424,4 +424,8 @@ public class DataFlow extends Link {
 		return linkParameter;
 	}
 
+	@Override
+	public WebRatioElement getCopy() {
+		return new DataFlow(this.id, this.name, this.sourceId, this.targetId, this.type, this.entity, this.role);
+	}
 }
