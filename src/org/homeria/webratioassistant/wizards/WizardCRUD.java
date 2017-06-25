@@ -21,6 +21,14 @@ import org.eclipse.ui.IWorkbench;
 import org.homeria.webratioassistant.elements.Link;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
+import org.homeria.webratioassistant.exceptions.CantOpenFileException;
+import org.homeria.webratioassistant.exceptions.CantParseXmlFileException;
+import org.homeria.webratioassistant.exceptions.ExceptionHandler;
+import org.homeria.webratioassistant.exceptions.IdNotUniqueException;
+import org.homeria.webratioassistant.exceptions.MissingSectionException;
+import org.homeria.webratioassistant.exceptions.NoIdException;
+import org.homeria.webratioassistant.exceptions.NoSourceIdException;
+import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.plugin.Debug;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
 
@@ -115,18 +123,32 @@ public class WizardCRUD extends Wizard implements INewWizard {
 
 	@Override
 	public boolean performFinish() {
-		try {
 
+		try {
 			this.patternPage.finalizePage();
+
 			this.pages = this.patternPage.getPages();
 			this.units = this.patternPage.getUnits();
 			this.links = this.patternPage.getLinks();
 			this.siteViewsAreas = this.patternPage.getSvAreasChecked();
 			this.relshipsSelected = this.patternPage.getRelationshipsSelected();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		} catch (CantOpenFileException e) {
+			ExceptionHandler.handle(e);
+		} catch (CantParseXmlFileException e) {
+			ExceptionHandler.handle(e);
+		} catch (NoIdException e) {
+			ExceptionHandler.handle(e);
+		} catch (IdNotUniqueException e) {
+			ExceptionHandler.handle(e);
+		} catch (NoSourceIdException e) {
+			ExceptionHandler.handle(e);
+		} catch (NoTargetIdException e) {
+			ExceptionHandler.handle(e);
+		} catch (MissingSectionException e) {
+			ExceptionHandler.handle(e);
 		}
+
 		return true;
 	}
 

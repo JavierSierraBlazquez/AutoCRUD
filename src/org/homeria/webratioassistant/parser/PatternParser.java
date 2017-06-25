@@ -3,6 +3,7 @@ package org.homeria.webratioassistant.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -35,6 +36,13 @@ import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UpdateUnit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.elements.XOR;
+import org.homeria.webratioassistant.exceptions.CantOpenFileException;
+import org.homeria.webratioassistant.exceptions.CantParseXmlFileException;
+import org.homeria.webratioassistant.exceptions.IdNotUniqueException;
+import org.homeria.webratioassistant.exceptions.MissingSectionException;
+import org.homeria.webratioassistant.exceptions.NoIdException;
+import org.homeria.webratioassistant.exceptions.NoSourceIdException;
+import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.plugin.Utilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +55,17 @@ import com.webratio.ide.model.IRelationship;
 import com.webratio.ide.model.IRelationshipRole;
 
 public class PatternParser {
-	private static int SEPARACION_UNIDADES = 120;
+	private static int UNIT_GAP = 120;
+
+	private static String PAGES_SECTION = "PAGES SECTION";
+	private static String OPUNITS_SECTION = "OPERATION UNITS SECTION";
+	private static String LINKS_SECTION = "LINKS SECTION";
+	private static String RELATIONS_SECTION = "RELATIONS SECTION";
+	private static String NMRELATIONS_SECTION = "N:M RELATIONS SECTION";
+	private static String IFFIRSTRELATION_SECTION = "IfFirstRelation into N:M RELATIONS SECTION";
+	private static String IFNOTFIRSTRELATION_SECTION = "IfNotFirstRelation into N:M RELATIONS SECTION";
+	private static String IFSOMENMRELATION_SECTION = "IfSomeNMRelation after N:M RELATIONS SECTION";
+	private static String IFNOTSOMENMRELATION_SECTION = "IfNotSomeNMRelation after N:M RELATIONS SECTION";
 
 	private Document doc;
 	private File fXmlFile;
@@ -59,11 +77,14 @@ public class PatternParser {
 	private List<Unit> units;
 	private List<Link> links;
 
-	public PatternParser(String path, IEntity entity) {
+	private List<String> idPool;
+
+	public PatternParser(String path, IEntity entity) throws CantOpenFileException, CantParseXmlFileException {
 		this.pages = new LinkedList<WebRatioElement>();
 		this.units = new ArrayList<Unit>();
 		this.links = new ArrayList<Link>();
 		this.entity = entity;
+		this.idPool = new ArrayList<String>();
 
 		this.fXmlFile = new File(path);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -99,19 +120,26 @@ public class PatternParser {
 		this.links = links;
 	}
 
-	private void generateDoc() {
+	private void generateDoc() throws CantOpenFileException, CantParseXmlFileException {
 		try {
 			this.doc = this.dBuilder.parse(this.fXmlFile);
-		} catch (SAXException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new CantOpenFileException(this.fXmlFile.getAbsolutePath());
+		} catch (SAXException e) {
+			throw new CantParseXmlFileException(this.fXmlFile.getAbsolutePath());
 		}
 	}
 
-	public void parsePagesSection() {
+	public void parsePagesSection() throws NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
+			MissingSectionException {
 		// Procesamos todas las páginas:
-		NodeList pagesNodeList = this.doc.getElementsByTagName("Pages").item(0).getChildNodes();
+		NodeList pagesNodeList;
+		try {
+			pagesNodeList = this.doc.getElementsByTagName("Pages").item(0).getChildNodes();
+		} catch (Exception e) {
+			throw new MissingSectionException(PAGES_SECTION, e);
+		}
+
 		for (int iPage = 0; iPage < pagesNodeList.getLength(); iPage++) {
 			Node nodePage = pagesNodeList.item(iPage);
 			if (nodePage instanceof Element) {
@@ -123,7 +151,9 @@ public class PatternParser {
 		}
 	}
 
-	private void parsePage(Element page, String parentId) {
+	private void parsePage(Element page, String parentId) throws NoIdException, IdNotUniqueException, NoSourceIdException,
+			NoTargetIdException {
+		this.validateAttributes(page, PAGES_SECTION);
 		if (page.getTagName().equals(ElementType.PAGE))
 			this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("default"), page
 					.getAttribute("landmark"), page.getAttribute("x"), page.getAttribute("y")));
@@ -142,6 +172,7 @@ public class PatternParser {
 				if (element.getTagName().equals(ElementType.PAGE) || element.getTagName().equals(ElementType.XOR_PAGE))
 					this.parsePage(element, page.getAttribute("id"));
 				else {
+					this.validateAttributes(element, PAGES_SECTION);
 					element.setAttribute("parentId", page.getAttribute("id"));
 					// Creo la unit
 					this.createElement(element, this.entity);
@@ -151,32 +182,51 @@ public class PatternParser {
 
 	}
 
-	public void parseOpUnitsSection() {
-		NodeList opuChilds = this.doc.getElementsByTagName("OperationUnits").item(0).getChildNodes();
+	public void parseOpUnitsSection() throws NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
+			MissingSectionException {
+		NodeList opuChilds;
+
+		try {
+			opuChilds = this.doc.getElementsByTagName("OperationUnits").item(0).getChildNodes();
+		} catch (Exception e) {
+			throw new MissingSectionException(OPUNITS_SECTION, e);
+		}
 
 		for (int i = 0; i < opuChilds.getLength(); i++) {
 			Node node = opuChilds.item(i);
 			if (node instanceof Element) {
 				Element opUnit = (Element) node;
+
+				this.validateAttributes(opUnit, OPUNITS_SECTION);
 				this.createElement(opUnit, this.entity);
 			}
 		}
 	}
 
-	public void parseLinksSection() {
-		NodeList linkChilds = this.doc.getElementsByTagName("Links").item(0).getChildNodes();
+	public void parseLinksSection() throws NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
+			MissingSectionException {
+		NodeList linkChilds;
+		try {
+			linkChilds = this.doc.getElementsByTagName("Links").item(0).getChildNodes();
+		} catch (Exception e) {
+			throw new MissingSectionException(LINKS_SECTION, e);
+		}
 
 		for (int i = 0; i < linkChilds.getLength(); i++) {
 			Node node = linkChilds.item(i);
 			if (node instanceof Element) {
 				Element link = (Element) node;
+
+				this.validateAttributes(link, LINKS_SECTION);
 				this.createElement(link, this.entity);
 			}
 		}
 
 	}
 
-	public void parseRelationsSection(Set<IRelationshipRole> relationshipRolesSelected) {
+	public void parseRelationsSection(Set<IRelationshipRole> relationshipRolesSelected) throws CantOpenFileException,
+			CantParseXmlFileException, NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
+			MissingSectionException {
 		// forEachRelation
 		int countRelation = 0;
 		int countNM = 0;
@@ -186,7 +236,12 @@ public class PatternParser {
 
 			// Dentro del bucle, asi en cada pasada se cogen los elementos originales y no los modificados por la iteración anterior
 			this.generateDoc();
-			NodeList relationsNodeList = this.doc.getElementsByTagName("forEachRelation").item(0).getChildNodes();
+			NodeList relationsNodeList;
+			try {
+				relationsNodeList = this.doc.getElementsByTagName("forEachRelation").item(0).getChildNodes();
+			} catch (Exception e) {
+				throw new MissingSectionException(RELATIONS_SECTION, e);
+			}
 
 			for (int i = 0; i < relationsNodeList.getLength(); i++) {
 				Node node = relationsNodeList.item(i);
@@ -201,6 +256,7 @@ public class PatternParser {
 
 					} else {
 						this.replaceMarkerWithNum(element, countRelation);
+						this.validateAttributes(element, RELATIONS_SECTION);
 						this.createElement(element, role);
 					}
 				}
@@ -211,26 +267,34 @@ public class PatternParser {
 		NodeList elementNodeList;
 
 		if (someNMrelation) {
-
-			elementNodeList = this.doc.getElementsByTagName("IfSomeNMRelation").item(0).getChildNodes();
+			try {
+				elementNodeList = this.doc.getElementsByTagName("IfSomeNMRelation").item(0).getChildNodes();
+			} catch (Exception e) {
+				throw new MissingSectionException(IFSOMENMRELATION_SECTION, e);
+			}
 			for (int i = 0; i < elementNodeList.getLength(); i++) {
 				Node node = elementNodeList.item(i);
 				if (node instanceof Element) {
 					Element element = (Element) node;
 
 					this.replaceMarkerWithNum(element, countNM - 1);
+					this.validateAttributes(element, IFSOMENMRELATION_SECTION);
 					this.createElement(element, this.entity);
 				}
 			}
 		} else {
-
-			elementNodeList = this.doc.getElementsByTagName("IfNotSomeNMRelation").item(0).getChildNodes();
+			try {
+				elementNodeList = this.doc.getElementsByTagName("IfNotSomeNMRelation").item(0).getChildNodes();
+			} catch (Exception e) {
+				throw new MissingSectionException(IFNOTSOMENMRELATION_SECTION, e);
+			}
 			for (int i = 0; i < elementNodeList.getLength(); i++) {
 				Node node = elementNodeList.item(i);
 				if (node instanceof Element) {
 					Element element = (Element) node;
 
 					this.replaceMarkerWithNum(element, countRelation - 1);
+					this.validateAttributes(element, IFNOTSOMENMRELATION_SECTION);
 					this.createElement(element, this.entity);
 				}
 			}
@@ -238,7 +302,8 @@ public class PatternParser {
 
 	}
 
-	private void NMrelationSection(NodeList nmElements, IRelationshipRole role, int count) {
+	private void NMrelationSection(NodeList nmElements, IRelationshipRole role, int count) throws NoIdException, IdNotUniqueException,
+			NoSourceIdException, NoTargetIdException {
 		for (int i = 0; i < nmElements.getLength(); i++) {
 
 			Node node = nmElements.item(i);
@@ -256,7 +321,7 @@ public class PatternParser {
 								Element firstRelElement = (Element) node2;
 
 								this.replaceMarkerWithNum(firstRelElement, count);
-
+								this.validateAttributes(firstRelElement, IFFIRSTRELATION_SECTION);
 								// Solo va a crearse una vez, dependiendo del tipo que sea:
 								if (!this.createElement(firstRelElement, role))
 									this.createElement(firstRelElement, this.entity);
@@ -275,6 +340,7 @@ public class PatternParser {
 								Element notFirstRelElement = (Element) node2;
 
 								this.replaceMarkerWithNum(notFirstRelElement, count);
+								this.validateAttributes(notFirstRelElement, IFNOTFIRSTRELATION_SECTION);
 								// Solo va a crearse una vez, dependiendo del tipo que sea:
 								if (!this.createElement(notFirstRelElement, role))
 									this.createElement(notFirstRelElement, this.entity);
@@ -285,7 +351,7 @@ public class PatternParser {
 				} else {
 
 					this.replaceMarkerWithNum(nmElement, count);
-
+					this.validateAttributes(nmElement, NMRELATIONS_SECTION);
 					// Solo va a crearse una vez, dependiendo del tipo que sea:
 					if (!this.createElement(nmElement, role))
 						this.createElement(nmElement, this.entity);
@@ -348,7 +414,7 @@ public class PatternParser {
 
 		String s2[] = str.split(marker);
 		int value = Integer.valueOf(s2[0]);
-		value += SEPARACION_UNIDADES * count;
+		value += UNIT_GAP * count;
 		s2[0] = String.valueOf(value);
 
 		return s2[0];
@@ -480,6 +546,36 @@ public class PatternParser {
 		if ((maxCard1.equals("N")) && (maxCard2.equals("N")))
 			return relacion;
 		return null;
+
+	}
+
+	private void validateAttributes(Element element, String section) throws NoIdException, IdNotUniqueException, NoSourceIdException,
+			NoTargetIdException {
+		// ID VALIDATION SECTION
+		String id = element.getAttribute("id");
+		if (id.isEmpty())
+			throw new NoIdException(section);
+
+		if (this.idPool.contains(id))
+			throw new IdNotUniqueException(id, section);
+		this.idPool.add(id);
+
+		// COORDINATES AND SOURCE/TARGET (LINK) VALIDATION SECTION
+		List<String> linkTypes = new ArrayList<String>();
+		linkTypes
+				.addAll(Arrays.asList(ElementType.NORMAL_NAVIGATION_FLOW, ElementType.DATA_FLOW, ElementType.OK_LINK, ElementType.KO_LINK));
+
+		String tagName = element.getTagName();
+		if (linkTypes.contains(element.getTagName())) {
+			// is a Link element
+			if (element.getAttribute("sourceId").isEmpty())
+				throw new NoSourceIdException(tagName, section);
+			if (element.getAttribute("targetId").isEmpty())
+				throw new NoTargetIdException(tagName, section);
+		} else {
+			// is not a Link element
+
+		}
 
 	}
 }

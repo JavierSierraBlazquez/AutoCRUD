@@ -28,6 +28,7 @@ import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.generation.Generate;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
+import org.homeria.webratioassistant.plugin.Utilities;
 import org.homeria.webratioassistant.wizards.StepGenerationAppWindow;
 import org.homeria.webratioassistant.wizards.WizardCRUD;
 
@@ -48,12 +49,13 @@ public class lanzarCRUD extends AbstractHandler {
 			IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 			IWorkbenchPage page = window.getActivePage();
 			IEditorPart editor = page.getActiveEditor();
+			ProjectParameters.setShell(window.getShell());
 
 			ISelection selection = null;
 			IStructuredSelection structuredSelection = null;
 			if (editor != null) {
 				selection = editor.getSite().getSelectionProvider().getSelection();
-				// }
+
 				if (((selection instanceof IStructuredSelection)) & (!((IStructuredSelection) selection).isEmpty())) {
 					structuredSelection = (IStructuredSelection) selection;
 				}
@@ -74,8 +76,9 @@ public class lanzarCRUD extends AbstractHandler {
 				wizard.init(window.getWorkbench(), structuredSelection);
 				WizardDialog dialog = new WizardDialog(window.getShell(), wizard);
 				dialog.setPageSize(1000, 440);
-				if (dialog.open() == Window.OK) {
-
+				Utilities.setParentDialog(dialog);
+				Utilities.setIsClosed(false);
+				if (dialog.open() == Window.OK && !Utilities.isPluginClosed()) {
 					// Get all the Data from Wizard Page
 					Queue<WebRatioElement> pages = wizard.getPagesGen();
 					List<Unit> units = wizard.getUnits();

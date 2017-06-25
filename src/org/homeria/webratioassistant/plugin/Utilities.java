@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.EditPartViewer;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -44,6 +45,8 @@ public class Utilities {
 
 	private static SetAttributeCommand setCommand;
 	private static MFUpdater updater;
+	private static WizardDialog parentDialog;
+	private static boolean isClosed;
 
 	/**
 	 * 
@@ -193,5 +196,23 @@ public class Utilities {
 			return path.toString();
 		}
 		return "";
+	}
+
+	public static void setParentDialog(WizardDialog dialog) {
+		parentDialog = dialog;
+
+	}
+
+	public static void closePlugin() {
+		isClosed = true;
+		parentDialog.close();
+	}
+
+	public static boolean isPluginClosed() {
+		return isClosed;
+	}
+
+	public static void setIsClosed(boolean isClosed) {
+		Utilities.isClosed = isClosed;
 	}
 }

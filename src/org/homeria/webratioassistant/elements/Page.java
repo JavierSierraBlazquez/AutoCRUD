@@ -14,7 +14,6 @@ import com.webratio.ide.model.ISiteView;
 
 public class Page extends WebRatioElement {
 
-	private Point position;
 	private String parentId;
 	private boolean isLandmark;
 	private boolean isDefaultPage;
@@ -22,8 +21,7 @@ public class Page extends WebRatioElement {
 	private IMFElement parent;
 
 	public Page(String id, String name, String parentId, String defaultPage, String landmark, String x, String y) {
-		super(id, name);
-		this.position = new Point(Integer.valueOf(x), Integer.valueOf(y));
+		super(id, name, x, y);
 		this.parentId = parentId;
 		this.parent = null;
 

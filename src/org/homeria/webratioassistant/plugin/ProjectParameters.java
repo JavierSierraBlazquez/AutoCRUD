@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.gef.EditPartViewer;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
@@ -34,7 +35,7 @@ import com.webratio.ide.model.IWebProject;
 import com.webratio.ide.ui.editors.WebProjectEditor;
 
 public class ProjectParameters {
-
+	private static Shell shell;
 	private static IEditorPart activeEditor;
 	private static IWorkbenchPage activePage;
 	private static IWorkbenchWindow activeWindow;
@@ -53,8 +54,9 @@ public class ProjectParameters {
 	private static List<ObjStViewArea> listaSiteViewArea = null;
 
 	private static MFMultiEditor multiEditor;
-	/** To save the key(oid) field with the unitEntry. Needed to coupling.
-	 * Syntax: Map (entryUnit,fieldOid) */
+	/**
+	 * To save the key(oid) field with the unitEntry. Needed to coupling. Syntax: Map (entryUnit,fieldOid)
+	 */
 	public static Map<IMFElement, IMFElement> entryKeyfieldMap;
 
 	static public MFMultiEditor getMultiEditor() {
@@ -222,5 +224,13 @@ public class ProjectParameters {
 		ProjectParameters.webProject = null;
 		ProjectParameters.dataModel = null;
 		ProjectParameters.editPartViewer = null;
+	}
+
+	public static void setShell(Shell shell) {
+		ProjectParameters.shell = shell;
+	}
+
+	public static Shell getShell() {
+		return ProjectParameters.shell;
 	}
 }

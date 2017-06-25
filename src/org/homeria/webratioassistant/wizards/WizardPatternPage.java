@@ -45,6 +45,16 @@ import org.homeria.webratioassistant.elements.PowerIndexUnit;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UpdateUnit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
+import org.homeria.webratioassistant.exceptions.CantOpenFileException;
+import org.homeria.webratioassistant.exceptions.CantParseXmlFileException;
+import org.homeria.webratioassistant.exceptions.ExceptionHandler;
+import org.homeria.webratioassistant.exceptions.IdNotUniqueException;
+import org.homeria.webratioassistant.exceptions.MissingSectionException;
+import org.homeria.webratioassistant.exceptions.NoIdException;
+import org.homeria.webratioassistant.exceptions.NoPatternFileFoundException;
+import org.homeria.webratioassistant.exceptions.NoPatternsFolderFoundException;
+import org.homeria.webratioassistant.exceptions.NoSourceIdException;
+import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.parser.PatternParser;
 import org.homeria.webratioassistant.plugin.MyIEntityComparator;
 import org.homeria.webratioassistant.plugin.ObjStViewArea;
@@ -143,40 +153,46 @@ public class WizardPatternPage extends WizardPage {
 
 		this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
-		this.crearCompositeIzquierdo();
-
-		// Inicializo el composite derecho donde van a ir los elementos
-		// dinámicos (dependiendo el patrón seleccionado)
-		this.rightComposite = new Composite(this.containerComposite, SWT.NONE);
-		FillLayout rightCompositeLayout = new FillLayout(SWT.HORIZONTAL);
-		this.rightComposite.setLayout(rightCompositeLayout);
-
-		FormData fData = new FormData();
-		fData.top = new FormAttachment(0);
-		fData.left = new FormAttachment(this.leftComposite);
-		fData.right = new FormAttachment(100);
-		fData.bottom = new FormAttachment(100);
-		this.rightComposite.setLayoutData(fData);
-
-		this.scrolledComposite = new ScrolledComposite(this.rightComposite, SWT.H_SCROLL);
-		this.scrolledComposite.setExpandVertical(true);
-		this.scrolledComposite.setExpandHorizontal(true);
-		this.scrolledComposite.setAlwaysShowScrollBars(true);
-		this.scrolledComposite.setMinWidth(900);
-
-		this.innerRightComposite = new Composite(this.scrolledComposite, SWT.NONE);
-		this.innerRightComposite.setLayout(new FillLayout());
-
-		this.scrolledComposite.setContent(this.innerRightComposite);
 		try {
+			this.crearCompositeIzquierdo();
+
+			// Inicializo el composite derecho donde van a ir los elementos
+			// dinámicos (dependiendo el patrón seleccionado)
+			this.rightComposite = new Composite(this.containerComposite, SWT.NONE);
+			FillLayout rightCompositeLayout = new FillLayout(SWT.HORIZONTAL);
+			this.rightComposite.setLayout(rightCompositeLayout);
+
+			FormData fData = new FormData();
+			fData.top = new FormAttachment(0);
+			fData.left = new FormAttachment(this.leftComposite);
+			fData.right = new FormAttachment(100);
+			fData.bottom = new FormAttachment(100);
+			this.rightComposite.setLayoutData(fData);
+
+			this.scrolledComposite = new ScrolledComposite(this.rightComposite, SWT.H_SCROLL);
+			this.scrolledComposite.setExpandVertical(true);
+			this.scrolledComposite.setExpandHorizontal(true);
+			this.scrolledComposite.setAlwaysShowScrollBars(true);
+			this.scrolledComposite.setMinWidth(900);
+
+			this.innerRightComposite = new Composite(this.scrolledComposite, SWT.NONE);
+			this.innerRightComposite.setLayout(new FillLayout());
+
+			this.scrolledComposite.setContent(this.innerRightComposite);
+			
 			this.dispose();
 			this.finalize();
+
+		} catch (NoPatternsFolderFoundException e) {
+			ExceptionHandler.handle(e);
+		} catch (NoPatternFileFoundException e) {
+			ExceptionHandler.handle(e);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void crearCompositeIzquierdo() {
+	private void crearCompositeIzquierdo() throws NoPatternsFolderFoundException, NoPatternFileFoundException {
 		// Creando el composite izquierdo y su contenido
 		this.leftComposite = new Composite(this.containerComposite, SWT.NONE);
 		FillLayout leftCompositeLayout = new FillLayout(SWT.VERTICAL);
@@ -206,7 +222,24 @@ public class WizardPatternPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
 				super.widgetSelected(evt);
-				WizardPatternPage.this.entitySelectionListener();
+				try {
+					WizardPatternPage.this.entitySelectionListener();
+
+				} catch (CantOpenFileException e) {
+					ExceptionHandler.handle(e);
+				} catch (CantParseXmlFileException e) {
+					ExceptionHandler.handle(e);
+				} catch (NoIdException e) {
+					ExceptionHandler.handle(e);
+				} catch (IdNotUniqueException e) {
+					ExceptionHandler.handle(e);
+				} catch (NoSourceIdException e) {
+					ExceptionHandler.handle(e);
+				} catch (NoTargetIdException e) {
+					ExceptionHandler.handle(e);
+				} catch (MissingSectionException e) {
+					ExceptionHandler.handle(e);
+				}
 			}
 		});
 
@@ -239,13 +272,35 @@ public class WizardPatternPage extends WizardPage {
 		this.patternCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				WizardPatternPage.this.patternSelectionListener();
+				try {
+					WizardPatternPage.this.patternSelectionListener();
+
+				} catch (CantOpenFileException e) {
+					ExceptionHandler.handle(e);
+				} catch (CantParseXmlFileException e) {
+					ExceptionHandler.handle(e);
+				} catch (NoIdException e) {
+					ExceptionHandler.handle(e);
+				} catch (IdNotUniqueException e) {
+					ExceptionHandler.handle(e);
+				} catch (NoSourceIdException e) {
+					ExceptionHandler.handle(e);
+				} catch (NoTargetIdException e) {
+					ExceptionHandler.handle(e);
+				} catch (MissingSectionException e) {
+					ExceptionHandler.handle(e);
+				}
 			}
 		});
 
 		// Obtengo la lista de patrones y relleno el Combo
 		File folder = new File(this.PATTERNS_DIR);
+		if (!folder.exists())
+			throw new NoPatternsFolderFoundException(this.PATTERNS_DIR);
+
 		File[] listOfFiles = folder.listFiles();
+		if (listOfFiles.length == 0)
+			throw new NoPatternFileFoundException(this.PATTERNS_DIR);
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(".xml"))
@@ -275,7 +330,8 @@ public class WizardPatternPage extends WizardPage {
 		this.inicializarListaYarbol();
 	}
 
-	private void patternSelectionListener() {
+	private void patternSelectionListener() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
+			NoSourceIdException, NoTargetIdException, MissingSectionException {
 		// Actualizo el estado del botón Finish
 		this.getWizard().getContainer().updateButtons();
 
@@ -391,7 +447,8 @@ public class WizardPatternPage extends WizardPage {
 		this.containerComposite.layout(true, true);
 	}
 
-	private void entitySelectionListener() {
+	private void entitySelectionListener() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
+			NoSourceIdException, NoTargetIdException, MissingSectionException {
 		this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
 
 		// De aqui se obtienen los atributos de la entidad
@@ -779,7 +836,8 @@ public class WizardPatternPage extends WizardPage {
 	}
 
 	// Ejecutado desde WizardCRUD para parsear las relaciones
-	public void finalizePage() {
+	public void finalizePage() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
+			NoSourceIdException, NoTargetIdException, MissingSectionException {
 		// Actualizo los cambios realizados en las listas del xmlParser
 		this.xmlParser.setPages(this.pages);
 		this.xmlParser.setUnits(this.units);

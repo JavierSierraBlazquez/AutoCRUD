@@ -26,7 +26,7 @@ public abstract class Link extends WebRatioElement {
 	protected String type;
 
 	public Link(String id, String name, String sourceId, String targetId, String type) {
-		super(id, name);
+		super(id, name, null, null);
 		this.sourceId = sourceId;
 		this.targetId = targetId;
 		this.type = type;
