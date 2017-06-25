@@ -147,6 +147,8 @@ public class WizardCRUD extends Wizard implements INewWizard {
 			ExceptionHandler.handle(e);
 		} catch (MissingSectionException e) {
 			ExceptionHandler.handle(e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return true;

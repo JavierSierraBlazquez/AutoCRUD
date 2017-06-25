@@ -2,6 +2,7 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
+import org.eclipse.draw2d.geometry.Point;
 import org.homeria.webratioassistant.plugin.Evento;
 import org.homeria.webratioassistant.plugin.EventoNuevaSelector;
 import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
@@ -11,7 +12,7 @@ import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationshipRole;
 
-public class SelectorUnit extends Unit {
+public class SelectorUnit extends UnitOutsidePage {
 
 	private String parentId;
 	private String type;
@@ -19,7 +20,6 @@ public class SelectorUnit extends Unit {
 
 	public SelectorUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity, IRelationshipRole role) {
 		super(id, name, x, y, entity);
-		this.parentId = parentId;
 		this.entity = entity;
 		this.type = type;
 		this.role = role;
@@ -27,14 +27,17 @@ public class SelectorUnit extends Unit {
 
 	public SelectorUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
-		this.parentId = parentId;
 		this.entity = entity;
 		this.type = type;
 	}
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
-		IMFElement parent = createdElements.get(this.parentId);
+		IMFElement parent;
+		if (null == this.parentId || "" == this.parentId)
+			parent = this.parent;
+		else
+			parent = createdElements.get(this.parentId);
 
 		Evento evento = new EventoNuevaUnit(parent, ElementType.SELECTOR_UNIT, this.position.x, this.position.y, this.name, this.entity);
 
@@ -53,6 +56,14 @@ public class SelectorUnit extends Unit {
 		}
 
 		return selector;
+	}
+
+	@Override
+	public void addToCurrentPosition(Point coords) {
+		if (null == this.parentId) {
+			this.position.x += coords.x;
+			this.position.y += coords.y;
+		}
 	}
 
 	@Override

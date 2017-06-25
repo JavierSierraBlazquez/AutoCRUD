@@ -68,7 +68,7 @@ public final class Generate {
 				WebRatioElement pageCopy = page.getCopy();
 
 				if (pageCopy instanceof Page) {
-					((Page) pageCopy).setParent(parent); // FIXME ERROR AQUI PROBLEMA REFERENCIAS DE OBJETOS
+					((Page) pageCopy).setParent(parent);
 					((Page) pageCopy).addToCurrentPosition(coords);
 				}
 
@@ -78,10 +78,10 @@ public final class Generate {
 			for (Unit unit : this.units) {
 				Unit unitCopy = (Unit) unit.getCopy();
 
-				if (unitCopy instanceof EntryUnit)
+				if (unitCopy instanceof EntryUnit) {
 					((EntryUnit) unitCopy).setRelshipsSelected(this.relshipsSelected);
 
-				else if (unitCopy instanceof UnitOutsidePage) {
+				} else if (unitCopy instanceof UnitOutsidePage) {
 					((UnitOutsidePage) unitCopy).setParent(parent);
 					((UnitOutsidePage) unitCopy).addToCurrentPosition(coords);
 				}

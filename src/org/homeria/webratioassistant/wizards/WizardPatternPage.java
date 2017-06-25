@@ -179,7 +179,7 @@ public class WizardPatternPage extends WizardPage {
 			this.innerRightComposite.setLayout(new FillLayout());
 
 			this.scrolledComposite.setContent(this.innerRightComposite);
-			
+
 			this.dispose();
 			this.finalize();
 
@@ -187,6 +187,8 @@ public class WizardPatternPage extends WizardPage {
 			ExceptionHandler.handle(e);
 		} catch (NoPatternFileFoundException e) {
 			ExceptionHandler.handle(e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -239,6 +241,8 @@ public class WizardPatternPage extends WizardPage {
 					ExceptionHandler.handle(e);
 				} catch (MissingSectionException e) {
 					ExceptionHandler.handle(e);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -289,6 +293,8 @@ public class WizardPatternPage extends WizardPage {
 					ExceptionHandler.handle(e);
 				} catch (MissingSectionException e) {
 					ExceptionHandler.handle(e);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		});

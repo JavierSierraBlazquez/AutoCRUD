@@ -92,6 +92,8 @@ public class PatternParser {
 			this.dBuilder = dbFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		this.generateDoc();
 	}
@@ -127,6 +129,8 @@ public class PatternParser {
 			throw new CantOpenFileException(this.fXmlFile.getAbsolutePath());
 		} catch (SAXException e) {
 			throw new CantParseXmlFileException(this.fXmlFile.getAbsolutePath());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
