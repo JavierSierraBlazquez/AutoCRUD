@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<Pattern id="" name="">
+	
+	<!-- PAGES SECTION-->
+	<Pages>
+
+	</Pages>		
+
+
+	<!-- OPERATION UNITS SECTION -->
+	<OperationUnits>
+
+	</OperationUnits>
+
+	
+
+
+	<!-- LINKS SECTION -->
+	<Links>
+
+	</Links>
+
+
+	<!-- RELATIONS SECTION -->
+	<forEachRelation>
+
+		<IfNMRelation>
+
+			<IfFirstRelation>
+
+			</IfFirstRelation>
+			<IfNotFirstRelation>
+
+			</IfNotFirstRelation>
+
+		</IfNMRelation>
+		
+	</forEachRelation>
+
+	<IfSomeNMRelation>
+
+	</IfSomeNMRelation>
+	<IfNotSomeNMRelation>
+
+	</IfNotSomeNMRelation>
+
+</Pattern>
+
+
+	<!-- # = número iterativo por cada relación -->
+	<!-- % = número iterativo por cada relación NM-->
+

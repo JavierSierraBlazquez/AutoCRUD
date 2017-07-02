@@ -18,7 +18,7 @@
 
 	<!-- LINKS SECTION -->
 	<Links>
-		<NormalNavigationFlow id="nnfLoad" name ="Load" sourceId="formCreate" targetId="createUnit" type="entryToCreate"/>
+		<NormalNavigationFlow id="nnfLoad" name="Load" sourceId="formCreate" targetId="createUnit" type="entryToCreate"/>
 		<KOLink id="koCreate" sourceId="createUnit" targetId="mmsgCreate" message="Failed creating data"/>
 	</Links>
 

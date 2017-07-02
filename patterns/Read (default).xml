@@ -9,6 +9,7 @@
 		</Page>
 	</Pages>		
 
+
 	<!-- OPERATION UNITS SECTION -->
 	<OperationUnits>
 		
@@ -17,7 +18,7 @@
 
 	<!-- LINKS SECTION -->
 	<Links>
-		<NormalNavigationFlow id= "nnf1" name ="Details" sourceId="piuRead" targetId="duRead" type="automatic"/>
+		<NormalNavigationFlow id= "nnf1" name="Details" sourceId="piuRead" targetId="duRead" type="automatic"/>
 	</Links>
 
 

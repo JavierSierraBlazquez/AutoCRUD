@@ -21,8 +21,8 @@
 
 	<!-- LINKS SECTION -->
 	<Links>
-		<NormalNavigationFlow id="nnfUpdate" name ="Modify" sourceId="piuUpdate" targetId="selectorEntidad" />
-		<NormalNavigationFlow id="nnfEntryUpdate" name ="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
+		<NormalNavigationFlow id="nnfUpdate" name="Modify" sourceId="piuUpdate" targetId="selectorEntidad" />
+		<NormalNavigationFlow id="nnfEntryUpdate" name="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
 		<DataFlow id="dfSelectorEntry" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
 		<KOLink id="koUpdate" sourceId="updateUnit" targetId="mmsgUpdate" message="Failed modifying data"/>
 	</Links>

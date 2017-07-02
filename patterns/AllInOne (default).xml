@@ -37,13 +37,13 @@
 
 	<!-- LINKS SECTION -->
 	<Links>
-		<NormalNavigationFlow id= "nnf1" name ="Close" sourceId="du" targetId="mmu"/>
-		<NormalNavigationFlow id= "nnf2" name ="Cancel" sourceId="eu" targetId="mmu" validate="false"/>
-		<NormalNavigationFlow id= "nnf3" name ="New" sourceId="noOpContentUnit" targetId="selectorEntidad" type="fixedValue"/>
-		<NormalNavigationFlow id= "nnf4" name ="View" sourceId="piu" targetId="du"/>
-		<NormalNavigationFlow id= "nnf5" name ="Modify" sourceId="piu" targetId="selectorEntidad"/>
-		<NormalNavigationFlow id= "nnf6" name ="Delete" sourceId="piu" targetId="deleteUnit"/>
-		<NormalNavigationFlow id= "nnf7" name ="Accept" sourceId="eu" targetId="isNotNullUnit" type="isNotNull"/>
+		<NormalNavigationFlow id= "nnf1" name="Close" sourceId="du" targetId="mmu"/>
+		<NormalNavigationFlow id= "nnf2" name="Cancel" sourceId="eu" targetId="mmu" validate="false"/>
+		<NormalNavigationFlow id= "nnf3" name="New" sourceId="noOpContentUnit" targetId="selectorEntidad" type="fixedValue"/>
+		<NormalNavigationFlow id= "nnf4" name="View" sourceId="piu" targetId="du"/>
+		<NormalNavigationFlow id= "nnf5" name="Modify" sourceId="piu" targetId="selectorEntidad"/>
+		<NormalNavigationFlow id= "nnf6" name="Delete" sourceId="piu" targetId="deleteUnit"/>
+		<NormalNavigationFlow id= "nnf7" name="Accept" sourceId="eu" targetId="isNotNullUnit" type="isNotNull"/>
 
 		<OKLink id="okDelete" sourceId="deleteUnit" targetId="mmu" message="Data deleted correctly"/>
 		<OKLink id="okNN" sourceId="isNotNullUnit" targetId="updateUnit"/>

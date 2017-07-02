@@ -20,6 +20,7 @@ public class SelectorUnit extends UnitOutsidePage {
 
 	public SelectorUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity, IRelationshipRole role) {
 		super(id, name, x, y, entity);
+		this.parentId = parentId;
 		this.entity = entity;
 		this.type = type;
 		this.role = role;
@@ -27,6 +28,7 @@ public class SelectorUnit extends UnitOutsidePage {
 
 	public SelectorUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
+		this.parentId = parentId;
 		this.entity = entity;
 		this.type = type;
 	}
@@ -60,7 +62,7 @@ public class SelectorUnit extends UnitOutsidePage {
 
 	@Override
 	public void addToCurrentPosition(Point coords) {
-		if (null == this.parentId) {
+		if (null == this.parentId || "" == this.parentId) {
 			this.position.x += coords.x;
 			this.position.y += coords.y;
 		}
