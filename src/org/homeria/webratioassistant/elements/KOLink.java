@@ -40,6 +40,6 @@ public class KOLink extends Link {
 
 	@Override
 	public WebRatioElement getCopy() {
-		return new OKLink(this.id, this.name, this.sourceId, this.targetId, this.message, this.type);
+		return new KOLink(this.id, this.name, this.sourceId, this.targetId, this.message, this.type);
 	}
 }
