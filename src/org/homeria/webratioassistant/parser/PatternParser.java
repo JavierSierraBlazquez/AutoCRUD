@@ -38,6 +38,7 @@ import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.elements.XOR;
 import org.homeria.webratioassistant.exceptions.CantOpenFileException;
 import org.homeria.webratioassistant.exceptions.CantParseXmlFileException;
+import org.homeria.webratioassistant.exceptions.ExceptionHandler;
 import org.homeria.webratioassistant.exceptions.IdNotUniqueException;
 import org.homeria.webratioassistant.exceptions.MissingSectionException;
 import org.homeria.webratioassistant.exceptions.NoIdException;
@@ -96,6 +97,42 @@ public class PatternParser {
 			e.printStackTrace();
 		}
 		this.generateDoc();
+	}
+
+	public static void checkPatternsIdAreUnique(File[] files) {
+		List<String> patternsIdsList = new ArrayList<String>();
+		Document doc;
+		DocumentBuilder dBuilder;
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isFile() && files[i].getName().contains(".xml")) {
+					try {
+
+						doc = dBuilder.parse(files[i]);
+						String patternId = doc.getDocumentElement().getAttribute("id");
+						if (patternsIdsList.contains(patternId))
+							throw new IdNotUniqueException(patternId, "Root element of " + files[i].getAbsolutePath());
+						else
+							patternsIdsList.add(patternId);
+
+					} catch (IdNotUniqueException e) {
+						ExceptionHandler.handle(e);
+					} catch (IOException e) {
+						throw new CantOpenFileException(files[i].getAbsolutePath());
+					} catch (SAXException e) {
+						throw new CantParseXmlFileException(files[i].getAbsolutePath());
+					}
+				}
+			}
+
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Queue<WebRatioElement> getPages() {
@@ -578,7 +615,7 @@ public class PatternParser {
 				throw new NoTargetIdException(tagName, section);
 		} else {
 			// is not a Link element
-
+			// FIXME quitar?
 		}
 
 	}

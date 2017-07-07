@@ -117,8 +117,11 @@ public final class Generate {
 					this.createdElements = new HashMap<String, IMFElement>();
 					this.currentParent = parentElement;
 
-					if (parentElement instanceof ISiteView)
+					if (parentElement instanceof ISiteView){
 						Utilities.switchSiteView((ISiteView) parentElement);
+
+						//Register Sv
+					}
 				}
 			}
 
