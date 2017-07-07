@@ -16,6 +16,7 @@ import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UnitOutsidePage;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.registry.Registry;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IArea;
@@ -59,10 +60,17 @@ public final class Generate {
 			coords = new Point(0, 0);
 			// obtenemos las coordenadas del elemento más a la derecha para no superponer unidades
 
+			IMFElement svParent;
 			if (parent instanceof ISiteView) {
 				Utilities.switchSiteView((ISiteView) parent);
 				coords = Utilities.buscarHueco();
+				svParent = parent;
+			} else {
+				// FIXME vigilar
+				while (!((svParent = parent.getParentElement()) instanceof ISiteView))
+					;
 			}
+			Registry.getInstance().setSiteView(svParent.getFinalId());
 
 			for (WebRatioElement page : this.pages) {
 				WebRatioElement pageCopy = page.getCopy();
@@ -117,10 +125,10 @@ public final class Generate {
 					this.createdElements = new HashMap<String, IMFElement>();
 					this.currentParent = parentElement;
 
-					if (parentElement instanceof ISiteView){
+					if (parentElement instanceof ISiteView) {
 						Utilities.switchSiteView((ISiteView) parentElement);
 
-						//Register Sv
+						// Register Sv
 					}
 				}
 			}

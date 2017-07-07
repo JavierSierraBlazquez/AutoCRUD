@@ -45,6 +45,7 @@ import org.homeria.webratioassistant.exceptions.NoIdException;
 import org.homeria.webratioassistant.exceptions.NoSourceIdException;
 import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.registry.Registry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -97,6 +98,10 @@ public class PatternParser {
 			e.printStackTrace();
 		}
 		this.generateDoc();
+
+		String id = this.doc.getDocumentElement().getAttribute("id");
+		String name = this.doc.getDocumentElement().getAttribute("name");
+		Registry.getInstance().setPatternData(id, name);
 	}
 
 	public static void checkPatternsIdAreUnique(File[] files) {
@@ -113,11 +118,17 @@ public class PatternParser {
 
 						doc = dBuilder.parse(files[i]);
 						String patternId = doc.getDocumentElement().getAttribute("id");
+
+						if (null == patternId || patternId.isEmpty())
+							throw new NoIdException("Root element of " + files[i].getAbsolutePath());
+
 						if (patternsIdsList.contains(patternId))
 							throw new IdNotUniqueException(patternId, "Root element of " + files[i].getAbsolutePath());
 						else
 							patternsIdsList.add(patternId);
 
+					} catch (NoIdException e) {
+						ExceptionHandler.handle(e);
 					} catch (IdNotUniqueException e) {
 						ExceptionHandler.handle(e);
 					} catch (IOException e) {
