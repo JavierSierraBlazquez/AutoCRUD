@@ -2,8 +2,8 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewUnit;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
@@ -21,10 +21,10 @@ public class NoOpContentUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		Evento evento = new EventoNuevaUnit(parent, ElementType.NO_OP_CONTENT_UNIT, this.position.x, this.position.y, this.name,
+		WebRatioCalls evento = new NewUnit(parent, ElementType.NO_OP_CONTENT_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
 
-		return evento.ejecutar();
+		return evento.execute();
 	}
 
 	@Override

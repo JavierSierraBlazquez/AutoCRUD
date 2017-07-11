@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -51,56 +51,53 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public final void execute() {
 		MFUpdater updater = this.parent.getRootElement().getModelUpdater();
 		if (this.addSelector) {
-			this.newElem = createGenericElement(ISubUnit.class,
+			this.newElem = this.createGenericElement(ISubUnit.class,
 					this.selType.getElementName(), "webml");
 			Pair id = this.parent
 					.getRootElement()
 					.getIdProvider()
 					.getFirstFreeId(this.parent.valueOf("@id"),
 							this.selType.getIdPrefix(), null, true);
-			setAttribute(this.newElem, "id", (String) id.first);
-			addDefaultProperties(this.newElem, this.selType);
-			addChild(this.newElem, this.parent, null);
-			this.elemToSelect = addCondition(this.newElem);
+			this.setAttribute(this.newElem, "id", (String) id.first);
+			this.addDefaultProperties(this.newElem, this.selType);
+			this.addChild(this.newElem, this.parent, null);
+			this.elemToSelect = this.addCondition(this.newElem);
 		} else {
-			this.newElem = (this.elemToSelect = addCondition(this.parent));
+			this.newElem = (this.elemToSelect = this.addCondition(this.parent));
 		}
 		updater.added(this.newElem);
 		this.postOperations = updater.update();
-		endOperationSession();
-		setLabel("Add "
+		this.endOperationSession();
+		this.setLabel("Add "
 				+ WebMLElementLabelProvider.INSTANCE.getText(this.newElem));
-		directEdit(this.elemToSelect);
+		this.directEdit(this.elemToSelect);
 	}
 
-	@SuppressWarnings("unchecked")
 	private IMFElement addCondition(IMFElement selector) {
-		IMFElement cond = createGenericElement(ISubUnit.class,
-				this.condType.getElementName(), getModelId());
+		IMFElement cond = this.createGenericElement(ISubUnit.class,
+				this.condType.getElementName(), this.getModelId());
 		Pair id = selector
 				.getRootElement()
 				.getIdProvider()
 				.getFirstFreeId(selector.valueOf("@id"),
 						this.condType.getIdPrefix(), null, true);
-		setAttribute(cond, "id", (String) id.first);
-		setAttribute(cond, "name", this.condType.getNamePrefix() + id.second);
-		addDefaultProperties(cond, this.condType);
-		addChild(cond, selector, null);
+		this.setAttribute(cond, "id", (String) id.first);
+		this.setAttribute(cond, "name", this.condType.getNamePrefix() + id.second);
+		this.addDefaultProperties(cond, this.condType);
+		this.addChild(cond, selector, null);
 		return cond;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void addDefaultProperties(IMFElement elem, ISubUnitType subUnitType) {
 		for (IUnitProperty prop : subUnitType.getProperties()) {
 			String defaultValue = prop.get("defaultValue");
 			if (!defaultValue.equals("")) {
 				String attrName = prop.get("attributeName");
 				if (!attrName.equals("")) {
-					setAttribute(elem, attrName, defaultValue);
+					this.setAttribute(elem, attrName, defaultValue);
 				}
 			}
 			if ((this.condType instanceof IRelationshipRoleCondition)) {
@@ -112,7 +109,7 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 						List roles = DataModelHelper
 								.getAllIncomingRelationshipRoles((IEntity) refElem);
 						if (roles.size() == 1)
-							setAttribute(elem, "role",
+							this.setAttribute(elem, "role",
 									((IRelationshipRole) roles.get(0))
 											.valueOf("@id"));
 					}
@@ -121,23 +118,21 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public final void undo() {
 		if (this.postOperations != null) {
-			executeOperations((List) this.postOperations.second);
+			this.executeOperations(this.postOperations.second);
 		}
-		delete(this.newElem);
-		endOperationSession();
-		select(this.parent);
+		this.delete(this.newElem);
+		this.endOperationSession();
+		this.select(this.parent);
 	}
 
-	@SuppressWarnings("unchecked")
 	public final void redo() {
-		addChild(this.newElem, this.parent, null);
+		this.addChild(this.newElem, this.parent, null);
 		if (this.postOperations != null) {
-			executeOperations((List) this.postOperations.first);
+			this.executeOperations(this.postOperations.first);
 		}
-		endOperationSession();
-		select(this.elemToSelect);
+		this.endOperationSession();
+		this.select(this.elemToSelect);
 	}
 }

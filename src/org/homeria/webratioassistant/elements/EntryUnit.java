@@ -3,10 +3,10 @@ package org.homeria.webratioassistant.elements;
 import java.util.List;
 import java.util.Map;
 
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
-import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewUnit;
+import org.homeria.webratioassistant.webratio.ProjectParameters;
+import org.homeria.webratioassistant.webratio.Utilities;
 import org.homeria.webratioassistant.webratioaux.CompositeMFCommand;
 
 import com.webratio.commons.mf.IMFElement;
@@ -37,8 +37,8 @@ public class EntryUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		Evento evento = new EventoNuevaUnit(parent, ElementType.ENTRY_UNIT, this.position.x, this.position.y, this.name, this.entity);
-		IMFElement entryUnit = evento.ejecutar();
+		WebRatioCalls evento = new NewUnit(parent, ElementType.ENTRY_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		IMFElement entryUnit = evento.execute();
 		this.setFields(entryUnit);
 
 		ProjectParameters.entryKeyfieldMap.put(entryUnit, this.fieldOid);

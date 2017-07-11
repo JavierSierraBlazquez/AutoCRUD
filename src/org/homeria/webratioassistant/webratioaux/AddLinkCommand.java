@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -38,24 +38,14 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 	private String oldValue;
 	private IMFElement sourceModel;
 	private Pair<List<IMFOperation>, List<IMFOperation>> postOperations;
-	@SuppressWarnings("unused")
-	private IMFElement source, target;
 
 	public AddLinkCommand(String modelId) {
 		super(modelId);
 	}
 
-	public void setSource(IMFElement source) {
-		this.source = source;
-	}
-
-	public void setTarget(IMFElement target) {
-		this.target = target;
-	}
-
 	@Override
 	public boolean canStart() {
-		this.sourceModel = getSourceModel();
+		this.sourceModel = this.getSourceModel();
 		return canStart(this.sourceModel);
 	}
 
@@ -79,7 +69,7 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 
 	@Override
 	public boolean canComplete() {
-		return canComplete(this.sourceModel, getTargetModel());
+		return canComplete(this.sourceModel, this.getTargetModel());
 	}
 
 	public static final boolean canComplete(IMFElement sourceModel,
@@ -102,46 +92,45 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void execute() {
-		setRootElement(this.sourceModel.getRootElement());
-		IMFElement targetModel = getTargetModel();
-		this.newLink = ((ILink) createElement(ILink.class, getModelId()));
+		this.setRootElement(this.sourceModel.getRootElement());
+		IMFElement targetModel = this.getTargetModel();
+		this.newLink = ((ILink) this.createElement(ILink.class, this.getModelId()));
 		Pair id = this.sourceModel
 				.getRootElement()
 				.getIdProvider()
 				.getFirstFreeId(this.sourceModel.valueOf("@id"), ILink.class,
 						null, true);
-		setAttribute(this.newLink, "id", (String) id.first);
-		setAttribute(this.newLink, "name", "Link" + id.second);
-		setAttribute(this.newLink, "to", targetModel.valueOf("@id"));
-		setAttribute(this.newLink, "automaticCoupling", "true");
+		this.setAttribute(this.newLink, "id", (String) id.first);
+		this.setAttribute(this.newLink, "name", "Link" + id.second);
+		this.setAttribute(this.newLink, "to", targetModel.valueOf("@id"));
+		this.setAttribute(this.newLink, "automaticCoupling", "true");
 		String type = "";
 		if ((this.sourceModel instanceof IUnit)) {
 			IUnitType unitType = UnitHelper.getUnitType(this.sourceModel);
 			if (unitType != null) {
-				type = getLinkType(this.sourceModel, targetModel, unitType);
+				type = this.getLinkType(this.sourceModel, targetModel, unitType);
 			}
 		}
 		if (type.equals("")) {
 			type = "normal";
 		}
-		setAttribute(this.newLink, "type", type);
-		setAttribute(this.newLink, "validate", "true");
+		this.setAttribute(this.newLink, "type", type);
+		this.setAttribute(this.newLink, "validate", "true");
 		try {
-			int[] bendpointValues = computeBendpoint();
+			int[] bendpointValues = this.computeBendpoint();
 			if (bendpointValues != null)
-				setAttribute(this.newLink, "gr:bendpoints", StringUtils.join(
+				this.setAttribute(this.newLink, "gr:bendpoints", StringUtils.join(
 						ArrayUtils.toObject(bendpointValues), ","));
 		} catch (Throwable localThrowable) {
 		}
-		addChild(this.newLink, this.sourceModel, null);
+		this.addChild(this.newLink, this.sourceModel, null);
 
 		this.oldValue = this.newLink.getParentElement().valueOf("@linkOrder");
 		String newValue = OperationHelper.getNewOrderAttribute(
 				this.newLink.getParentElement(), "linkOrder",
 				this.newLink.valueOf("@id"), true);
-		setAttribute(this.newLink.getParentElement(), "linkOrder", newValue);
+		this.setAttribute(this.newLink.getParentElement(), "linkOrder", newValue);
 
 		if ((this.sourceModel instanceof IContentUnit)) {
 			MFUpdater updater = this.sourceModel.getRootElement()
@@ -149,13 +138,13 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 			updater.added(this.newLink);
 			this.postOperations = updater.update();
 		}
-		endOperationSession();
-		setLabel("Add "
+		this.endOperationSession();
+		this.setLabel("Add "
 				+ WebMLElementLabelProvider.INSTANCE.getText(this.newLink));
 		if (("normal".equals(type)) || ("automatic".equals(type)))
-			directEdit(this.newLink);
+			this.directEdit(this.newLink);
 		else
-			select(this.newLink);
+			this.select(this.newLink);
 	}
 
 	private String getLinkType(IMFElement sourceModel, IMFElement targetModel,
@@ -182,36 +171,36 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 	@Override
 	public void undo() {
 		if (this.postOperations != null) {
-			executeOperations(this.postOperations.second);
+			this.executeOperations(this.postOperations.second);
 		}
-		setAttribute(this.newLink.getParentElement(), "linkOrder",
+		this.setAttribute(this.newLink.getParentElement(), "linkOrder",
 				this.oldValue);
-		delete(this.newLink);
-		endOperationSession();
-		select(this.sourceModel);
+		this.delete(this.newLink);
+		this.endOperationSession();
+		this.select(this.sourceModel);
 	}
 
 	@Override
 	public void redo() {
-		addChild(this.newLink, this.sourceModel, null);
+		this.addChild(this.newLink, this.sourceModel, null);
 		String newValue = OperationHelper.getNewOrderAttribute(
 				this.newLink.getParentElement(), "linkOrder",
 				this.newLink.valueOf("@id"), true);
-		setAttribute(this.newLink.getParentElement(), "linkOrder", newValue);
+		this.setAttribute(this.newLink.getParentElement(), "linkOrder", newValue);
 		if (this.postOperations != null) {
-			executeOperations(this.postOperations.first);
+			this.executeOperations(this.postOperations.first);
 		}
-		endOperationSession();
-		select(this.newLink);
+		this.endOperationSession();
+		this.select(this.newLink);
 	}
 
 	@Override
 	protected GraphicalEditPart getSourceForBendpoints() {
-		return (GraphicalEditPart) getSource();
+		return (GraphicalEditPart) this.getSource();
 	}
 
 	@Override
 	protected GraphicalEditPart getTargetForBendpoints() {
-		return (GraphicalEditPart) getTarget();
+		return (GraphicalEditPart) this.getTarget();
 	}
 }

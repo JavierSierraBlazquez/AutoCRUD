@@ -6,7 +6,7 @@
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
  */
-package org.homeria.webratioassistant.plugin;
+package org.homeria.webratioassistant.webratio;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +33,6 @@ import com.webratio.commons.mf.operations.MFUpdater;
 import com.webratio.commons.mf.ui.commands.SetAttributeCommand;
 import com.webratio.commons.mf.ui.editors.MFMultiEditor;
 import com.webratio.ide.core.UnitHelper;
-import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.ILinkParameter;
 import com.webratio.ide.model.IRelationship;
@@ -42,8 +41,8 @@ import com.webratio.ide.model.ISiteView;
 import com.webratio.ide.units.core.ISubUnitType;
 
 public class Utilities {
-	public final static int altoUnidad = 125;
-	public final static int anchoUnidad = 150;
+	public final static int unitHeight = 125;
+	public final static int unitWidth = 150;
 
 	private static SetAttributeCommand setCommand;
 	private static MFUpdater updater;
@@ -56,54 +55,46 @@ public class Utilities {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public static Point buscarHueco() {
+	public static Point findGap() {
 
-		Point puntoInicio = new Point();
+		Point startingPoint = new Point();
 		try {
-			// Se obtiene el editor seleccionado (un siteView)
+			// You get the selected editor (a siteView)
 			EditPartViewer editP = ProjectParameters.getEditPartViewer();
-			// Se obtiene el mapa de coordenadas, cada una de ellas representa
-			// un elemento del siteView
-			Map mapa = editP.getVisualPartMap();
-			Set<IFigure> figuras = mapa.keySet();
+			// The coordinate map is obtained, each one representing an element of the site See
+			Map map = editP.getVisualPartMap();
+			Set<IFigure> shapes = map.keySet();
 
-			IArea a;
-			Iterator<IFigure> it = figuras.iterator();
-			IFigure figura;
-			int maximoDerecha = 0;
-			int maximoAncho = 0;
-			// Recorremos el mapa de coordenadas con un iterador
+			Iterator<IFigure> it = shapes.iterator();
+			IFigure shape;
+			int maximumRight = 0;
+			int maximumWidth = 0;
+
 			while (it.hasNext()) {
-				figura = it.next();
-				// Se comprueba que el borde a la derecha sea distinto al que ya
-				// tenemos
-				if (figura.getBounds().width != maximoAncho) {
-					// Y ahora se comprueba que haya un hueco que de alto sea
-					// como minimo de 1250 pixel
-					if (figura.getBounds().getLocation().y < 1250) {
-						// Si es as� esa posici�n ser� valida, y solo nos
-						// quedaremos con la m�s alejada a la derecha
-						if (figura.getBounds().getLocation().x > maximoDerecha) {
-							maximoDerecha = figura.getBounds().getLocation().x;
+				shape = it.next();
+				// Check that the border on the right is different from the one we already have
+				if (shape.getBounds().width != maximumWidth) {
+					// And now it is verified that there is a hole that is high of at least 1250 pixels
+					if (shape.getBounds().getLocation().y < 1250) {
+						// If so, that position will be valid, and we will only stay with the farthest to the right...
+						if (shape.getBounds().getLocation().x > maximumRight) {
+							maximumRight = shape.getBounds().getLocation().x;
 						}
 					}
 				}
 			}
-			// Si es la posicion inicial se le a�aden 25 pixels para que no
-			// quede mal visualmente
-			if (maximoDerecha == 0)
-				maximoDerecha = maximoDerecha + 25;
+			// If it is the initial position is added 25 pixels so that it does not go wrong visually
+			if (maximumRight == 0)
+				maximumRight = maximumRight + 25;
 			else
-				// Si ya hay elementos dibujados se le a�aden 200 pixels para
-				// separarlos
-				maximoDerecha = maximoDerecha + 200;
-			// La posicion Y siempre ser�n 25 pixels
-			puntoInicio.setLocation(maximoDerecha, 25);
+				// If there are already drawn elements 200 pixels are added to separate them
+				maximumRight = maximumRight + 200;
+			// The Y position will always be 25 pixels
+			startingPoint.setLocation(maximumRight, 25);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return puntoInicio;
+		return startingPoint;
 	}
 
 	public static ILinkParameter createLinkParameter(String modelId, IMFIdProvider idProvider, String parentId) {
@@ -173,16 +164,15 @@ public class Utilities {
 	 * Nombre: getTargetEntity Funcion:
 	 * 
 	 * @param role
-	 * @param entidad
+	 * @param entity
 	 * @return
 	 */
-	public static IEntity getTargetEntity(IRelationshipRole role, IEntity entidad) {
+	public static IEntity getTargetEntity(IRelationshipRole role, IEntity entity) {
 		IRelationship relation = (IRelationship) role.getParentElement();
-		if (relation.getTargetEntity() == entidad) {
+		if (relation.getTargetEntity() == entity) {
 			return relation.getSourceEntity();
 		} else
 			return relation.getTargetEntity();
-
 	}
 
 	public static String getPatternsPath() {
@@ -216,8 +206,8 @@ public class Utilities {
 	public static void setIsClosed(boolean isClosed) {
 		Utilities.isClosed = isClosed;
 	}
-	
-	public static void showErrorUIMessage(String message){
+
+	public static void showErrorUIMessage(String message) {
 		MessageBox messageBox = new MessageBox(ProjectParameters.getShell(), SWT.ICON_ERROR);
 		messageBox.setText("Error");
 		messageBox.setMessage(message);

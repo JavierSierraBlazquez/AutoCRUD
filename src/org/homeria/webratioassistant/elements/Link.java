@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.ProjectParameters;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;

@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.Table;
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevaUnit;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewUnit;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
@@ -33,9 +33,9 @@ public class DataUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		Evento evento = new EventoNuevaUnit(parent, ElementType.DATA_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		WebRatioCalls evento = new NewUnit(parent, ElementType.DATA_UNIT, this.position.x, this.position.y, this.name, this.entity);
 
-		IMFElement dataUnit = evento.ejecutar();
+		IMFElement dataUnit = evento.execute();
 		// Se añaden los atributos
 		Utilities.setAttribute(dataUnit, "displayAttributes", this.selectedAttributes);
 		return dataUnit;

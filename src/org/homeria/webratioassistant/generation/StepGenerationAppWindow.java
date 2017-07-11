@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.dialogs;
+package org.homeria.webratioassistant.generation;
 
 import javax.xml.transform.TransformerException;
 
@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.homeria.webratioassistant.generation.Generate;
 
 public class StepGenerationAppWindow extends ApplicationWindow {
 

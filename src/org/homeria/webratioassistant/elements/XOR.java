@@ -2,8 +2,8 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevaAlternantiva;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewAlternative;
 
 import com.webratio.commons.mf.IMFElement;
 
@@ -20,8 +20,8 @@ public class XOR extends WebRatioElement {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		Evento evento = new EventoNuevaAlternantiva(parent, this.position.x, this.position.y, this.name);
-		return evento.ejecutar();
+		WebRatioCalls evento = new NewAlternative(parent, this.position.x, this.position.y, this.name);
+		return evento.execute();
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package org.homeria.webratioassistant.dialogs;
+package org.homeria.webratioassistant.registry;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -16,8 +16,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.registry.Registry;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 public class RegistryDialog extends Dialog {
 	private static final int WIDTH = 500;

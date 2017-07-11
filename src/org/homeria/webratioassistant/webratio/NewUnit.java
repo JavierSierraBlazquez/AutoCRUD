@@ -6,7 +6,7 @@
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
  */
-package org.homeria.webratioassistant.plugin;
+package org.homeria.webratioassistant.webratio;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,57 +30,50 @@ import com.webratio.ide.units.UnitsPlugin;
 import com.webratio.ide.units.core.IUnitProject;
 import com.webratio.ide.units.core.IUnitType;
 
-public final class EventoNuevaUnit extends Evento {
-	private IEntity entidad;
-	private String nombre;
-	private String tipo;
+public final class NewUnit extends WebRatioCalls {
+	private IEntity entity;
+	private String name;
+	private String type;
 	private IUnit unit;
 	private HashMap<String, IUnitType> UnitTypes;
 
-	public EventoNuevaUnit(IMFElement padre, String tipo, int x, int y, String nombre, IEntity entity) {
-		super(padre, x, y);
-		this.nombre = nombre;
+	public NewUnit(IMFElement parent, String tipo, int x, int y, String name, IEntity entity) {
+		super(parent, x, y);
+		this.name = name;
 		this.loadUnitTypes();
-		this.tipo = tipo;
-		this.entidad = entity;
+		this.type = tipo;
+		this.entity = entity;
 	}
 
 	@Override
-	public final IMFElement ejecutar() {
+	public final IMFElement execute() {
 		IUnitType unitType;
 		this.unit = null;
-		// Obtenemos una unidad correspondiente con el tipo indicado
-		unitType = this.getUnitType(this.tipo);
+		// We obtain a corresponding unit with the indicated type
+		unitType = this.getUnitType(this.type);
 		try {
-			// Creamos una instancia a la clase que crea las unidades,
-			// indicandole el tipo
+			// We create an instance in the class that the units create, indicating the type
 			AddUnitCommand cmd = new AddUnitCommand(unitType);
-			// El procedimiento es similar a las anteriores
-			List<IMFElement> l = new ArrayList<IMFElement>();
-			l.add(this.getPadre());
-			cmd.setSelection(l);
-			Point point = this.getPunto();
+			// The procedure is similar to the previous ones
+			List<IMFElement> list = new ArrayList<IMFElement>();
+			list.add(this.getParent());
+			cmd.setSelection(list);
+			Point point = this.getPoint();
 			cmd.setLocation(point);
-			// Se comprueba si se puede ejecutar esa unidad en el padre
-			// seleccionado, comprueba por ejemplo que las unidades de operacion
-			// no se encuentren dentro de p�ginas
+			// It is checked if this unit can be run on the selected parent, for example check that the operating units are not within pages
 			if (cmd.canExecute()) {
 				((CommandStack) ProjectParameters.getWorkbenchPartWebRatio().getAdapter(CommandStack.class)).execute(cmd);
-				this.unit = this.getLastContentUnit(this.getPadre());
-				// Si la unidad es de tipo IsNotNullUnit marcamos como true el
-				// campo emptyStringAsNull, ya que en el asistente siemrpe que
-				// usemos esta entidad ser� para compara cadenas vacias
+				this.unit = this.getLastContentUnit(this.getParent());
+				// If the unit is of type IsNotNullUnit we mark the field emptyStringAsNull as true, since in the wizard whenever we use
+				// this entity it will be to compare empty strings
 				if (this.unit.getQName().getName().equals("IsNotNullUnit")) {
 					Utilities.setAttribute(this.unit, "emptyStringAsNull", "true");
 				}
-				// Se a�ade el nombre
-				Utilities.setAttribute(this.unit, "name", this.nombre);
-				// Si al crear la instancia a�adimos una entidad se la
-				// indicaremos a la unidad creada, para los casos como DataUnit,
-				// PoweIndexUnit y todo tipo de unidades que requieren una
-				// entidad para funcionar
-				if (this.entidad != null)
-					Utilities.setAttribute(this.unit, "entity", this.entidad.getFinalId());
+				Utilities.setAttribute(this.unit, "name", this.name);
+				// If we add an entity when we create the instance we will indicate it to the created unit, for cases like DataUnit,
+				// PoweIndexUnit and all types of units that require an entity to work
+				if (this.entity != null)
+					Utilities.setAttribute(this.unit, "entity", this.entity.getFinalId());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -114,13 +107,9 @@ public final class EventoNuevaUnit extends Evento {
 	}
 
 	private void loadUnitTypes() {
-		// Obtenemos el proyecto web
 		IWebProject webProject = ProjectParameters.getWebProject();
-		// Iniciamos la estructura hashMap para guardar las unidades y un string
-		// para guardar su nombre
 		this.UnitTypes = new HashMap<String, IUnitType>();
-		// Hacemos las operaciones necesarias con las funciones de WebRatio para
-		// obtener el listado de unidades
+		// Get unit types list
 		IProject[] project = new IProject[1];
 		project[0] = MFPlugin.getDefault().getFile(webProject).getProject();
 		List<IUnitProject> IU = UnitsPlugin.getUnitModel().getUnitProjects(project);
@@ -129,13 +118,13 @@ public final class EventoNuevaUnit extends Evento {
 		Iterator<IUnitType> iter;
 		while (iter2.hasNext()) {
 			IUP = iter2.next();
-			// Obtenemos la lista de tipos de unidades
+			// Get unit types list
 			List<IUnitType> IUL = IUP.getUnitTypes();
 			iter = IUL.iterator();
 			IUnitType iu;
 			while (iter.hasNext()) {
 				iu = iter.next();
-				// Almacenamos su nombre y la unidad
+				// Save the name and unitType
 				this.UnitTypes.put(iu.getName(), iu);
 			}
 		}

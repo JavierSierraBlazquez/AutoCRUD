@@ -1,6 +1,6 @@
 package org.homeria.webratioassistant.exceptions;
 
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 public class ExceptionHandler {
 

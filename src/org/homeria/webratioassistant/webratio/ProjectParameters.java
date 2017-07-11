@@ -6,7 +6,7 @@
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
  */
-package org.homeria.webratioassistant.plugin;
+package org.homeria.webratioassistant.webratio;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -48,10 +47,7 @@ public class ProjectParameters {
 	private static IWorkbenchPart workbenchPart;
 	private static IWorkbenchPart workbenchPartWebRatio = null;
 
-	// datos intermedios auxiliares para cambios en estructura de arbol de
-	// pagina intermedia: SiteView-Area-Area
-	private static Tree arbolPaginaAlta = null;
-	private static List<ObjStViewArea> listaSiteViewArea = null;
+	private static List<ObjStViewArea> siteViewAreaList = null;
 
 	private static MFMultiEditor multiEditor;
 	/**
@@ -64,19 +60,11 @@ public class ProjectParameters {
 	}
 
 	static public List<ObjStViewArea> getlistaSiteViewArea() {
-		return ProjectParameters.listaSiteViewArea;
+		return ProjectParameters.siteViewAreaList;
 	}
 
-	static public void setlistaSiteViewArea(List lista) {
-		ProjectParameters.listaSiteViewArea = lista;
-	}
-
-	static public Tree getArbolPaginaAlta() {
-		return ProjectParameters.arbolPaginaAlta;
-	}
-
-	static public void setArbolPaginaAlta(Tree arbol) {
-		ProjectParameters.arbolPaginaAlta = arbol;
+	static public void setlistaSiteViewArea(List<ObjStViewArea> lista) {
+		ProjectParameters.siteViewAreaList = lista;
 	}
 
 	static public IEditorPart getActiveEditor() {

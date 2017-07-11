@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -34,7 +34,7 @@ public class CompositeMFCommand extends AbstractMFCommand {
 
 	public CompositeMFCommand(IMFRootElement rootElem) {
 		super(rootElem);
-		setLabel("Update Model");
+		this.setLabel("Update Model");
 		this.updater = rootElem.getModelUpdater();
 	}
 
@@ -42,7 +42,7 @@ public class CompositeMFCommand extends AbstractMFCommand {
 	public void execute() {
 		MFUpdater updater = this.rootElem.getRootElement().getModelUpdater();
 		this.postOperations = updater.update();
-		endOperationSession();
+		this.endOperationSession();
 	}
 
 	@Override
@@ -51,20 +51,20 @@ public class CompositeMFCommand extends AbstractMFCommand {
 			op.execute();
 		}
 		if (this.postOperations != null) {
-			executeOperations(this.postOperations.first);
+			this.executeOperations(this.postOperations.first);
 		}
-		endOperationSession();
+		this.endOperationSession();
 	}
 
 	@Override
 	public final void undo() {
 		if (this.postOperations != null) {
-			executeOperations(this.postOperations.second);
+			this.executeOperations(this.postOperations.second);
 		}
 		for (IMFOperation op : this.undoOperations) {
 			op.execute();
 		}
-		endOperationSession();
+		this.endOperationSession();
 	}
 
 	public void setAttributeValue(IMFElement element, String attr, String value) {
@@ -78,25 +78,24 @@ public class CompositeMFCommand extends AbstractMFCommand {
 		redoSetAttr.execute();
 	}
 
-	@SuppressWarnings("unchecked")
 	public IMFElement addSubUnit(ISubUnitType subUnitType, IMFElement parent) {
 		IMFElement newSubUnit = (IMFElement) new CreateGenericMFOperation(
-				ISubUnit.class, subUnitType.getElementName(), getModelId())
+				ISubUnit.class, subUnitType.getElementName(), this.getModelId())
 				.execute();
 		Pair id = parent
 				.getRootElement()
 				.getIdProvider()
 				.getFirstFreeId(parent.valueOf("@id"),
 						subUnitType.getIdPrefix(), null, true);
-		setAttribute(newSubUnit, "id", (String) id.first);
-		setAttribute(newSubUnit, "name", subUnitType.getNamePrefix()
+		this.setAttribute(newSubUnit, "id", (String) id.first);
+		this.setAttribute(newSubUnit, "name", subUnitType.getNamePrefix()
 				+ id.second);
 		for (IUnitProperty prop : subUnitType.getProperties()) {
 			String defaultValue = prop.get("defaultValue");
 			if (!defaultValue.equals("")) {
 				String attrName = prop.get("attributeName");
 				if (!attrName.equals("")) {
-					setAttribute(newSubUnit, attrName, defaultValue);
+					this.setAttribute(newSubUnit, attrName, defaultValue);
 				}
 			}
 		}
@@ -111,7 +110,6 @@ public class CompositeMFCommand extends AbstractMFCommand {
 		return newSubUnit;
 	}
 
-	@SuppressWarnings("unchecked")
 	public IMFElement addElement(Class<? extends IMFElement> elementClass,
 			IMFElement parent) {
 		Pair idPair = parent
@@ -120,8 +118,8 @@ public class CompositeMFCommand extends AbstractMFCommand {
 				.getFirstFreeId(parent.valueOf("@id"), elementClass, null, true);
 		String id = (String) idPair.first;
 
-		IMFElement element = createElement(elementClass, "webml");
-		setAttribute(element, "id", id);
+		IMFElement element = this.createElement(elementClass, "webml");
+		this.setAttribute(element, "id", id);
 		IMFOperation addChild = new AddChildMFOperation(element, parent, null,
 				this.rootElem);
 		IMFOperation deleteChild = new DeleteMFOperation(element, this.rootElem);

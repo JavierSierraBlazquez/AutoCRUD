@@ -2,8 +2,8 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevoLink;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewLink;
 
 import com.webratio.commons.mf.IMFElement;
 
@@ -24,8 +24,8 @@ public class KOLink extends Link {
 		IMFElement source = createdElements.get(this.sourceId);
 		IMFElement target = createdElements.get(this.targetId);
 
-		Evento evento = new EventoNuevoLink(this.name, source, target, "KOLink");
-		IMFElement link = evento.ejecutar();
+		WebRatioCalls evento = new NewLink(this.name, source, target, "KOLink");
+		IMFElement link = evento.execute();
 
 		if (this.type.equals(ElementType.KO_LINK_NO_COUPLING)) {
 			this.removeAutomaticCoupling(link);

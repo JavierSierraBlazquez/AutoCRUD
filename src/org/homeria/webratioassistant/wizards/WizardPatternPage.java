@@ -56,10 +56,10 @@ import org.homeria.webratioassistant.exceptions.NoPatternsFolderFoundException;
 import org.homeria.webratioassistant.exceptions.NoSourceIdException;
 import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.parser.PatternParser;
-import org.homeria.webratioassistant.plugin.MyIEntityComparator;
-import org.homeria.webratioassistant.plugin.ObjStViewArea;
-import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.MyIEntityComparator;
+import org.homeria.webratioassistant.webratio.ObjStViewArea;
+import org.homeria.webratioassistant.webratio.ProjectParameters;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IArea;
@@ -482,18 +482,17 @@ public class WizardPatternPage extends WizardPage {
 		List<ISiteView> listaSiteViewsPreviaPage = ProjectParameters.getWebModel().getSiteViewList();
 
 		// Inicializa elementos del arbol para volver a version de siteView-areas creados
-		List<ObjStViewArea> listaSiteViewArea = new ArrayList();
+		List<ObjStViewArea> listaSiteViewArea = new ArrayList<ObjStViewArea>();
 
 		this.arbolSvAreas.removeAll();
 		this.arbolSvAreas.clearAll(Boolean.TRUE);
 
 		if (null != listaSiteViewsPreviaPage && listaSiteViewsPreviaPage.size() > 0) {
-			for (Iterator iterator = listaSiteViewsPreviaPage.iterator(); iterator.hasNext();) {
-				ISiteView siteView = (ISiteView) iterator.next();
+			for (ISiteView siteView : listaSiteViewsPreviaPage) {
 				if (null != siteView) {
 					ObjStViewArea objStView = new ObjStViewArea();
-					objStView.setNombre(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
-					objStView.setTipo("STVIEW");
+					objStView.setName(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
+					objStView.setType("STVIEW");
 					listaSiteViewArea.add(objStView);
 
 					TreeItem itemSiteView = new TreeItem(this.arbolSvAreas, 0);
@@ -509,7 +508,6 @@ public class WizardPatternPage extends WizardPage {
 		}
 
 		this.arbolSvAreas.redraw();
-		ProjectParameters.setlistaSiteViewArea(listaSiteViewArea);
 	}
 
 	/**
@@ -524,17 +522,17 @@ public class WizardPatternPage extends WizardPage {
 	 */
 	private void montarArbolAreas(TreeItem itemPadreArbol, ObjStViewArea objPadreArbol, List<IArea> listaAreasPadreRecorrer) {
 
-		List listaAreaHijo = null;
+		List<ObjStViewArea> listaAreaHijo = null;
 		if (null != listaAreasPadreRecorrer && listaAreasPadreRecorrer.size() > 0) {
-			listaAreaHijo = new ArrayList();
-			objPadreArbol.setListHijos(listaAreaHijo);
-			for (Iterator iterator = listaAreasPadreRecorrer.iterator(); iterator.hasNext();) {
-				IArea area = (IArea) iterator.next();
+			listaAreaHijo = new ArrayList<ObjStViewArea>();
+			objPadreArbol.setChildList(listaAreaHijo);
+
+			for (IArea area : listaAreasPadreRecorrer) {
 
 				if (null != area) {
 					ObjStViewArea objArea1 = new ObjStViewArea();
-					objArea1.setNombre(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
-					objArea1.setTipo("AREA");
+					objArea1.setName(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
+					objArea1.setType("AREA");
 					listaAreaHijo.add(objArea1);
 
 					TreeItem itemHijo = new TreeItem(itemPadreArbol, 0);
@@ -707,10 +705,9 @@ public class WizardPatternPage extends WizardPage {
 		this.obtenerHijosCheckeados(retColItemSelEhijos, this.arbolSvAreas.getItems());
 
 		if (null != retColItemSelEhijos) {
-			for (Iterator iterator = retColItemSelEhijos.iterator(); iterator.hasNext();) {
-				TreeItem treeItem = (TreeItem) iterator.next();
+			for (TreeItem treeItem : retColItemSelEhijos) {
 
-				IArea area = this.buscarElementoArea(((ObjStViewArea) treeItem.getData()).getNombre());
+				IArea area = this.buscarElementoArea(((ObjStViewArea) treeItem.getData()).getName());
 				if (null != area) {
 					lista.add(area);
 				}
@@ -723,8 +720,7 @@ public class WizardPatternPage extends WizardPage {
 	public IArea buscarElementoAreaRecursivo(List<IArea> listArea, String nombre) {
 
 		if (null != listArea && listArea.size() > 0) {
-			for (Iterator iterator = listArea.iterator(); iterator.hasNext();) {
-				IArea area = (IArea) iterator.next();
+			for (IArea area : listArea) {
 
 				String valorCompleto = Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")";
 				// 2 (sv11)
@@ -784,13 +780,13 @@ public class WizardPatternPage extends WizardPage {
 			for (int i = 0; i < arrItemRecorrer.length; i++) {
 				// primero selecciona que el nodo este checkeado
 				if (null != arrItemRecorrer[i]) {
-					if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("STVIEW")
+					if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getType().equals("STVIEW")
 							&& null != arrItemRecorrer[i].getItems()) {
 						this.obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
 					} else {
 
 						// segundo comprueba si es de tipo area y no tiene hijos
-						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("AREA")
+						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getType().equals("AREA")
 								&& null == arrItemRecorrer[i].getItems() && arrItemRecorrer[i].getChecked()) {
 
 							retColItemSelEhijos.add(arrItemRecorrer[i]);
@@ -799,7 +795,7 @@ public class WizardPatternPage extends WizardPage {
 
 						// tercero comprueba si es de tipo area y ninguno de sus
 						// hijos siguientes tiene checkeado
-						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getTipo().equals("AREA")
+						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getType().equals("AREA")
 								&& null != arrItemRecorrer[i].getItems() && arrItemRecorrer[i].getChecked()) {
 
 							int contador = 0;

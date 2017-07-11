@@ -29,8 +29,8 @@ import org.homeria.webratioassistant.exceptions.MissingSectionException;
 import org.homeria.webratioassistant.exceptions.NoIdException;
 import org.homeria.webratioassistant.exceptions.NoSourceIdException;
 import org.homeria.webratioassistant.exceptions.NoTargetIdException;
-import org.homeria.webratioassistant.plugin.Debug;
-import org.homeria.webratioassistant.plugin.ProjectParameters;
+import org.homeria.webratioassistant.webratio.Debug;
+import org.homeria.webratioassistant.webratio.ProjectParameters;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;

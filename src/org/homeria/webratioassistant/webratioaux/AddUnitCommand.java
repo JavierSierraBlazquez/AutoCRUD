@@ -1,7 +1,7 @@
 /**
  * PROYECTO FIN DE CARRERA:
- * 		- Título: Generación automática de la arquitectura de una aplicación web en WebML a partir de la
- *		  		  especificación de requisitos
+ * 		- Tï¿½tulo: Generaciï¿½n automï¿½tica de la arquitectura de una aplicaciï¿½n web en WebML a partir de la
+ *		  		  especificaciï¿½n de requisitos
  * REALIZADO POR:
  * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
  * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
@@ -60,14 +60,14 @@ public class AddUnitCommand extends SelectionCommand {
 
 	@Override
 	public boolean canPreExecute() {
-		return canExecute();
+		return this.canExecute();
 	}
 
 	@Override
 	public boolean canExecute() {
 
-		this.source = getSingleSelectedModel();
-		if ((getSelection() == null) || (getSelection().size() != 1)) {
+		this.source = this.getSingleSelectedModel();
+		if ((this.getSelection() == null) || (this.getSelection().size() != 1)) {
 			return false;
 		}
 		if ((this.source instanceof IAbstractPage))
@@ -85,35 +85,34 @@ public class AddUnitCommand extends SelectionCommand {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void execute() {
-		this.source = getSingleSelectedModel();
-		setRootElement(this.source);
+		this.source = this.getSingleSelectedModel();
+		this.setRootElement(this.source);
 		if ((this.source instanceof IAbstractPage)) {
 			this.parent = this.source.selectSingleElement("ContentUnits");
 			if (this.parent == null) {
-				this.parent = createElement(IContentUnits.class, getModelId());
-				addChild(this.parent, this.source, null);
+				this.parent = this.createElement(IContentUnits.class, this.getModelId());
+				this.addChild(this.parent, this.source, null);
 			}
-			this.newUnit = createGenericElement(IContentUnit.class,
-					this.unitType.getName(), getModelId());
+			this.newUnit = this.createGenericElement(IContentUnit.class,
+					this.unitType.getName(), this.getModelId());
 		} else {
 			this.parent = this.source.selectSingleElement("OperationUnits");
 			if (this.parent == null) {
-				this.parent = createElement(IOperationUnits.class, getModelId());
-				addChild(this.parent, this.source, null);
+				this.parent = this.createElement(IOperationUnits.class, this.getModelId());
+				this.addChild(this.parent, this.source, null);
 			}
-			this.newUnit = createGenericElement(IOperationUnit.class,
-					this.unitType.getName(), getModelId());
+			this.newUnit = this.createGenericElement(IOperationUnit.class,
+					this.unitType.getName(), this.getModelId());
 		}
-		setLocation(this.newUnit, "gr:x", "gr:y");
+		this.setLocation(this.newUnit, "gr:x", "gr:y");
 		Pair id = this.source
 				.getRootElement()
 				.getIdProvider()
 				.getFirstFreeId(this.parent.getParentElement().valueOf("@id"),
 						this.unitType.getIdPrefix(), null, true);
-		setAttribute(this.newUnit, "id", (String) id.first);
-		setAttribute(this.newUnit, "name", this.unitType.getNamePrefix()
+		this.setAttribute(this.newUnit, "id", (String) id.first);
+		this.setAttribute(this.newUnit, "name", this.unitType.getNamePrefix()
 				+ id.second);
 		for (IUnitProperty prop : this.unitType.getProperties()) {
 			String attrName = prop.get("attributeName");
@@ -123,7 +122,7 @@ public class AddUnitCommand extends SelectionCommand {
 
 			String defaultValue = prop.get("defaultValue");
 			if (!defaultValue.equals("")) {
-				setAttribute(this.newUnit, attrName, defaultValue);
+				this.setAttribute(this.newUnit, attrName, defaultValue);
 			} else {
 				if (!IUnitProperty.Type.SITE_VIEW.getElementName().equals(
 						prop.getType()))
@@ -135,7 +134,7 @@ public class AddUnitCommand extends SelectionCommand {
 									prop);
 					if ((availableSiteViews != null)
 							&& (availableSiteViews.size() == 1))
-						setAttribute(this.newUnit, attrName,
+						this.setAttribute(this.newUnit, attrName,
 								((ISiteView) availableSiteViews.get(0))
 										.valueOf("@id"));
 				} catch (Throwable e) {
@@ -144,7 +143,7 @@ public class AddUnitCommand extends SelectionCommand {
 			}
 		}
 
-		addChild(this.newUnit, this.parent, null);
+		this.addChild(this.newUnit, this.parent, null);
 		if (WRUIPlugin.getDefault().getPreferenceStore()
 				.getBoolean("MODELING_LAYOUT_UNIT_AUTOPLACEMENT")) {
 
@@ -152,10 +151,10 @@ public class AddUnitCommand extends SelectionCommand {
 			// AutoPlacer.placeOnGrid(this.newUnit, this.source
 			IMFElement location = null;
 			IAbstractPage topLevelAncestorPage = WebModelHelper
-					.getTopLevelAbstractPageWithoutContentPageTest(source);
+					.getTopLevelAbstractPageWithoutContentPageTest(this.source);
 			if (topLevelAncestorPage != null) {
 				GridHelper helper = new GridHelper(topLevelAncestorPage);
-				location = helper.getFirstFreeLocation((IWebMLElement) source);
+				location = helper.getFirstFreeLocation((IWebMLElement) this.source);
 			}
 
 			Pair pair = AutoPlacer.placeOnGrid(this.newUnit, this.source,
@@ -163,27 +162,27 @@ public class AddUnitCommand extends SelectionCommand {
 			this.location = ((IMFElement) pair.first);
 			this.newLayoutUnit = ((IMFElement) pair.second);
 			if ((this.location != null) && (this.newLayoutUnit != null)) {
-				addChild(this.newLayoutUnit, this.location, null);
+				this.addChild(this.newLayoutUnit, this.location, null);
 			}
 		}
 		for (ISubUnitType subUnitType : this.unitType.getSubUnitTypes()) {
 			if ((subUnitType instanceof ISelector)) {
 				ISelector selector = (ISelector) subUnitType;
 				if (selector.isAutomatic()) {
-					this.selectorElement = createGenericElement(ISubUnit.class,
-							selector.getElementName(), getModelId());
+					this.selectorElement = this.createGenericElement(ISubUnit.class,
+							selector.getElementName(), this.getModelId());
 					Pair selectorId = this.newUnit
 							.getRootElement()
 							.getIdProvider()
 							.getFirstFreeId(this.newUnit.valueOf("@id"),
 									subUnitType.getIdPrefix(), null, true);
-					setAttribute(this.selectorElement, "id",
+					this.setAttribute(this.selectorElement, "id",
 							(String) selectorId.first);
-					setAttribute(this.selectorElement, "defaultPolicy", "fill");
-					setAttribute(this.selectorElement, "booleanOperator", "and");
-					addChild(this.selectorElement, this.newUnit, null);
-					IMFElement keyCondition = createGenericElement(
-							ISubUnit.class, "KeyCondition", getModelId());
+					this.setAttribute(this.selectorElement, "defaultPolicy", "fill");
+					this.setAttribute(this.selectorElement, "booleanOperator", "and");
+					this.addChild(this.selectorElement, this.newUnit, null);
+					IMFElement keyCondition = this.createGenericElement(
+							ISubUnit.class, "KeyCondition", this.getModelId());
 					ISubUnitType type = subUnitType
 							.getSubUnitType("KeyCondition");
 					if (type != null) {
@@ -193,14 +192,14 @@ public class AddUnitCommand extends SelectionCommand {
 								.getFirstFreeId(
 										this.selectorElement.valueOf("@id"),
 										type.getIdPrefix(), null, true);
-						setAttribute(keyCondition, "id",
+						this.setAttribute(keyCondition, "id",
 								(String) conditionId.first);
-						setAttribute(keyCondition, "name", type.getNamePrefix()
+						this.setAttribute(keyCondition, "name", type.getNamePrefix()
 								+ conditionId.second);
-						setAttribute(keyCondition, "predicate", "in");
-						setAttribute(keyCondition, "implied", "false");
+						this.setAttribute(keyCondition, "predicate", "in");
+						this.setAttribute(keyCondition, "implied", "false");
 					}
-					addChild(keyCondition, this.selectorElement, null);
+					this.addChild(keyCondition, this.selectorElement, null);
 				}
 			}
 		}
@@ -210,35 +209,35 @@ public class AddUnitCommand extends SelectionCommand {
 			updater.added(this.newLayoutUnit);
 		}
 		this.postOperations = updater.update();
-		endOperationSession();
-		setLabel("Add "
+		this.endOperationSession();
+		this.setLabel("Add "
 				+ WebMLElementLabelProvider.INSTANCE.getText(this.newUnit));
-		directEdit(this.newUnit);
+		this.directEdit(this.newUnit);
 	}
 
 	@Override
 	public void undo() {
 		if (this.postOperations != null) {
-			executeOperations(this.postOperations.second);
+			this.executeOperations(this.postOperations.second);
 		}
-		delete(this.newUnit);
+		this.delete(this.newUnit);
 		if (this.newLayoutUnit != null) {
-			delete(this.newLayoutUnit);
+			this.delete(this.newLayoutUnit);
 		}
-		endOperationSession();
-		select(this.source);
+		this.endOperationSession();
+		this.select(this.source);
 	}
 
 	@Override
 	public void redo() {
-		addChild(this.newUnit, this.parent, null);
+		this.addChild(this.newUnit, this.parent, null);
 		if (this.newLayoutUnit != null) {
-			addChild(this.newLayoutUnit, this.location, null);
+			this.addChild(this.newLayoutUnit, this.location, null);
 		}
 		if (this.postOperations != null) {
-			executeOperations(this.postOperations.first);
+			this.executeOperations(this.postOperations.first);
 		}
-		endOperationSession();
-		select(this.newUnit);
+		this.endOperationSession();
+		this.select(this.newUnit);
 	}
 }

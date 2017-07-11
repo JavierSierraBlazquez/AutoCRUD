@@ -22,13 +22,13 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.homeria.webratioassistant.dialogs.StepGenerationAppWindow;
 import org.homeria.webratioassistant.elements.Link;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.generation.Generate;
-import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.generation.StepGenerationAppWindow;
+import org.homeria.webratioassistant.webratio.ProjectParameters;
+import org.homeria.webratioassistant.webratio.Utilities;
 import org.homeria.webratioassistant.wizards.WizardCRUD;
 import org.homeria.webratioassistant.wizards.WizardDialogWithRegistryButton;
 

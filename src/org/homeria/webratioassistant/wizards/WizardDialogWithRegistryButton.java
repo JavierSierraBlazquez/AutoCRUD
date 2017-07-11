@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.homeria.webratioassistant.dialogs.RegistryDialog;
+import org.homeria.webratioassistant.registry.RegistryDialog;
 
 public class WizardDialogWithRegistryButton extends WizardDialog {
 

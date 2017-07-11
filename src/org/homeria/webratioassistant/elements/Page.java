@@ -3,9 +3,9 @@ package org.homeria.webratioassistant.elements;
 import java.util.Map;
 
 import org.eclipse.draw2d.geometry.Point;
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevaPagina;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewPage;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAlternative;
@@ -68,8 +68,8 @@ public class Page extends WebRatioElement {
 			return defaultPage;
 		}
 
-		Evento evento = new EventoNuevaPagina(parent, this.position.x, this.position.y, this.name, this.isLandmark);
-		return evento.ejecutar();
+		WebRatioCalls evento = new NewPage(parent, this.position.x, this.position.y, this.name, this.isLandmark);
+		return evento.execute();
 	}
 
 	@Override

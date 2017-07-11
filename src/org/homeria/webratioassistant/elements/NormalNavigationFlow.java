@@ -5,10 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.homeria.webratioassistant.plugin.Evento;
-import org.homeria.webratioassistant.plugin.EventoNuevoLink;
-import org.homeria.webratioassistant.plugin.ProjectParameters;
-import org.homeria.webratioassistant.plugin.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
+import org.homeria.webratioassistant.webratio.NewLink;
+import org.homeria.webratioassistant.webratio.ProjectParameters;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
@@ -44,8 +44,8 @@ public class NormalNavigationFlow extends Link {
 		IMFElement source = createdElements.get(this.sourceId);
 		IMFElement target = createdElements.get(this.targetId);
 
-		Evento evento = new EventoNuevoLink(this.name, source, target, "normal");
-		IMFElement link = evento.ejecutar();
+		WebRatioCalls evento = new NewLink(this.name, source, target, "normal");
+		IMFElement link = evento.execute();
 
 		if (this.type.equals(ElementType.FLOW_ENTRY_TO_CREATE) || this.type.equals(ElementType.FLOW_ENTRY_TO_UPDATE)) {
 			this.removeAutomaticCoupling(link);

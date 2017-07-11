@@ -17,8 +17,8 @@ import org.homeria.webratioassistant.elements.Page;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UnitOutsidePage;
 import org.homeria.webratioassistant.elements.WebRatioElement;
-import org.homeria.webratioassistant.plugin.Utilities;
 import org.homeria.webratioassistant.registry.Registry;
+import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IArea;
@@ -64,7 +64,7 @@ public final class Generate {
 
 			if (parent instanceof ISiteView) {
 				Utilities.switchSiteView((ISiteView) parent);
-				coords = Utilities.buscarHueco();
+				coords = Utilities.findGap();
 			}
 
 			for (WebRatioElement page : this.pages) {
