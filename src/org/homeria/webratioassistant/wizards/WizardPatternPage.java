@@ -314,14 +314,12 @@ public class WizardPatternPage extends WizardPage {
 			if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(".xml"))
 				this.patternFileList.add(listOfFiles[i].getName());
 		}
-		
+
 		Collections.sort(this.patternFileList);
 		for (String patternFile : this.patternFileList) {
 			this.patternCombo.add(patternFile.replace(".xml", ""));
 		}
 
-		
-		
 		// * Sv/Area *
 		this.svAreaGroup = new Group(this.leftComposite, SWT.NONE);
 		FillLayout svAreaGroupLayout = new FillLayout(SWT.HORIZONTAL);

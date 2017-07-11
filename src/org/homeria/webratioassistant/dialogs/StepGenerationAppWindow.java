@@ -1,4 +1,6 @@
-package org.homeria.webratioassistant.wizards;
+package org.homeria.webratioassistant.dialogs;
+
+import javax.xml.transform.TransformerException;
 
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.swt.SWT;
@@ -32,8 +34,13 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				super.mouseDown(e);
-				if(!StepGenerationAppWindow.this.generate.next())
-					StepGenerationAppWindow.this.close();
+				try {
+					if (!StepGenerationAppWindow.this.generate.next())
+						StepGenerationAppWindow.this.close();
+				} catch (TransformerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 
@@ -43,8 +50,13 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				super.mouseDown(e);
-				StepGenerationAppWindow.this.generate.end();
-				StepGenerationAppWindow.this.close();
+				try {
+					StepGenerationAppWindow.this.generate.end();
+					StepGenerationAppWindow.this.close();
+				} catch (TransformerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 

@@ -17,6 +17,8 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -104,9 +106,8 @@ public class Utilities {
 		return puntoInicio;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static ILinkParameter createLinkParameter(String modelId, IMFIdProvider idProvider, String parentId) {
-		Class publicType = ILinkParameter.class;
+		Class<ILinkParameter> publicType = ILinkParameter.class;
 		ILinkParameter newLinkParameter = (ILinkParameter) new CreateMFOperation(publicType, modelId).execute();
 		((MFElement) newLinkParameter).setAttribute("id", idProvider.getFirstFreeId(parentId, publicType, null, true).first);
 		return newLinkParameter;
@@ -214,5 +215,13 @@ public class Utilities {
 
 	public static void setIsClosed(boolean isClosed) {
 		Utilities.isClosed = isClosed;
+	}
+	
+	public static void showErrorUIMessage(String message){
+		MessageBox messageBox = new MessageBox(ProjectParameters.getShell(), SWT.ICON_ERROR);
+		messageBox.setText("Error");
+		messageBox.setMessage(message);
+
+		messageBox.open();
 	}
 }

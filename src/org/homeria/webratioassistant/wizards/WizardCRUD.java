@@ -34,7 +34,6 @@ import org.homeria.webratioassistant.plugin.ProjectParameters;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
-import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationshipRole;
 
 /**
@@ -57,15 +56,6 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	 * 
 	 */
 	public WizardCRUD() {
-		super();
-		this.setNeedsProgressMonitor(true);
-	}
-
-	/**
-	 * 
-	 * @param selection
-	 */
-	public WizardCRUD(IEntity selection) {
 		super();
 		this.setNeedsProgressMonitor(true);
 	}
@@ -108,6 +98,7 @@ public class WizardCRUD extends Wizard implements INewWizard {
 	/**
 	 * 
 	 */
+	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		Debug.setOn();
 		try {

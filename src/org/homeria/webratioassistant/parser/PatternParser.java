@@ -92,16 +92,19 @@ public class PatternParser {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			this.dBuilder = dbFactory.newDocumentBuilder();
+			this.generateDoc();
+
+			String id = this.doc.getDocumentElement().getAttribute("id");
+			String name = this.doc.getDocumentElement().getAttribute("name");
+			Registry.getInstance().setPatternData(id, name);
+
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-		} catch (Exception e) {
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.generateDoc();
-
-		String id = this.doc.getDocumentElement().getAttribute("id");
-		String name = this.doc.getDocumentElement().getAttribute("name");
-		Registry.getInstance().setPatternData(id, name);
 	}
 
 	public static void checkPatternsIdAreUnique(File[] files) {

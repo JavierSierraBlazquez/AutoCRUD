@@ -18,24 +18,22 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.homeria.webratioassistant.dialogs.StepGenerationAppWindow;
 import org.homeria.webratioassistant.elements.Link;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.generation.Generate;
 import org.homeria.webratioassistant.plugin.ProjectParameters;
 import org.homeria.webratioassistant.plugin.Utilities;
-import org.homeria.webratioassistant.wizards.StepGenerationAppWindow;
 import org.homeria.webratioassistant.wizards.WizardCRUD;
+import org.homeria.webratioassistant.wizards.WizardDialogWithRegistryButton;
 
 import com.webratio.commons.mf.IMFElement;
-import com.webratio.commons.mf.ui.viewers.SelectionHelper;
 import com.webratio.ide.model.IAttribute;
-import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationshipRole;
 
 public class lanzarCRUD extends AbstractHandler {
@@ -44,8 +42,7 @@ public class lanzarCRUD extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			// Obtenemos, mediante la busqueda en el workbench, el elemento seleccionado, si es una entidad se evitará usar la primera
-			// página del asistente, en caso de estar seleccionado otro elemento el asistente será completo
+			// Obtenemos, mediante la busqueda en el workbench, el elemento seleccionado
 			IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 			IWorkbenchPage page = window.getActivePage();
 			IEditorPart editor = page.getActiveEditor();
@@ -60,24 +57,17 @@ public class lanzarCRUD extends AbstractHandler {
 					structuredSelection = (IStructuredSelection) selection;
 				}
 
-				IMFElement element;
-				element = SelectionHelper.getModelElement(structuredSelection, true);
-
 				WizardCRUD wizard;
 
-				ProjectParameters.init();
-				// Si el asistente se inicia con una entidad ya seleccionada nos ahorramos una pagina, en caso contrario mostramos el
-				// asistente completo dando la opci�n de elegir la entidad de la que queremos obtener el CRUD
-				if (element instanceof IEntity) {
-					wizard = new WizardCRUD((IEntity) element);
-				} else {
-					wizard = new WizardCRUD();
-				}
+				wizard = new WizardCRUD();
 				wizard.init(window.getWorkbench(), structuredSelection);
-				WizardDialog dialog = new WizardDialog(window.getShell(), wizard);
+
+				WizardDialogWithRegistryButton dialog = new WizardDialogWithRegistryButton(window.getShell(), wizard);
+				dialog.setHelpAvailable(false);
 				dialog.setPageSize(1000, 440);
 				Utilities.setParentDialog(dialog);
 				Utilities.setIsClosed(false);
+
 				if (dialog.open() == Window.OK && !Utilities.isPluginClosed()) {
 					// Get all the Data from Wizard Page
 					Queue<WebRatioElement> pages = wizard.getPagesGen();
@@ -93,7 +83,7 @@ public class lanzarCRUD extends AbstractHandler {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Utilities.showErrorUIMessage("Error while launch. Try selecting a Model first.");
 		}
 		return null;
 	}

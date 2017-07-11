@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import javax.xml.transform.TransformerException;
+
 import org.eclipse.draw2d.geometry.Point;
 import org.homeria.webratioassistant.elements.DataFlow;
 import org.homeria.webratioassistant.elements.EntryUnit;
@@ -60,17 +62,10 @@ public final class Generate {
 			coords = new Point(0, 0);
 			// obtenemos las coordenadas del elemento más a la derecha para no superponer unidades
 
-			IMFElement svParent;
 			if (parent instanceof ISiteView) {
 				Utilities.switchSiteView((ISiteView) parent);
 				coords = Utilities.buscarHueco();
-				svParent = parent;
-			} else {
-				// FIXME vigilar
-				while (!((svParent = parent.getParentElement()) instanceof ISiteView))
-					;
 			}
-			Registry.getInstance().setSiteView(svParent.getFinalId());
 
 			for (WebRatioElement page : this.pages) {
 				WebRatioElement pageCopy = page.getCopy();
@@ -111,11 +106,13 @@ public final class Generate {
 		}
 	}
 
-	public boolean next() {
-		if (this.allElemPreprocessed.isEmpty())
+	public boolean next() throws TransformerException {
+		if (this.allElemPreprocessed.isEmpty()){
+			// End
+			Registry.getInstance().saveToFile();
 			return false;
 
-		else {
+		}else {
 			WebRatioElement element = this.allElemPreprocessed.poll();
 
 			if (element instanceof Page) {
@@ -129,16 +126,20 @@ public final class Generate {
 						Utilities.switchSiteView((ISiteView) parentElement);
 
 						// Register Sv
+						Registry.getInstance().addSiteView(parentElement.getFinalId(), parentElement.getQName().getName());
 					}
 				}
 			}
+			IMFElement elementGenerated = element.generate(this.createdElements);
+			this.createdElements.put(element.getId(), elementGenerated);
 
-			this.createdElements.put(element.getId(), element.generate(this.createdElements));
+			// Register element
+			Registry.getInstance().addElement(element.getClass().getSimpleName(), elementGenerated.getFinalId());
 			return true;
 		}
 	}
 
-	public void end() {
+	public void end() throws TransformerException {
 		while (this.next())
 			;
 	}
