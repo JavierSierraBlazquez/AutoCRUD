@@ -27,6 +27,7 @@ import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.generation.Generate;
 import org.homeria.webratioassistant.generation.StepGenerationAppWindow;
+import org.homeria.webratioassistant.registry.Registry;
 import org.homeria.webratioassistant.webratio.ProjectParameters;
 import org.homeria.webratioassistant.webratio.Utilities;
 import org.homeria.webratioassistant.wizards.WizardCRUD;
@@ -47,7 +48,6 @@ public class lanzarCRUD extends AbstractHandler {
 			IWorkbenchPage page = window.getActivePage();
 			IEditorPart editor = page.getActiveEditor();
 			ProjectParameters.setShell(window.getShell());
-
 			ISelection selection = null;
 			IStructuredSelection structuredSelection = null;
 			if (editor != null) {
@@ -61,6 +61,7 @@ public class lanzarCRUD extends AbstractHandler {
 
 				wizard = new WizardCRUD();
 				wizard.init(window.getWorkbench(), structuredSelection);
+				Registry.reloadInstance();
 
 				WizardDialogWithRegistryButton dialog = new WizardDialogWithRegistryButton(window.getShell(), wizard);
 				dialog.setHelpAvailable(false);

@@ -1,10 +1,15 @@
 package org.homeria.webratioassistant.registry;
 
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -22,9 +27,21 @@ public class RegistryDialog extends Dialog {
 	private static final int WIDTH = 500;
 	private static final int HEIGHT = 500;
 
+	SortedMap<String, PatternRegisteredPOJO> pattDataMap;
+
+	Combo pattCombo;
+	Text pattText;
+	String allOutputText;
+
+	int svSummary;
+	int elemSummary;
+
 	public RegistryDialog(Shell parentShell) {
 		super(parentShell);
-		// TODO Auto-generated constructor stub
+
+		this.svSummary = 0;
+		this.elemSummary = 0;
+
 	}
 
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
@@ -33,10 +50,19 @@ public class RegistryDialog extends Dialog {
 		return super.createButton(parent, id, label, defaultButton);
 	}
 
+	protected boolean isResizable() {
+		return true;
+	}
+
 	@Override
 	public void create() {
 		super.create();
 		this.checkRegistryExists();
+		try {
+			this.pattDataMap = Registry.getInstance().getAllData();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 
 		Shell shell = this.getShell();
 		shell.setMinimumSize(WIDTH, HEIGHT);
@@ -59,14 +85,7 @@ public class RegistryDialog extends Dialog {
 			control.dispose();
 		}
 
-		// Create general group and content
-		/*	Group generalGroup = new Group(shell, SWT.NONE);
-			generalGroup.setText("General");
-			FillLayout generalGroupLayout = new FillLayout(SWT.VERTICAL);
-			generalGroupLayout.marginHeight = 10;
-			generalGroupLayout.marginWidth = 10;
-			generalGroup.setLayout(generalGroupLayout);
-		*/
+		// General (top) group
 
 		Group generalGroup = new Group(shell, SWT.NONE);
 		generalGroup.setText("General");
@@ -75,25 +94,31 @@ public class RegistryDialog extends Dialog {
 		generalGroup.setLayoutData(generalGroupData);
 
 		Label generalLabel = new Label(generalGroup, SWT.LEFT);
-		generalLabel.setText("Prueba \n dos");
 
 		// Create pattern group and content
-		Group patternGroup = new Group(shell, SWT.NONE);
-		patternGroup.setText("Pattern");
-		patternGroup.setLayout(new GridLayout(1, false));
-		GridData patternGroupData = new GridData(SWT.FILL, SWT.FILL, true, true);
-		patternGroupData.heightHint = 200;
-		patternGroup.setLayoutData(patternGroupData);
+		Group pattGroup = new Group(shell, SWT.NONE);
+		pattGroup.setText("Pattern");
+		pattGroup.setLayout(new GridLayout(1, false));
+		GridData pattGroupData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		pattGroupData.heightHint = 200;
+		pattGroup.setLayoutData(pattGroupData);
 
-		Combo patternCombo = new Combo(patternGroup, SWT.NONE);
+		this.pattCombo = new Combo(pattGroup, SWT.NONE);
 
-		// TODO add items
+		this.addItemsToCombo();
+		this.pattCombo.addSelectionListener(new SelectionAdapter() {
 
-		Text text = new Text(patternGroup, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				RegistryDialog.this.comboSelectionListener();
+			}
 
-		// text.setText("hola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndoshola\ndos");
-		text.setLayoutData(new GridData(GridData.FILL_BOTH));
-		text.setEditable(false);
+		});
+
+		this.pattText = new Text(pattGroup, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+
+		this.pattText.setLayoutData(new GridData(GridData.FILL_BOTH));
+		this.pattText.setEditable(false);
 
 		Composite butCompo = new Composite(shell, SWT.NULL);
 		butCompo.setLayout(new GridLayout(2, true));
@@ -113,6 +138,26 @@ public class RegistryDialog extends Dialog {
 				RegistryDialog.this.close();
 			}
 		});
+
+		// Load allOutputText with pattDataMap's data
+		this.loadDataMap();
+
+		generalLabel.setText(this.loadSummaryData());
+
+		// Set - All - to combo default selection
+		this.pattCombo.select(0);
+		this.comboSelectionListener();
+	}
+
+	private String loadSummaryData() {
+		String output = "";
+
+		output += "Project: " + Utilities.getProjectName() + "\n";
+		output += "Patterns: " + this.pattDataMap.size() + "\n";
+		output += "SiteViews used: " + this.svSummary + "\n";
+		output += "Elements generated: " + this.elemSummary + "\n";
+
+		return output;
 	}
 
 	private void checkRegistryExists() {
@@ -122,7 +167,77 @@ public class RegistryDialog extends Dialog {
 		}
 	}
 
-	protected boolean isResizable() {
-		return true;
+	private void addItemsToCombo() {
+		// this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
+
+		this.pattCombo.add(" - All - ");
+
+		for (String id : this.pattDataMap.keySet()) {
+			this.pattCombo.add(id);
+		}
+	}
+
+	private void loadDataMap() {
+		SortedMap<String, Integer> allSv = new TreeMap<String, Integer>();
+		SortedMap<String, Integer> allElements = new TreeMap<String, Integer>();
+		String pattOutput = " - Patterns: \n";
+		String svOutput = " - SiteViews: \n";
+		String elementsOutput = " - Elements: \n";
+		Integer auxInt;
+
+		for (PatternRegisteredPOJO data : this.pattDataMap.values()) {
+			pattOutput += "\t" + data.getId() + " (" + data.getTimesUsed() + ")\n";
+
+			for (String sv : data.getSvReg().keySet()) {
+				auxInt = data.getSvReg().get(sv);
+
+				if (allSv.containsKey(sv))
+					auxInt += allSv.get(sv);
+				allSv.put(sv, auxInt);
+			}
+
+			for (String unit : data.getElementsReg().keySet()) {
+				auxInt = data.getElementsReg().get(unit);
+
+				if (allElements.containsKey(unit))
+					auxInt += allElements.get(unit);
+				allElements.put(unit, auxInt);
+			}
+
+		}
+		pattOutput += "\n";
+
+		for (String sv : allSv.keySet())
+			svOutput += "\t" + sv + " (" + allSv.get(sv) + ")\n";
+		this.svSummary = allSv.size();
+
+		svOutput += "\n";
+
+		int auxNum;
+		for (String element : allElements.keySet()) {
+			auxNum = allElements.get(element);
+			this.elemSummary += auxNum;
+			elementsOutput += "\t" + element + " (" + auxNum + ")\n";
+		}
+		this.allOutputText = pattOutput + svOutput + elementsOutput;
+	}
+
+	public void comboSelectionListener() {
+		int selectionIndex = this.pattCombo.getSelectionIndex();
+		String selectionText = this.pattCombo.getText();
+
+		// Format Data and set it to the widget
+		if (selectionIndex == 0) {
+			// All
+			this.pattText.setText(this.allOutputText);
+
+		} else {
+			if (!selectionText.isEmpty()) {
+				PatternRegisteredPOJO data = this.pattDataMap.get(selectionText);
+
+				this.pattText.setText(data.toString());
+
+			}
+		}
 	}
 }
