@@ -2,6 +2,9 @@ package org.homeria.webratioassistant.registry;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,6 +19,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.homeria.webratioassistant.webratio.Utilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 // SINGLETON
@@ -45,6 +50,10 @@ public class Registry {
 			instance = new Registry(Utilities.getPatternsPath() + FILENAME);
 		}
 		return instance;
+	}
+
+	public static void reloadInstance() {
+		instance = null;
 	}
 
 	public boolean fileExists() {
@@ -104,4 +113,68 @@ public class Registry {
 		transformer.transform(source, result);
 	}
 
+	public SortedMap<String, PatternRegisteredPOJO> getAllData() throws SAXException, IOException, ParserConfigurationException {
+		this.checkFile();
+		SortedMap<String, PatternRegisteredPOJO> map = new TreeMap<String, PatternRegisteredPOJO>();
+
+		NodeList pattNodeList = this.root.getElementsByTagName(PATTERN);
+
+		for (int i = 0; i < pattNodeList.getLength(); i++) {
+			Node node = pattNodeList.item(i);
+			if (node instanceof Element) {
+				Element pattern = (Element) node;
+
+				this.parsePattern(pattern, map);
+			}
+		}
+
+		return map;
+	}
+
+	private void parsePattern(Element pattern, Map<String, PatternRegisteredPOJO> map) {
+		PatternRegisteredPOJO data;
+		String id = pattern.getAttribute("id");
+		String name = pattern.getAttribute("name");
+		id = id + " - " + name;
+
+		if (map.containsKey(id)) {
+			data = map.get(id);
+		} else {
+			data = new PatternRegisteredPOJO();
+			data.setId(id);
+		}
+
+		data.increaseTimesUsed();
+
+		NodeList svNodeList = pattern.getElementsByTagName(SITEVIEW);
+
+		for (int i = 0; i < svNodeList.getLength(); i++) {
+			Node node = svNodeList.item(i);
+			if (node instanceof Element) {
+				Element sv = (Element) node;
+
+				this.parseSv(sv, data);
+			}
+		}
+		map.put(id, data);
+
+	}
+
+	private void parseSv(Element sv, PatternRegisteredPOJO data) {
+		String id = sv.getAttribute("id");
+		String name = sv.getAttribute("name");
+
+		data.addSv(id + " - " + name);
+
+		NodeList unitNodeList = sv.getChildNodes();
+
+		for (int i = 0; i < unitNodeList.getLength(); i++) {
+			Node node = unitNodeList.item(i);
+			if (node instanceof Element) {
+				Element unit = (Element) node;
+
+				data.addElement(unit.getTagName());
+			}
+		}
+	}
 }

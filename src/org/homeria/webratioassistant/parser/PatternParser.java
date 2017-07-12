@@ -98,12 +98,9 @@ public class PatternParser {
 			String name = this.doc.getDocumentElement().getAttribute("name");
 			Registry.getInstance().setPatternData(id, name);
 
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		} catch (Exception e1) {
+			e1.printStackTrace();
 		}
 	}
 

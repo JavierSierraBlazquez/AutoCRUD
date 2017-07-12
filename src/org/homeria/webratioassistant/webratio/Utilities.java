@@ -176,17 +176,21 @@ public class Utilities {
 	}
 
 	public static String getPatternsPath() {
-		// TODO exception no file found
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (window != null) {
-			IWorkbenchPage iworkbenchpage = window.getActivePage();
-			IEditorInput ieditorpart = iworkbenchpage.getActiveEditor().getEditorInput();
-			IPath path = ResourceUtil.getFile(ieditorpart).getLocation();
-			// remove file (example: Model.wr):
-			path = path.removeLastSegments(1).addTrailingSeparator().append("patterns").addTrailingSeparator();
-			return path.toString();
-		}
-		return "";
+		IWorkbenchPage iworkbenchpage = window.getActivePage();
+		IEditorInput ieditorpart = iworkbenchpage.getActiveEditor().getEditorInput();
+		IPath path = ResourceUtil.getFile(ieditorpart).getLocation();
+		// remove file (example: Model.wr):
+		path = path.removeLastSegments(1).addTrailingSeparator().append("patterns").addTrailingSeparator();
+		return path.toString();
+	}
+
+	public static String getProjectName() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchPage iworkbenchpage = window.getActivePage();
+		IEditorInput ieditorpart = iworkbenchpage.getActiveEditor().getEditorInput();
+
+		return ResourceUtil.getFile(ieditorpart).getProject().getName();
 	}
 
 	public static void setParentDialog(WizardDialog dialog) {
