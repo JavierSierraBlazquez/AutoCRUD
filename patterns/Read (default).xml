@@ -1,38 +1,21 @@
 <?xml version="1.0"?>
-<Pattern id="p2" name="Read (default)">
 
+<PATTERN id="p2" name="Read (default)"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	 xsi:noNamespaceSchemaLocation="schema.xsd">
+	
 	<!-- PAGES SECTION-->
-	<Pages>
-		<Page id="ReadPage" name="Read Page" landmark="true" x="30" y="30">
-			<PowerIndexUnit id="piuRead" name="PowerIndexUnit" x="0" y="0"/>
-			<DataUnit id="duRead" name="DataUnit" x="200" y="0"/>
-		</Page>
-	</Pages>		
-
-
-	<!-- OPERATION UNITS SECTION -->
-	<OperationUnits>
-		
-	</OperationUnits>
+	<PAGES>
+		<page id="ReadPage" name="Read Page" landmark="true" x="30" y="30">
+			<powerIndexUnit id="powerIndexUnit" name="PowerIndexUnit" x="0" y="0"/>
+			<dataUnit id="dataUnit" name="DataUnit" x="200" y="0"/>
+		</page>
+	</PAGES>		
 
 
 	<!-- LINKS SECTION -->
-	<Links>
-		<NormalNavigationFlow id= "nnf1" name="Details" sourceId="piuRead" targetId="duRead" type="automatic"/>
-	</Links>
+	<LINKS>
+		<normalNavigationFlow id= "nnf1" name="Details" sourceId="powerIndexUnit" targetId="dataUnit"/>
+	</LINKS>
 
-
-	<!-- RELATIONS SECTION -->
-
-	<forEachRelation>
-	
-	</forEachRelation>
-
-	<IfSomeNMRelation>
-
-	</IfSomeNMRelation>
-	<IfNotSomeNMRelation>
-		
-	</IfNotSomeNMRelation>
-</Pattern>
-
+</PATTERN>

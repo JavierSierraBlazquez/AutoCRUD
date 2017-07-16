@@ -45,7 +45,7 @@ public abstract class ElementType {
 	public static final String NORMALFLOW_FIXED_VALUE = "fixedValue";
 	public static final String NORMALFLOW_IS_NOT_NULL = "isNotNull";
 	
-
+	// TYPES FOR DATA FLOW AND NORMAL NAVIGATION FLOW (BOTH)
 	public static final String FLOW_ENTRY_TO_CREATE = "entryToCreate";
 	public static final String FLOW_ENTRY_TO_UPDATE = "entryToUpdate";
 	

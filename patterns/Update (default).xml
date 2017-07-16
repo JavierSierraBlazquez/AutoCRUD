@@ -1,68 +1,77 @@
 <?xml version="1.0"?>
-<Pattern id="p2" name="Update (default)">
+
+<PATTERN id="p3" name="Update (default)"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	 xsi:noNamespaceSchemaLocation="schema.xsd">
 	
 	<!-- PAGES SECTION-->
-	<Pages>
-		<Page id="UpdatePage" name="Update Page" landmark="true" x="30" y="30">
-			<EntryUnit id="entryUnit" name="EntryUnit" type="preloaded" x="200" y="200"/>
-			<PowerIndexUnit id="piuUpdate" name="PowerIndexUnit" x="0" y="0"/>
-			<MultiMessageUnit id="mmsgUpdate" name="MultiMessageUnit" x="150" y="300"/>
-			<SelectorUnit id="selectorEntidad" name="selector" type="keyCondition" x="200" y="0"/>
-		</Page>
-	</Pages>		
+	<PAGES>
+		<page id="UpdatePage" name="Update Page" landmark="true" x="30" y="30">
+			<entryUnit id="entryUnit" name="EntryUnit" type="preloaded" x="200" y="200"/>
+			<powerIndexUnit id="powerIndexUnit" name="PowerIndexUnit" x="0" y="0"/>
+			<multiMessageUnit id="multiMessageUnit" name="MultiMessageUnit" x="150" y="300"/>
+			<selectorUnit id="selectorEntidad" name="selector" type="keyCondition" x="200" y="0"/>
+		</page>
+	</PAGES>		
 
 
-	<!-- OPERATION UNITS SECTION -->
-	<OperationUnits>
-		<UpdateUnit id="updateUnit" name="UpdateUnit"  x="500" y="170"/>
-	</OperationUnits>
-
+	<!-- UNITS OUTSIDE OF ANY PAGE -->
+	<OUTSIDEUNITS>
+		<updateUnit id="updateUnit" name="UpdateUnit"  x="500" y="170"/>
+	</OUTSIDEUNITS>
 
 
 	<!-- LINKS SECTION -->
-	<Links>
-		<NormalNavigationFlow id="nnfUpdate" name="Modify" sourceId="piuUpdate" targetId="selectorEntidad" />
-		<NormalNavigationFlow id="nnfEntryUpdate" name="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
-		<DataFlow id="dfSelectorEntry" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
-		<KOLink id="koUpdate" sourceId="updateUnit" targetId="mmsgUpdate" message="Failed modifying data"/>
-	</Links>
+	<LINKS>
+		<normalNavigationFlow id="nnfUpdate" name="Modify" sourceId="powerIndexUnit" targetId="selectorEntidad" />
+		<normalNavigationFlow id="nnfEntryUpdate" name="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
+		<dataFlow id="dfSelectorEntry" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
+		<koLink id="koUpdate" sourceId="updateUnit" targetId="multiMessageUnit" message="Failed modifying data"/>
+	</LINKS>
 
 
 	<!-- RELATIONS SECTION -->
-	<forEachRelation>
-		<SelectorUnit id="selector#" name="selector#" entity="entityRelated" parentId="UpdatePage" x="300#" y="0"/>
-		<DataFlow id="flowSelectorForm#" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
+	<RELATIONS> <!-- Common section for 1:1, 1:N and N:M relations -->
+		<ALL> <!-- All relations -->
+			<selectorUnit id="selector#" name="selector#" parentId="UpdatePage" x="300#" y="0"/>
+			<dataFlow id="flowSelectorForm#" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
+		</ALL>
 
-		<IfNMRelation>
-			<SelectorUnit id="selectorNM%" name="selectorNM%" entity="entityRelated" parentId="UpdatePage" type="roleCondition" x="0" y="150%"/>
-			<DataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>
-			<DataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="entryUnit" type="unitToEntryRole"/>
+		<LAST> <!-- Last relation (used to close operations chain) -->
+			<okLink id="okReconnect" sourceId="updateUnit" targetId="multiMessageUnit" message="Data modified correctly"/>	
+		</LAST>
+	</RELATIONS>
 
-			<ReconnectUnit id="reconnect%" name="reconnect%" entity="entityRelated" x="500" y="300%"/>
-			<DataFlow id="flowFormReconnect%" name="Load" sourceId="entryUnit" targetId="reconnect%" type="entryToReconnect"/>
-			<KOLink id="koReconnect%" sourceId="reconnect%" targetId="mmsgUpdate" message="Failed modifying data"/>
-			
-			<IfFirstRelation>
-				<OKLink id="okReconnect%" sourceId="updateUnit" targetId="reconnect%" message=""/>				
-			</IfFirstRelation>
+	<NMRELATIONS> <!-- Specific section only for N:M relations (Replaces RELATIONS)-->
+		<ALL> <!-- All N:M relations -->
+			<selectorUnit id="selector #" name="selector#" parentId="UpdatePage" x="300#" y="0"/>
+			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
 
-			<IfNotFirstRelation>
-				<OKLink id="okReconnect%" sourceId="reconnect%-1" targetId="reconnect%" message=""/>
-			</IfNotFirstRelation>
-		</IfNMRelation>
-	</forEachRelation>
+			<selectorUnit id="selectorNM%" name="selectorNM%" parentId="UpdatePage" type="roleCondition" x="0" y="150%"/>
+			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>
+			<dataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="entryUnit" type="unitToEntryRole"/>
 
-	<IfSomeNMRelation>
-		<OKLink id="okReconnect%+1" sourceId="reconnect%" targetId="mmsgUpdate" message="Data modified correctly"/>
-	</IfSomeNMRelation>
+			<reconnectUnit id="reconnect%" name="reconnect%" x="500" y="300%"/>
+			<dataFlow id="flowFormReconnect%" name="Load" sourceId="entryUnit" targetId="reconnect%" type="entryToReconnect"/>
+			<koLink id="koReconnect%" sourceId="reconnect%" targetId="multiMessageUnit" message="Failed modifying data"/>			
+		</ALL>
 
-	<IfNotSomeNMRelation>
-		<OKLink id="okReconnect" sourceId="updateUnit" targetId="mmsgUpdate" message="Data modified correctly"/>		
-	</IfNotSomeNMRelation>
+		<FIRST> <!-- First N:M relation (used to start operations chain) -->
+			<okLink id="okFirstReconnect%" sourceId="updateUnit" targetId="reconnect%" message=""/>
+		</FIRST>
 
-</Pattern>
+		<REMAINING> <!-- Second and subsequent N:M relations (used to continue operations chain) -->
+			<okLink id="okReconnect%" sourceId="reconnect%-1" targetId="reconnect%" message=""/>
+		</REMAINING>
+
+		<LAST> <!-- Last relation (used to close operations chain) -->
+			<okLink id="okReconnect%+1" sourceId="reconnect%" targetId="multiMessageUnit" message="Data modified correctly"/>
+		</LAST>
+	</NMRELATIONS>
+
+</PATTERN>
 
 
-	<!-- # = número iterativo por cada relación -->
-	<!-- % = número iterativo por cada relación NM-->
+	<!-- # = iterative number for each relation -->
+	<!-- % = iterative number for each NM relation -->
 
