@@ -6,15 +6,23 @@ import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
 public class StepGenerationAppWindow extends ApplicationWindow {
 
 	Generate generate;
+	Button next;
+	Button fastForward;
+	ProgressBar progressBar;
+	Label titleNextElemLabel;
+	Label nextElemLabel;
 
 	public StepGenerationAppWindow(Shell parentShell, Generate generate) {
 		super(parentShell);
@@ -23,13 +31,31 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 
 	@Override
 	protected Control createContents(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
-		FillLayout compositeLayout = new FillLayout(SWT.HORIZONTAL);
-		composite.setLayout(compositeLayout);
+		Composite container = new Composite(parent, SWT.NONE);
+		GridLayout containerLayout = new GridLayout(1, false);
+		containerLayout.marginWidth = 20;
+		containerLayout.marginHeight = 20;
+		containerLayout.verticalSpacing = 15;
+		container.setLayout(containerLayout);
+		container.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 
-		Button next = new Button(composite, 0);
-		next.setText("Next Step");
-		next.addMouseListener(new MouseAdapter() {
+		this.progressBar = new ProgressBar(container, SWT.SMOOTH);
+		this.progressBar.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+
+		this.titleNextElemLabel = new Label(container, SWT.NONE);
+		this.titleNextElemLabel.setText("Next element: ");
+		this.titleNextElemLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+
+		this.nextElemLabel = new Label(container, SWT.NONE);
+		this.nextElemLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+
+		Composite buttonsCompo = new Composite(container, SWT.NONE);
+		buttonsCompo.setLayout(new GridLayout(2, false));
+		buttonsCompo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+
+		this.next = new Button(buttonsCompo, 0);
+		this.next.setText("Next Step");
+		this.next.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				super.mouseDown(e);
@@ -43,13 +69,14 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 			}
 		});
 
-		Button fastForward = new Button(composite, 0);
-		fastForward.setText("Fast Forward");
-		fastForward.addMouseListener(new MouseAdapter() {
+		this.fastForward = new Button(buttonsCompo, 0);
+		this.fastForward.setText("Fast Forward");
+		this.fastForward.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				super.mouseDown(e);
 				try {
+					StepGenerationAppWindow.this.disableButtons();
 					StepGenerationAppWindow.this.generate.end();
 					StepGenerationAppWindow.this.close();
 				} catch (TransformerException e1) {
@@ -59,6 +86,14 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 			}
 		});
 
-		return super.createContents(composite);
+		this.generate.setUIelements(this.progressBar, this.nextElemLabel);
+
+		return super.createContents(buttonsCompo);
+	}
+
+	private void disableButtons() {
+		this.next.setEnabled(false);
+		this.fastForward.setEnabled(false);
+
 	}
 }

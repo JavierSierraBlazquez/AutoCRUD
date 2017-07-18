@@ -60,7 +60,7 @@ public class Registry {
 		return new File(this.path).exists();
 	}
 
-	private void checkFile() throws SAXException, IOException, ParserConfigurationException {
+	private void fillDOM() throws SAXException, IOException, ParserConfigurationException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
@@ -77,13 +77,13 @@ public class Registry {
 	}
 
 	public void setPatternData(String id, String name) throws SAXException, IOException, ParserConfigurationException {
-		this.checkFile();
+		this.fillDOM();
 
 		this.currentPattern = this.document.createElement(PATTERN);
 		this.currentPattern.setAttribute(ID, id);
 		this.currentPattern.setAttribute(NAME, name);
-		this.root.appendChild(this.currentPattern);
 
+		this.root.appendChild(this.currentPattern);
 	}
 
 	public void addSiteView(String finalId, String name) {
@@ -114,10 +114,15 @@ public class Registry {
 	}
 
 	public SortedMap<String, PatternRegisteredPOJO> getAllData() throws SAXException, IOException, ParserConfigurationException {
-		this.checkFile();
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+		Document document = documentBuilder.parse(this.path);
+		Element root = document.getDocumentElement();
+
 		SortedMap<String, PatternRegisteredPOJO> map = new TreeMap<String, PatternRegisteredPOJO>();
 
-		NodeList pattNodeList = this.root.getElementsByTagName(PATTERN);
+		NodeList pattNodeList = root.getElementsByTagName(PATTERN);
 
 		for (int i = 0; i < pattNodeList.getLength(); i++) {
 			Node node = pattNodeList.item(i);

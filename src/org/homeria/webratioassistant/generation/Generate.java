@@ -9,6 +9,8 @@ import java.util.Queue;
 import javax.xml.transform.TransformerException;
 
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.homeria.webratioassistant.elements.DataFlow;
 import org.homeria.webratioassistant.elements.EntryUnit;
 import org.homeria.webratioassistant.elements.Link;
@@ -37,6 +39,10 @@ public final class Generate {
 	private Queue<WebRatioElement> allElemPreprocessed;
 	private IMFElement currentParent;
 
+	private ProgressBar progressBar;
+	private Label elemLabel;
+	int progress;
+
 	Map<String, IMFElement> createdElements;
 
 	public Generate(Queue<WebRatioElement> pages, List<Unit> units, List<Link> links, List<IMFElement> siteViewsAreas,
@@ -52,6 +58,7 @@ public final class Generate {
 		this.currentParent = null;
 		this.createdElements = new HashMap<String, IMFElement>();
 
+		this.progress = 0;
 		this.preprocess();
 	}
 
@@ -121,7 +128,7 @@ public final class Generate {
 				if (parentElement instanceof IArea)
 					while (!(parentElement instanceof ISiteView))
 						parentElement = parentElement.getParentElement();
-				
+
 				if (this.currentParent != parentElement && (parentElement instanceof ISiteView)) {
 					this.createdElements = new HashMap<String, IMFElement>();
 					this.currentParent = parentElement;
@@ -139,6 +146,10 @@ public final class Generate {
 
 			// Register element
 			Registry.getInstance().addElement(element.getClass().getSimpleName(), elementGenerated.getFinalId());
+
+			// Update UI
+			this.updateUI();
+
 			return true;
 		}
 	}
@@ -146,5 +157,29 @@ public final class Generate {
 	public void end() throws TransformerException {
 		while (this.next())
 			;
+	}
+
+	public void setUIelements(ProgressBar progressBar, Label nextElemLabel) {
+		this.progress = 0;
+		this.progressBar = progressBar;
+		this.progressBar.setMaximum(this.allElemPreprocessed.size());
+		this.progressBar.setSelection(this.progress);
+
+		this.elemLabel = nextElemLabel;
+		nextElemLabel.setText(this.allElemPreprocessed.peek().getClass().getSimpleName());
+	}
+
+	private void updateUI() {
+		this.progressBar.setSelection(++this.progress);
+
+		String nextElement;
+		if (this.allElemPreprocessed.isEmpty())
+			nextElement = "Finish";
+		else
+			nextElement = this.allElemPreprocessed.peek().getClass().getSimpleName();
+		this.elemLabel.setText(nextElement);
+
+		this.elemLabel.pack(true);
+		this.elemLabel.getParent().layout(true, true);
 	}
 }
