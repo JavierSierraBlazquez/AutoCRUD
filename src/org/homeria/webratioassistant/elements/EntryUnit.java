@@ -3,10 +3,10 @@ package org.homeria.webratioassistant.elements;
 import java.util.List;
 import java.util.Map;
 
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewUnit;
 import org.homeria.webratioassistant.webratio.ProjectParameters;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratioaux.CompositeMFCommand;
 
 import com.webratio.commons.mf.IMFElement;
@@ -37,8 +37,8 @@ public class EntryUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		WebRatioCalls evento = new NewUnit(parent, ElementType.ENTRY_UNIT, this.position.x, this.position.y, this.name, this.entity);
-		IMFElement entryUnit = evento.execute();
+		WebRatioCalls newUnitWRCall = new NewUnit(parent, ElementTypes.ENTRY_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		IMFElement entryUnit = newUnitWRCall.execute();
 		this.setFields(entryUnit);
 
 		ProjectParameters.entryKeyfieldMap.put(entryUnit, this.fieldOid);
@@ -48,56 +48,55 @@ public class EntryUnit extends Unit {
 
 	private void setFields(IMFElement element) {
 		CompositeMFCommand cmd = new CompositeMFCommand(element.getRootElement());
-		String tipo;
+		String name;
+		String type;
 		IMFElement field;
-		String nombre;
 
-		List<IAttribute> listaAtributos = this.entity.getAllAttributeList();
-		// Recorremos la lista final de atributos para crear los campos en el formulario
-		for (IAttribute atributo : listaAtributos) {
-			// No att. derivados:
-			if (null == Utilities.getAttribute(atributo, "derivationQuery")
-					|| Utilities.getAttribute(atributo, "derivationQuery").isEmpty()) {
-				nombre = Utilities.getAttribute(atributo, "name");
-				tipo = Utilities.getAttribute(atributo, "type");
+		List<IAttribute> attList = this.entity.getAllAttributeList();
+		// We go through the final list of attributes to create the fields in the form
+		for (IAttribute attribute : attList) {
+			// No derived att:
+			if (null == Utilities.getAttribute(attribute, "derivationQuery")
+					|| Utilities.getAttribute(attribute, "derivationQuery").isEmpty()) {
+				name = Utilities.getAttribute(attribute, "name");
+				type = Utilities.getAttribute(attribute, "type");
 				field = cmd.addSubUnit(Utilities.getSubUnitType(element, "Field"), element);
-				// Si el tipo es password lo pasamos a tipo string por comodidad a la hora de modificar el formulario
-				if (tipo.equals("password"))
-					tipo = "string";
-				Utilities.setAttribute(field, "type", tipo);
+				// If the type is password we pass it to type string for convenience at the time of modifying the form
+				if (type.equals("password"))
+					type = "string";
+				Utilities.setAttribute(field, "type", type);
 
-				if (this.type.equals(ElementType.ENTRYUNIT_PRELOADED))
+				if (this.type.equals(ElementTypes.ENTRYUNIT_PRELOADED))
 					Utilities.setAttribute(field, "preloaded", "true");
 
-				new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
+				new SetAttributeMFOperation(field, "name", name, element.getRootElement()).execute();
 
-				if ((Utilities.getAttribute(atributo, "name").contains("oid") || Utilities.getAttribute(atributo, "name").contains("OID"))
-						&& Utilities.getAttribute(atributo, "key").equals("true")) {
+				if ((Utilities.getAttribute(attribute, "name").contains("oid") || Utilities.getAttribute(attribute, "name").contains("OID"))
+						&& Utilities.getAttribute(attribute, "key").equals("true")) {
 					Utilities.setAttribute(field, "hidden", "true");
 					Utilities.setAttribute(field, "modifiable", "false");
 					this.fieldOid = field;
 
-					// Mantener el contenType de los campos en el formulario.
-					if (null != Utilities.getAttribute(atributo, "contentType")) {
-						Utilities.setAttribute(field, "contentType", Utilities.getAttribute(atributo, "contentType"));
+					// Keep the contentType of the fields in the form.
+					if (null != Utilities.getAttribute(attribute, "contentType")) {
+						Utilities.setAttribute(field, "contentType", Utilities.getAttribute(attribute, "contentType"));
 					}
 				}
 			}
 		}
 
-		// Ahora hacemos lo mismo creando selectionField en caso de relaciones
-		// 1aN y multiSelectionField en caso de relaciones NaN
+		// Now we do the same thing by creating selectionField in case of relations 1aN and multiSelectionField in case of relations NaN
 		IRelationship relation;
 		String maxCard1;
 		String maxCard2;
-		IAttribute atributo;
+		IAttribute attribute;
 
 		for (IRelationshipRole role : this.relshipsSelected.keySet()) {
 			relation = (IRelationship) role.getParentElement();
-			atributo = this.relshipsSelected.get(role);
+			attribute = this.relshipsSelected.get(role);
 
-			nombre = Utilities.getAttribute(role, "name");
-			tipo = Utilities.getAttribute(atributo, "type");
+			name = Utilities.getAttribute(role, "name");
+			type = Utilities.getAttribute(attribute, "type");
 
 			maxCard1 = Utilities.getAttribute(relation.getRelationshipRole1(), "maxCard");
 			maxCard2 = Utilities.getAttribute(relation.getRelationshipRole2(), "maxCard");
@@ -108,15 +107,15 @@ public class EntryUnit extends Unit {
 				field = cmd.addSubUnit(Utilities.getSubUnitType(element, "SelectionField"), element);
 			}
 
-			Utilities.setAttribute(field, "type", tipo);
+			Utilities.setAttribute(field, "type", type);
 
-			new SetAttributeMFOperation(field, "name", nombre, element.getRootElement()).execute();
+			new SetAttributeMFOperation(field, "name", name, element.getRootElement()).execute();
 		}
 	}
 
 	@Override
 	public WebRatioElement getCopy() {
-		return new EntryUnit(this.id, this.name, this.parentId, this.type, String.valueOf(this.position.x), String.valueOf(this.position.y),
-				this.entity);
+		return new EntryUnit(this.id, this.name, this.parentId, this.type, String.valueOf(this.position.x),
+				String.valueOf(this.position.y), this.entity);
 	}
 }

@@ -17,9 +17,9 @@ public class IsNotNullUnit extends UnitOutsidePage {
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.IS_NOT_NULL_UNIT, this.position.x, this.position.y, this.name,
+		WebRatioCalls newUnitWRCall = new NewUnit(this.parent, ElementTypes.IS_NOT_NULL_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
-		return evento.execute();
+		return newUnitWRCall.execute();
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package org.homeria.webratioassistant.wizards;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,7 +13,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -32,6 +30,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -57,7 +57,6 @@ import org.homeria.webratioassistant.exceptions.NoSourceIdException;
 import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.parser.PatternParser;
 import org.homeria.webratioassistant.webratio.MyIEntityComparator;
-import org.homeria.webratioassistant.webratio.ObjStViewArea;
 import org.homeria.webratioassistant.webratio.ProjectParameters;
 import org.homeria.webratioassistant.webratio.Utilities;
 
@@ -77,17 +76,17 @@ public class WizardPatternPage extends WizardPage {
 	private Composite containerComposite;
 	private Composite leftComposite;
 	private Composite rightComposite;
-	private Composite innerRightComposite;
-	private ScrolledComposite scrolledComposite;
+	private Composite relationsComposite;
 
 	private Group entityGroup;
 	private Group patternGroup;
-	private Group svAreaGroup;
-	private Group relationsGroup;
+	private Group svAreasGroup;
 
 	private Table tableRelations;
 
-	private Tree arbolSvAreas;
+	private TabFolder tabFolder;
+
+	private Tree svAreasTree;
 
 	private List<CCombo> listCombosRelations;
 
@@ -97,7 +96,6 @@ public class WizardPatternPage extends WizardPage {
 	private List<IAttribute> listaAtributosSinDerivados;
 	private List<IEntity> entityList;
 	private List<IRelationshipRole> relatedEntities;
-	private List<Group> rightGroupsList;
 
 	private Queue<WebRatioElement> pages;
 	private List<Unit> units;
@@ -106,19 +104,19 @@ public class WizardPatternPage extends WizardPage {
 	private IEntity entitySelected;
 
 	PatternParser xmlParser;
-	private Map<String, IAttribute> atributosRelacion;
+	private Map<String, IAttribute> relationAttributes;
 
 	public WizardPatternPage() {
 		super("WizardPattern");
+		this.setTitle("Automatic pattern generation");
 
 		this.patternFileList = new ArrayList<String>();
 		this.listaSiteViews = new ArrayList<ISiteView>();
 		this.entityList = new ArrayList<IEntity>();
 		this.listaAtributosEntidad = new ArrayList<IAttribute>();
 		this.listaAtributosSinDerivados = new ArrayList<IAttribute>();
-		this.rightGroupsList = new ArrayList<Group>();
 		this.listCombosRelations = new ArrayList<CCombo>();
-		this.atributosRelacion = new HashMap<String, IAttribute>();
+		this.relationAttributes = new HashMap<String, IAttribute>();
 
 		this.PATTERNS_DIR = Utilities.getPatternsPath();
 	}
@@ -140,7 +138,7 @@ public class WizardPatternPage extends WizardPage {
 	}
 
 	public boolean canFinish() {
-		return this.getSvAreasChecked().size() > 0 && this.patternCombo.getSelectionIndex() != -1;
+		return this.getSvAreasSelected().size() > 0 && this.patternCombo.getSelectionIndex() != -1;
 	}
 
 	@Override
@@ -154,35 +152,16 @@ public class WizardPatternPage extends WizardPage {
 		this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
 		try {
-			this.crearCompositeIzquierdo();
+			this.createLeftComposite();
+			this.createRightComposite();
 
-			// Inicializo el composite derecho donde van a ir los elementos
-			// dinámicos (dependiendo el patrón seleccionado)
-			this.rightComposite = new Composite(this.containerComposite, SWT.NONE);
-			FillLayout rightCompositeLayout = new FillLayout(SWT.HORIZONTAL);
-			this.rightComposite.setLayout(rightCompositeLayout);
-
-			FormData fData = new FormData();
-			fData.top = new FormAttachment(0);
-			fData.left = new FormAttachment(this.leftComposite);
-			fData.right = new FormAttachment(100);
-			fData.bottom = new FormAttachment(100);
-			this.rightComposite.setLayoutData(fData);
-
-			this.scrolledComposite = new ScrolledComposite(this.rightComposite, SWT.H_SCROLL);
-			this.scrolledComposite.setExpandVertical(true);
-			this.scrolledComposite.setExpandHorizontal(true);
-			this.scrolledComposite.setAlwaysShowScrollBars(true);
-			this.scrolledComposite.setMinWidth(900);
-
-			this.innerRightComposite = new Composite(this.scrolledComposite, SWT.NONE);
-			this.innerRightComposite.setLayout(new FillLayout());
-
-			this.scrolledComposite.setContent(this.innerRightComposite);
-
-			this.dispose();
+			this.entityCombo.select(0);
+			this.entitySelectionListener();
+			this.patternCombo.select(0);
+			this.patternSelectionListener();
+			/*this.dispose();
 			this.finalize();
-
+			*/
 		} catch (NoPatternsFolderFoundException e) {
 			ExceptionHandler.handle(e);
 		} catch (NoPatternFileFoundException e) {
@@ -194,25 +173,24 @@ public class WizardPatternPage extends WizardPage {
 		}
 	}
 
-	private void crearCompositeIzquierdo() throws NoPatternsFolderFoundException, NoPatternFileFoundException {
-		// Creando el composite izquierdo y su contenido
+	private void createLeftComposite() throws NoPatternsFolderFoundException, NoPatternFileFoundException {
+		// Creating left composite and its content
 		this.leftComposite = new Composite(this.containerComposite, SWT.NONE);
-		FillLayout leftCompositeLayout = new FillLayout(SWT.VERTICAL);
-		leftCompositeLayout.marginHeight = 5;
-		leftCompositeLayout.marginWidth = 5;
-		leftCompositeLayout.spacing = 10;
+		GridLayout leftCompositeLayout = new GridLayout(1, false);
+		leftCompositeLayout.marginWidth = 20;
+		leftCompositeLayout.verticalSpacing = 30;
 		this.leftComposite.setLayout(leftCompositeLayout);
 
 		FormData fData = new FormData();
 		fData.top = new FormAttachment(0);
 		fData.left = new FormAttachment(0);
-		fData.right = new FormAttachment(20); // Locks on 20% of the view
+		fData.right = new FormAttachment(40); // Locks on 40% of the view
 		fData.bottom = new FormAttachment(100);
 		this.leftComposite.setLayoutData(fData);
 
-		// ---- Grupos del composite izquierdo y su contenido ----
+		// ---- Left composite groups and its content ----
 
-		// * Entidad *
+		// * Entity *
 		this.entityGroup = new Group(this.leftComposite, SWT.NONE);
 		FillLayout entityGroupLayout = new FillLayout(SWT.VERTICAL);
 		this.entityGroup.setLayout(entityGroupLayout);
@@ -226,23 +204,8 @@ public class WizardPatternPage extends WizardPage {
 				super.widgetSelected(evt);
 				try {
 					WizardPatternPage.this.entitySelectionListener();
-
-				} catch (CantOpenFileException e) {
-					ExceptionHandler.handle(e);
-				} catch (CantParseXmlFileException e) {
-					ExceptionHandler.handle(e);
-				} catch (NoIdException e) {
-					ExceptionHandler.handle(e);
-				} catch (IdNotUniqueException e) {
-					ExceptionHandler.handle(e);
-				} catch (NoSourceIdException e) {
-					ExceptionHandler.handle(e);
-				} catch (NoTargetIdException e) {
-					ExceptionHandler.handle(e);
-				} catch (MissingSectionException e) {
-					ExceptionHandler.handle(e);
 				} catch (Exception e) {
-					e.printStackTrace();
+					ExceptionHandler.handle(e);
 				}
 			}
 		});
@@ -253,7 +216,6 @@ public class WizardPatternPage extends WizardPage {
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
-		this.entityList = ProjectParameters.getDataModel().getEntityList();
 		this.entityList = ProjectParameters.getDataModel().getAllEntityList();
 		Collections.sort(this.entityList, new MyIEntityComparator());
 
@@ -264,7 +226,7 @@ public class WizardPatternPage extends WizardPage {
 			this.entityCombo.add(Utilities.getAttribute(imfe, "name"));
 		}
 
-		// * Patrón *
+		// * Pattern *
 		this.patternGroup = new Group(this.leftComposite, SWT.NONE);
 		FillLayout patternGroupLayout = new FillLayout(SWT.VERTICAL);
 		this.patternGroup.setLayout(patternGroupLayout);
@@ -278,28 +240,13 @@ public class WizardPatternPage extends WizardPage {
 			public void widgetSelected(SelectionEvent evt) {
 				try {
 					WizardPatternPage.this.patternSelectionListener();
-
-				} catch (CantOpenFileException e) {
-					ExceptionHandler.handle(e);
-				} catch (CantParseXmlFileException e) {
-					ExceptionHandler.handle(e);
-				} catch (NoIdException e) {
-					ExceptionHandler.handle(e);
-				} catch (IdNotUniqueException e) {
-					ExceptionHandler.handle(e);
-				} catch (NoSourceIdException e) {
-					ExceptionHandler.handle(e);
-				} catch (NoTargetIdException e) {
-					ExceptionHandler.handle(e);
-				} catch (MissingSectionException e) {
-					ExceptionHandler.handle(e);
 				} catch (Exception e) {
-					e.printStackTrace();
+					ExceptionHandler.handle(e);
 				}
 			}
 		});
 
-		// Obtengo la lista de patrones y relleno el Combo
+		// Get patterns list and fill the Combo
 		File folder = new File(this.PATTERNS_DIR);
 		if (!folder.exists())
 			throw new NoPatternsFolderFoundException(this.PATTERNS_DIR);
@@ -321,22 +268,39 @@ public class WizardPatternPage extends WizardPage {
 		}
 
 		// * Sv/Area *
-		this.svAreaGroup = new Group(this.leftComposite, SWT.NONE);
-		FillLayout svAreaGroupLayout = new FillLayout(SWT.HORIZONTAL);
-		this.svAreaGroup.setLayout(svAreaGroupLayout);
-		this.svAreaGroup.setText("SiteViews-Areas");
-		this.svAreaGroup.setVisible(true);
+		this.svAreasGroup = new Group(this.leftComposite, SWT.NONE);
+		this.svAreasGroup.setLayout(new FillLayout(SWT.HORIZONTAL));
+		this.svAreasGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		this.svAreasGroup.setText("Select SiteViews/Areas");
+		this.svAreasGroup.setVisible(true);
 
-		this.arbolSvAreas = new Tree(this.svAreaGroup, SWT.MULTI | SWT.CHECK | SWT.BORDER);
-
-		this.arbolSvAreas.addListener(SWT.Selection, new Listener() {
+		this.svAreasTree = new Tree(this.svAreasGroup, SWT.MULTI | SWT.CHECK | SWT.BORDER);
+		this.svAreasTree.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) { // Si el motivo de la seleccion ha sido el check
 				if (event.detail == SWT.CHECK) {
 					WizardPatternPage.this.getWizard().getContainer().updateButtons();
 				}
 			}
 		});
-		this.inicializarListaYarbol();
+		this.buildSvAreasTree(this.svAreasTree);
+	}
+
+	private void createRightComposite() {
+		// Inicializo el composite derecho donde van a ir los elementos
+		// dinámicos (dependiendo el patrón seleccionado)
+		this.rightComposite = new Composite(this.containerComposite, SWT.NONE);
+		FillLayout rightCompositeLayout = new FillLayout(SWT.HORIZONTAL);
+		rightCompositeLayout.marginHeight = 7;
+		rightCompositeLayout.marginWidth = 20;
+		this.rightComposite.setLayout(rightCompositeLayout);
+
+		FormData fData = new FormData();
+		fData.top = new FormAttachment(0);
+		fData.left = new FormAttachment(this.leftComposite);
+		fData.right = new FormAttachment(100);
+		fData.bottom = new FormAttachment(100);
+		this.rightComposite.setLayoutData(fData);
+		this.tabFolder = new TabFolder(this.rightComposite, SWT.NONE);
 	}
 
 	private void patternSelectionListener() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
@@ -346,8 +310,9 @@ public class WizardPatternPage extends WizardPage {
 
 		// elimino los elementos gráficos que se hayan generado por una
 		// selección previa:
-		for (Group group : this.rightGroupsList)
-			group.dispose();
+		for (TabItem tab : this.tabFolder.getItems()) {
+			tab.dispose();
+		}
 
 		this.listCombosRelations.clear();
 		String patternFileSelected = this.patternFileList.get(this.patternCombo.getSelectionIndex());
@@ -367,19 +332,17 @@ public class WizardPatternPage extends WizardPage {
 		for (Unit unit : this.units) {
 
 			if (unit instanceof CreateUnit || unit instanceof UpdateUnit) {
+				TabItem tabItem = new TabItem(this.tabFolder, SWT.NONE);
+				tabItem.setText("Relations");
 
-				this.relationsGroup = new Group(this.innerRightComposite, SWT.NONE);
-				FillLayout relationsGroupLayout = new FillLayout(SWT.HORIZONTAL);
-				relationsGroupLayout.marginHeight = 5;
-				this.relationsGroup.setLayout(relationsGroupLayout);
-				this.relationsGroup.setText("Relations");
+				this.relationsComposite = new Composite(this.tabFolder, SWT.NONE);
+				tabItem.setControl(this.relationsComposite);
+				this.relationsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-				this.rightGroupsList.add(this.relationsGroup);
-
-				this.tableRelations = new Table(this.relationsGroup, SWT.CHECK | SWT.V_SCROLL);
-				this.relationsGroup.addPaintListener(new PaintListener() {
+				this.tableRelations = new Table(this.relationsComposite, SWT.CHECK | SWT.V_SCROLL);
+				this.relationsComposite.addPaintListener(new PaintListener() {
 					public void paintControl(PaintEvent evt) {
-						WizardPatternPage.this.relationsGroupPaintControl(evt);
+						WizardPatternPage.this.relationsCompositePaintControl(evt);
 					}
 				});
 
@@ -395,22 +358,23 @@ public class WizardPatternPage extends WizardPage {
 			if (unit instanceof PowerIndexUnit || unit instanceof DataUnit) {
 				// Se crea una table con los atributos de la entidad
 				// Grupo
-				Group group = new Group(this.innerRightComposite, SWT.NONE);
-				GridLayout groupLayout = new GridLayout();
-				groupLayout.numColumns = 1;
-				group.setLayout(groupLayout);
-				group.setText(unit.getName());
+				TabItem tabItem = new TabItem(this.tabFolder, SWT.NONE);
+				tabItem.setText(unit.getName());
 
-				this.rightGroupsList.add(group);
+				Composite composite = new Composite(this.tabFolder, SWT.NONE);
+				tabItem.setControl(composite);
+				GridLayout compLayout = new GridLayout();
+				compLayout.numColumns = 1;
+				composite.setLayout(compLayout);
 
 				// Table
-				final Table table = new Table(group, SWT.CHECK | SWT.V_SCROLL);
+				final Table table = new Table(composite, SWT.CHECK | SWT.V_SCROLL);
 
 				GridData gridDataIndex = new GridData(SWT.FILL, SWT.FILL, true, true);
 				table.setLayoutData(gridDataIndex);
 
 				// boton select all y deselect all
-				Button buttonSelectPower = new Button(group, SWT.PUSH);
+				Button buttonSelectPower = new Button(composite, SWT.PUSH);
 				buttonSelectPower.setText("(Select/Deselect) All");
 				GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
 				gridDataButtonSelectPower.horizontalSpan = 1;
@@ -443,7 +407,7 @@ public class WizardPatternPage extends WizardPage {
 						}
 					}
 				});
-				group.setVisible(true);
+				composite.setVisible(true);
 				this.addAttributesToTable(table);
 
 				if (unit instanceof PowerIndexUnit)
@@ -478,73 +442,36 @@ public class WizardPatternPage extends WizardPage {
 		}
 	}
 
-	private void inicializarListaYarbol() {
-		List<ISiteView> listaSiteViewsPreviaPage = ProjectParameters.getWebModel().getSiteViewList();
+	private void buildSvAreasTree(Tree svAreasTree) {
+		List<ISiteView> listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
-		// Inicializa elementos del arbol para volver a version de siteView-areas creados
-		List<ObjStViewArea> listaSiteViewArea = new ArrayList<ObjStViewArea>();
-
-		this.arbolSvAreas.removeAll();
-		this.arbolSvAreas.clearAll(Boolean.TRUE);
-
-		if (null != listaSiteViewsPreviaPage && listaSiteViewsPreviaPage.size() > 0) {
-			for (ISiteView siteView : listaSiteViewsPreviaPage) {
+		if (null != listaSiteViews) {
+			for (ISiteView siteView : listaSiteViews) {
 				if (null != siteView) {
-					ObjStViewArea objStView = new ObjStViewArea();
-					objStView.setName(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
-					objStView.setType("STVIEW");
-					listaSiteViewArea.add(objStView);
+					TreeItem treeItem = new TreeItem(svAreasTree, 0);
 
-					TreeItem itemSiteView = new TreeItem(this.arbolSvAreas, 0);
+					treeItem.setText(Utilities.getDisplayName(siteView));
+					treeItem.setData(siteView);
 
-					itemSiteView.setText(Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")");
-					itemSiteView.setData(objStView);
-
-					if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
-						this.montarArbolAreas(itemSiteView, objStView, siteView.getAreaList());
-					}
+					this.buildAreasTree(treeItem, siteView.getAreaList());
 				}
 			}
 		}
-
-		this.arbolSvAreas.redraw();
 	}
 
-	/**
-	 * Para recorrer una lista de Areas y formar los nodos del padre
-	 * 
-	 * Nombre: montarArbol Funcion:
-	 * 
-	 * @param objPadre
-	 *            --> con esto voy ir aumentando el arbol
-	 * @param listaAreasPadre
-	 *            ---> cone esto voy a ir recorriendo la lista de Areas de cada SiteView, y areas de areas..
-	 */
-	private void montarArbolAreas(TreeItem itemPadreArbol, ObjStViewArea objPadreArbol, List<IArea> listaAreasPadreRecorrer) {
+	private void buildAreasTree(TreeItem parent, List<IArea> areaList) {
+		if (null != areaList && areaList.size() > 0) {
 
-		List<ObjStViewArea> listaAreaHijo = null;
-		if (null != listaAreasPadreRecorrer && listaAreasPadreRecorrer.size() > 0) {
-			listaAreaHijo = new ArrayList<ObjStViewArea>();
-			objPadreArbol.setChildList(listaAreaHijo);
-
-			for (IArea area : listaAreasPadreRecorrer) {
-
+			for (IArea area : areaList) {
 				if (null != area) {
-					ObjStViewArea objArea1 = new ObjStViewArea();
-					objArea1.setName(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
-					objArea1.setType("AREA");
-					listaAreaHijo.add(objArea1);
 
-					TreeItem itemHijo = new TreeItem(itemPadreArbol, 0);
-					itemHijo.setText(Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")");
-					itemHijo.setData(objArea1);
+					TreeItem child = new TreeItem(parent, 0);
+					child.setText(Utilities.getDisplayName(area));
+					child.setData(area);
 
-					this.arbolSvAreas.select(itemHijo);
-
-					this.montarArbolAreas(itemHijo, objArea1, area.getAreaList());
+					this.buildAreasTree(child, area.getAreaList());
 				}
 			}
-
 		}
 	}
 
@@ -563,33 +490,33 @@ public class WizardPatternPage extends WizardPage {
 		}
 	}
 
-	private void relationsGroupPaintControl(PaintEvent evt) {
-		int tamanio = (this.relationsGroup.getSize().x - 10) / 2;
+	private void relationsCompositePaintControl(PaintEvent evt) {
+		int size = (this.relationsComposite.getSize().x - 10) / 2;
 		TableColumn[] columns = this.tableRelations.getColumns();
 		for (int i = 0; i < 2; i++) {
-			columns[i].setWidth(tamanio);
+			columns[i].setWidth(size);
 		}
 	}
 
-	private void addRelationRolesToTable(Table tabla, List<CCombo> list) {
+	private void addRelationRolesToTable(Table table, List<CCombo> list) {
 		for (int i = 0; i < 2; i++) {
-			TableColumn column = new TableColumn(tabla, SWT.NONE);
-			column.setWidth(100);
+			TableColumn column = new TableColumn(table, SWT.NONE);
+			column.setWidth(150);
 		}
 		this.relatedEntities = this.getRelationshipRoles(this.entitySelected);
 		for (int i = 0; i < this.relatedEntities.size(); i++) {
-			new TableItem(tabla, SWT.NONE);
+			new TableItem(table, SWT.NONE);
 		}
-		TableItem[] items = tabla.getItems();
+		TableItem[] items = table.getItems();
 
 		for (int i = 0; i < items.length; i++) {
-			TableEditor editor = new TableEditor(tabla);
-			Text text = new Text(tabla, SWT.NONE);
+			TableEditor editor = new TableEditor(table);
+			Text text = new Text(table, SWT.NONE);
 			text.setText(Utilities.getAttribute(this.relatedEntities.get(i), "name"));
 			editor.grabHorizontal = true;
 			editor.setEditor(text, items[i], 0);
-			editor = new TableEditor(tabla);
-			CCombo combo = new CCombo(tabla, SWT.NONE);
+			editor = new TableEditor(table);
+			CCombo combo = new CCombo(table, SWT.NONE);
 			combo = this.addAtributesToCombo(combo, this.relatedEntities.get(i), editor);
 			combo.select(0);
 			// se a�ade posicion que ocupa el combo, sera igual a la del editor asociado a dicho combo
@@ -607,6 +534,7 @@ public class WizardPatternPage extends WizardPage {
 			editor.grabHorizontal = true;
 			editor.setEditor(combo, items[i], 1);
 		}
+		// table.pack();
 	}
 
 	private List<IRelationshipRole> getRelationshipRoles(IEntity entidad) {
@@ -664,162 +592,44 @@ public class WizardPatternPage extends WizardPage {
 		for (IAttribute atributo : atributos) {
 			texto = Utilities.getAttribute(atributo, "name") + " (" + Utilities.getAttribute(role, "name") + ")";
 			combo.add(Utilities.getAttribute(atributo, "name"));
-			this.atributosRelacion.put(texto, atributo);
+			this.relationAttributes.put(texto, atributo);
 		}
 
 		return combo;
 	}
 
-	public List<IMFElement> getSvAreasChecked() {
-		// obtener solamente los checkeados
+	public List<IMFElement> getSvAreasSelected() {
 
-		TreeItem[] arrSiteViewSelected = this.arbolSvAreas.getItems();
-
-		List<IMFElement> lista = new ArrayList<IMFElement>();
-		if (null != arrSiteViewSelected && arrSiteViewSelected.length > 0) {
-			for (int i = 0; i < arrSiteViewSelected.length; i++) {
-				if (arrSiteViewSelected[i].getChecked()) {
-					for (int j = 0; j < this.listaSiteViews.size(); j++) {
-						ISiteView siteView = this.listaSiteViews.get(j);
-
-						String valorCompleto = Utilities.getAttribute(siteView, "name") + " (" + siteView.getFinalId() + ")";
-						String valorNameMasEspacio = Utilities.getAttribute(siteView, "name") + " ";
-						if (arrSiteViewSelected[i].getText().compareTo(valorCompleto) == 0
-								|| valorNameMasEspacio.compareTo(arrSiteViewSelected[i].getText() + " ") == 0) {
-							lista.add(this.listaSiteViews.get(j));
-						}
-					}
+		List<IMFElement> list = new ArrayList<IMFElement>();
+		TreeItem[] svAreasArray = this.svAreasTree.getItems();
+		TreeItem treeItem;
+		if (null != svAreasArray && svAreasArray.length > 0) {
+			for (int i = 0; i < svAreasArray.length; i++) {
+				treeItem = svAreasArray[i];
+				if (treeItem.getChecked()) {
+					list.add((IMFElement) treeItem.getData());
 				}
+				this.getAreas(treeItem, list);
 			}
 		}
-		lista.addAll(this.getAreas());
 
-		return lista;
+		return list;
 	}
 
-	private List<IArea> getAreas() {
+	private void getAreas(TreeItem parent, List<IMFElement> list) {
 
-		List<IArea> lista = new ArrayList<IArea>();
-		Collection<TreeItem> retColItemSelEhijos = new ArrayList<TreeItem>();
+		TreeItem[] childsArray = parent.getItems();
+		if (null != childsArray && childsArray.length > 0) {
 
-		this.obtenerHijosCheckeados(retColItemSelEhijos, this.arbolSvAreas.getItems());
-
-		if (null != retColItemSelEhijos) {
-			for (TreeItem treeItem : retColItemSelEhijos) {
-
-				IArea area = this.buscarElementoArea(((ObjStViewArea) treeItem.getData()).getName());
-				if (null != area) {
-					lista.add(area);
+			TreeItem child;
+			for (int i = 0; i < childsArray.length; i++) {
+				child = childsArray[i];
+				if (child.getChecked()) {
+					list.add((IMFElement) child.getData());
 				}
+				this.getAreas(child, list);
 			}
 		}
-		return lista;
-
-	}
-
-	public IArea buscarElementoAreaRecursivo(List<IArea> listArea, String nombre) {
-
-		if (null != listArea && listArea.size() > 0) {
-			for (IArea area : listArea) {
-
-				String valorCompleto = Utilities.getAttribute(area, "name") + " (" + area.getFinalId() + ")";
-				// 2 (sv11)
-				if (nombre.compareTo(valorCompleto) == 0 || valorCompleto.startsWith(nombre + " ")) {
-					// if(nombre.contains(valor)){
-					return area;
-				} else {
-					if (null != area.getAreaList() && area.getAreaList().size() > 0) {
-						IArea areabuscar = this.buscarElementoAreaRecursivo(area.getAreaList(), nombre);
-						if (null != areabuscar) {
-							return areabuscar;
-						}
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * Nombre: buscarElementoArea Funcion:
-	 * 
-	 * @param nombre
-	 * @return
-	 */
-
-	public IArea buscarElementoArea(String nombre) {
-
-		IArea areaEnc = null;
-		for (int j = 0; j < this.listaSiteViews.size(); j++) {
-			ISiteView siteView = this.listaSiteViews.get(j);
-
-			if (null != siteView.getAreaList() && siteView.getAreaList().size() > 0) {
-
-				areaEnc = this.buscarElementoAreaRecursivo(siteView.getAreaList(), nombre);
-				if (null != areaEnc) {
-					return areaEnc;
-				}
-			}
-
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * Nombre: obtenerHijosCheckeados Funcion:
-	 * 
-	 * @param retColItemSelEhijos
-	 * @param arrItemRecorrer
-	 */
-	private void obtenerHijosCheckeados(Collection<TreeItem> retColItemSelEhijos, TreeItem[] arrItemRecorrer) {
-
-		if (null != arrItemRecorrer && arrItemRecorrer.length > 0) {
-
-			for (int i = 0; i < arrItemRecorrer.length; i++) {
-				// primero selecciona que el nodo este checkeado
-				if (null != arrItemRecorrer[i]) {
-					if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getType().equals("STVIEW")
-							&& null != arrItemRecorrer[i].getItems()) {
-						this.obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
-					} else {
-
-						// segundo comprueba si es de tipo area y no tiene hijos
-						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getType().equals("AREA")
-								&& null == arrItemRecorrer[i].getItems() && arrItemRecorrer[i].getChecked()) {
-
-							retColItemSelEhijos.add(arrItemRecorrer[i]);
-
-						}
-
-						// tercero comprueba si es de tipo area y ninguno de sus
-						// hijos siguientes tiene checkeado
-						if (null != arrItemRecorrer[i].getData() && ((ObjStViewArea) arrItemRecorrer[i].getData()).getType().equals("AREA")
-								&& null != arrItemRecorrer[i].getItems() && arrItemRecorrer[i].getChecked()) {
-
-							int contador = 0;
-							for (int j = 0; j < arrItemRecorrer[i].getItems().length; j++) {
-								if (null != arrItemRecorrer[i].getItems()[j] && arrItemRecorrer[i].getItems()[j].getChecked()) {
-									contador++;
-									this.obtenerHijosCheckeados(retColItemSelEhijos, arrItemRecorrer[i].getItems());
-									break;
-								}
-							}
-
-							if (contador == 0) {
-								retColItemSelEhijos.add(arrItemRecorrer[i]);
-							}
-
-						}
-					}
-
-				}
-
-			}
-
-		}
-
 	}
 
 	public Map<IRelationshipRole, IAttribute> getRelationshipsSelected() {
@@ -831,7 +641,7 @@ public class WizardPatternPage extends WizardPage {
 					// this.tableIndexCreate.getItems()[i].checked
 					key = this.listCombosRelations.get(i).getItem(this.listCombosRelations.get(i).getSelectionIndex()) + " ("
 							+ Utilities.getAttribute(this.relatedEntities.get(i), "name") + ")";
-					mapaRelaciones.put(this.relatedEntities.get(i), this.atributosRelacion.get(key));
+					mapaRelaciones.put(this.relatedEntities.get(i), this.relationAttributes.get(key));
 				}
 			}
 		} catch (Exception e) {

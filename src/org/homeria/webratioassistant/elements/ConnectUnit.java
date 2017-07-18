@@ -5,9 +5,9 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewUnit;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
@@ -30,8 +30,10 @@ public class ConnectUnit extends UnitOutsidePage {
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		String idRole = Utilities.getAttribute(this.role, "id");
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.CONNECT_UNIT, this.position.x, this.position.y, this.name, this.entity);
-		IMFElement connectUnit = evento.execute();
+		WebRatioCalls newUnitWRCall = new NewUnit(this.parent, ElementTypes.CONNECT_UNIT, this.position.x, this.position.y, this.name,
+				this.entity);
+		IMFElement connectUnit = newUnitWRCall.execute();
+
 		Utilities.setAttribute(connectUnit, "relationship", idRole);
 		return connectUnit;
 	}

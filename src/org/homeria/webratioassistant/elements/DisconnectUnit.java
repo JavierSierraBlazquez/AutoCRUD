@@ -21,9 +21,9 @@ public class DisconnectUnit extends UnitOutsidePage {
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		String idRole = Utilities.getAttribute(this.role, "id");
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.DISCONNECT_UNIT, this.position.x, this.position.y, this.name,
+		WebRatioCalls newUnitWRCall = new NewUnit(this.parent, ElementTypes.DISCONNECT_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
-		IMFElement disconnectUnit = evento.execute();
+		IMFElement disconnectUnit = newUnitWRCall.execute();
 		Utilities.setAttribute(disconnectUnit, "relationship", idRole);
 
 		return disconnectUnit;

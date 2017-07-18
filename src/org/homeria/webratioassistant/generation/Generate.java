@@ -107,18 +107,22 @@ public final class Generate {
 	}
 
 	public boolean next() throws TransformerException {
-		if (this.allElemPreprocessed.isEmpty()){
+		if (this.allElemPreprocessed.isEmpty()) {
 			// End
 			Registry.getInstance().saveToFile();
 			return false;
 
-		}else {
+		} else {
 			WebRatioElement element = this.allElemPreprocessed.poll();
 
 			if (element instanceof Page) {
 				IMFElement parentElement = ((Page) element).getParent();
 
-				if (this.currentParent != parentElement && (parentElement instanceof ISiteView || parentElement instanceof IArea)) {
+				if (parentElement instanceof IArea)
+					while (!(parentElement instanceof ISiteView))
+						parentElement = parentElement.getParentElement();
+				
+				if (this.currentParent != parentElement && (parentElement instanceof ISiteView)) {
 					this.createdElements = new HashMap<String, IMFElement>();
 					this.currentParent = parentElement;
 

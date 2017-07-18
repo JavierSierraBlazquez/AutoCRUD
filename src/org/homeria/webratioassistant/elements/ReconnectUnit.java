@@ -2,9 +2,9 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewUnit;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
@@ -21,14 +21,13 @@ public class ReconnectUnit extends UnitOutsidePage {
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		String idRole = Utilities.getAttribute(this.role, "id");
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.RECONNECT_UNIT, this.position.x, this.position.y, this.name,
+		WebRatioCalls newUnitWRCall = new NewUnit(this.parent, ElementTypes.RECONNECT_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
-		IMFElement reconnectUnit = evento.execute();
+		IMFElement reconnectUnit = newUnitWRCall.execute();
 		Utilities.setAttribute(reconnectUnit, "relationship", idRole);
 
 		return reconnectUnit;
 	}
-
 
 	@Override
 	public WebRatioElement getCopy() {

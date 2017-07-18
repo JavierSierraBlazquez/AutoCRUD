@@ -5,10 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewLink;
 import org.homeria.webratioassistant.webratio.ProjectParameters;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
@@ -47,14 +47,14 @@ public class NormalNavigationFlow extends Link {
 		WebRatioCalls evento = new NewLink(this.name, source, target, "normal");
 		IMFElement link = evento.execute();
 
-		if (this.type.equals(ElementType.FLOW_ENTRY_TO_CREATE) || this.type.equals(ElementType.FLOW_ENTRY_TO_UPDATE)) {
+		if (this.type.equals(ElementTypes.FLOW_ENTRY_TO_CREATE) || this.type.equals(ElementTypes.FLOW_ENTRY_TO_UPDATE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingEntryToCreateModify(source, target, link, this.entity, this.relshipsSelected);
 
-		} else if (this.type.equals(ElementType.NORMALFLOW_FIXED_VALUE)) {
+		} else if (this.type.equals(ElementTypes.NORMALFLOW_FIXED_VALUE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingFixedValue(this.entity, target, link, String.valueOf(0));
-		} else if (this.type.equals(ElementType.NORMALFLOW_IS_NOT_NULL)) {
+		} else if (this.type.equals(ElementTypes.NORMALFLOW_IS_NOT_NULL)) {
 			IMFElement oidField = ProjectParameters.entryKeyfieldMap.get(source);
 
 			this.putCoupling(oidField, (IOperationUnit) target, "isnotnull", link);
@@ -70,96 +70,76 @@ public class NormalNavigationFlow extends Link {
 	 * Parameter de Link desde origen a destino para una keycondition en la cual en el mapeo el origen va a ser un valor fijo.
 	 * 
 	 */
-	private void guessCouplingFixedValue(IEntity entidadOrigen, IMFElement destino, IMFElement link, String valor) {
+	private void guessCouplingFixedValue(IEntity sourceEntity, IMFElement target, IMFElement link, String value) {
 
-		// Uso para keyCondition
+		// Use to keyCondition:
 
 		// <Link id="ln3" name="New Town" to="seu1" type="normal" validate="true">
 		// <LinkParameter id="par21" name="0_KeyCondition3 [oid]" sourceValue="0" target="kcond3.att2"/>
 		// </Link>
 
-		// Variables
-		// ISubUnit field;
-		IAttribute atributo;
-		String nombreCampo;
-		// String tipoCampo;
+		IAttribute attribute;
+		String fieldName;
 		IMFElement linkParameter;
 		String keyAtributo;
 
 		try {
-			// Obtener lista Atributos de la entidad origen
-			List<IAttribute> listaAtributos = entidadOrigen.getAllAttributeList();
+			// Get list of source entity attributes
+			List<IAttribute> attList = sourceEntity.getAllAttributeList();
 
-			// Generar mapas para las listas de campos y atributos
-			Map<String, IAttribute> mapaAtributos = new HashMap<String, IAttribute>();
+			// Generate map for the lists of fields and attributes
+			Map<String, IAttribute> attMap = new HashMap<String, IAttribute>();
 
-			// Iniciar los hashMa
-			for (Iterator<IAttribute> iter = listaAtributos.iterator(); iter.hasNext();) {
-				atributo = iter.next();
+			for (Iterator<IAttribute> iter = attList.iterator(); iter.hasNext();) {
+				attribute = iter.next();
 
-				keyAtributo = Utilities.getAttribute(atributo, "key");
+				keyAtributo = Utilities.getAttribute(attribute, "key");
 				if (keyAtributo.equals("true")) {
-					mapaAtributos.put(Utilities.getAttribute(atributo, "name"), atributo);
+					attMap.put(Utilities.getAttribute(attribute, "name"), attribute);
 				}
 			}
 
-			if (null != mapaAtributos && mapaAtributos.size() > 0) {
-				// Recorremos todos los campos
-				for (Iterator<String> iter = mapaAtributos.keySet().iterator(); iter.hasNext();) {
-					nombreCampo = iter.next();
-					atributo = mapaAtributos.get(nombreCampo);
-					// Si nos retorna un atributo es un coupling por atributo
-					if (atributo != null) {
-						keyAtributo = Utilities.getAttribute(atributo, "key");
+			if (null != attMap && attMap.size() > 0) {
+				for (Iterator<String> iter = attMap.keySet().iterator(); iter.hasNext();) {
+					fieldName = iter.next();
+					attribute = attMap.get(fieldName);
+					// If it returns an attribute is a coupling by attribute
+					if (attribute != null) {
+						keyAtributo = Utilities.getAttribute(attribute, "key");
 						if (keyAtributo.equals("true")) {
-							linkParameter = this.createParameterField2AttValor(atributo, destino, valor, link, true);
+							linkParameter = this.createParameterField2AttValor(attribute, target, value, link, true);
 							((MFElement) link).addChild(linkParameter, null);
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			// captura excepcion ya que esto solo es para a�adir un linkParameter a un parameter
+			// nothing to do, its only a linkParameter
 		}
 	}
 
-	/**
-	 * 
-	 * Nombre: createParameterField2AttCarlos Funcion:
-	 * 
-	 * @param atributo
-	 * @param unidadDestino
-	 * @param valor
-	 * @param link
-	 * @param key
-	 * @return
-	 */
-	private IMFElement createParameterField2AttValor(IAttribute atributo, IMFElement unidadDestino, String valor, IMFElement link,
-			boolean key) {
+	private IMFElement createParameterField2AttValor(IAttribute attribute, IMFElement targetUnit, String value, IMFElement link, boolean key) {
 
 		IMFElement linkParameter;
-		String idAtributo = Utilities.getAttribute(atributo, "id");
+		String idAtt = Utilities.getAttribute(attribute, "id");
 
 		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
-		// Si no es de tipo key (para relacionar el oid) se hace igual que la
-		// funcion anterior.
+		// If it is not of type key (to relate the oid) it is done just like the previous function.
 		if (key) {
-			// Si se relaciona con un oid se necesita la keyCondition del
-			// elemento
-			// para crear el parametro del link, además de cambiar el formato
-			// del nombre
-			IMFElement keyCondition = unidadDestino.selectSingleElement("Selector").selectSingleElement("KeyCondition");
+			// If it is related to an oid you need the keyCondition of the element to create the parameter of the link, besides changing the
+			// format of the name
+			IMFElement keyCondition = targetUnit.selectSingleElement("Selector").selectSingleElement("KeyCondition");
 			String nameKey = Utilities.getAttribute(keyCondition, "name");
 
-			new SetAttributeMFOperation(linkParameter, "name", valor + "_" + nameKey + " [oid]", link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "name", value + "_" + nameKey + " [oid]", link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "sourceValue", valor, link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "sourceValue", value, link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(keyCondition.getIdsByFinalId().toString()) + "."
-					+ idAtributo, link.getRootElement()).execute();
+			new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(keyCondition.getIdsByFinalId().toString()) + "." + idAtt,
+					link.getRootElement()).execute();
 
 		}
 		return linkParameter;
@@ -170,27 +150,27 @@ public class NormalNavigationFlow extends Link {
 	 * 
 	 * @param oidField
 	 *            : campo del formulario/entidad que se usa para el copling
-	 * @param destino
+	 * @param target
 	 *            : unidad de destino (isNotNullUnit)
 	 * @param tipo
 	 *            : tipo de coupling (por ejemplo isnotnull)
 	 * @param link
 	 *            : link en el que se crea el coupling
 	 */
-	private void putCoupling(IMFElement oidField, IUnit destino, String tipo, IMFElement link) {
-		// Se elimina el automaticCoupling del link, para hacerlo manual
+	private void putCoupling(IMFElement oidField, IUnit target, String tipo, IMFElement link) {
+		// The automaticCoupling of the link is removed, to do it manually
 		Utilities.setAttribute(link, "automaticCoupling", null);
-		String nombre = Utilities.getAttribute(oidField, "name").toLowerCase();
+		String name = Utilities.getAttribute(oidField, "name").toLowerCase();
 
 		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
-		new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nombre, link.getRootElement()).execute();
+		new SetAttributeMFOperation(linkParameter, "name", name + "_" + name, link.getRootElement()).execute();
 
 		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(oidField.getIdsByFinalId().toString()), link.getRootElement())
 				.execute();
-		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(destino.getIdsByFinalId().toString()) + "." + tipo,
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(target.getIdsByFinalId().toString()) + "." + tipo,
 				link.getRootElement()).execute();
 
 		((MFElement) link).addChild(linkParameter, null);

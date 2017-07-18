@@ -3,10 +3,10 @@ package org.homeria.webratioassistant.elements;
 import java.util.Map;
 
 import org.eclipse.draw2d.geometry.Point;
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewSelector;
 import org.homeria.webratioassistant.webratio.NewUnit;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
@@ -41,18 +41,19 @@ public class SelectorUnit extends UnitOutsidePage {
 		else
 			parent = createdElements.get(this.parentId);
 
-		WebRatioCalls evento = new NewUnit(parent, ElementType.SELECTOR_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		WebRatioCalls newUnitWRCall = new NewUnit(parent, ElementTypes.SELECTOR_UNIT, this.position.x, this.position.y, this.name,
+				this.entity);
 
-		IMFElement selector = evento.execute();
+		IMFElement selector = newUnitWRCall.execute();
 
-		if (this.type.equals(ElementType.SELECTOR_KEYCONDITION)) {
-			WebRatioCalls eventoAddKey = new NewSelector(selector, "KeyCondition");
-			eventoAddKey.execute();
+		if (this.type.equals(ElementTypes.SELECTOR_KEYCONDITION)) {
+			WebRatioCalls addKeyWRCall = new NewSelector(selector, "KeyCondition");
+			addKeyWRCall.execute();
 
-		} else if (this.type.equals(ElementType.SELECTOR_ROLECONDITION)) {
-			WebRatioCalls eventoAddRole = new NewSelector(selector, "RelationshipRoleCondition");
+		} else if (this.type.equals(ElementTypes.SELECTOR_ROLECONDITION)) {
+			WebRatioCalls addRoleWRCall = new NewSelector(selector, "RelationshipRoleCondition");
 
-			IMFElement roleCondition = eventoAddRole.execute();
+			IMFElement roleCondition = addRoleWRCall.execute();
 			String idRole = Utilities.getAttribute(this.role, "id");
 			Utilities.setAttribute(roleCondition, "role", idRole);
 		}

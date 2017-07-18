@@ -2,8 +2,8 @@ package org.homeria.webratioassistant.elements;
 
 import java.util.Map;
 
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewUnit;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IEntity;
@@ -23,8 +23,8 @@ public class CreateUnit extends UnitOutsidePage {
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.CREATE_UNIT, this.position.x, this.position.y, this.name, this.entity);
-		return evento.execute();
+		WebRatioCalls newUnitWRCall = new NewUnit(this.parent, ElementTypes.CREATE_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		return newUnitWRCall.execute();
 	}
 	
 	@Override

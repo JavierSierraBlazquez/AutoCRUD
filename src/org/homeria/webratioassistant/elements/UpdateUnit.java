@@ -16,7 +16,7 @@ public class UpdateUnit extends UnitOutsidePage {
 
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.MODIFY_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		WebRatioCalls evento = new NewUnit(this.parent, ElementTypes.MODIFY_UNIT, this.position.x, this.position.y, this.name, this.entity);
 		return evento.execute();
 	}
 

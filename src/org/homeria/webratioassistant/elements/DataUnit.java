@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.Table;
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewUnit;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IAttribute;
@@ -33,10 +33,10 @@ public class DataUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		WebRatioCalls evento = new NewUnit(parent, ElementType.DATA_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		WebRatioCalls newUnitWRCall = new NewUnit(parent, ElementTypes.DATA_UNIT, this.position.x, this.position.y, this.name, this.entity);
 
-		IMFElement dataUnit = evento.execute();
-		// Se añaden los atributos
+		IMFElement dataUnit = newUnitWRCall.execute();
+
 		Utilities.setAttribute(dataUnit, "displayAttributes", this.selectedAttributes);
 		return dataUnit;
 	}
@@ -54,31 +54,32 @@ public class DataUnit extends Unit {
 				itemsCheckedList.add(entityList.get(i));
 		}
 
-		// Transformo los atributos a cadena de texto:
-		boolean entidadWR = false;
-		String tipoEntidad = Utilities.getAttribute(this.entity, "id");
-		if (tipoEntidad.equals("User") || tipoEntidad.equals("Group") || tipoEntidad.equals("Module"))
-			entidadWR = true;
+		// Transform the attributes to string
+		boolean webRatioEntity = false;
+		String entityType = Utilities.getAttribute(this.entity, "id");
+		if (entityType.equals("User") || entityType.equals("Group") || entityType.equals("Module"))
+			webRatioEntity = true;
 
-		String atributos = "";
-		for (IAttribute atributo : itemsCheckedList) {
-			if (!entidadWR) {
-				// Si no es propia de webratio se general con el formato ent1#att1
-				atributos = atributos + this.entity.getFinalId() + "#" + atributo.getFinalId() + " ";
+		String attributes = "";
+		for (IAttribute att : itemsCheckedList) {
+			if (!webRatioEntity) {
+				// If it is not own webratio it is generated with the format ent1 # att1
+				attributes = attributes + this.entity.getFinalId() + "#" + att.getFinalId() + " ";
 			} else {
-				atributos = atributos + atributo.getFinalId() + " ";
+				attributes = attributes + att.getFinalId() + " ";
 			}
 		}
-		if (atributos.length() != 0)
-			// Formateamos correctamente la cadena eliminando el espacio en blanco final
-			atributos = atributos.substring(0, atributos.length() - 1);
+		if (attributes.length() != 0)
+			// We format the string correctly by removing the final white space
+			attributes = attributes.substring(0, attributes.length() - 1);
 
-		return atributos;
+		return attributes;
 	}
 
 	@Override
 	public WebRatioElement getCopy() {
-		return new DataUnit(this.id, this.name, this.parentId, String.valueOf(this.position.x), String.valueOf(this.position.y), this.entity);
+		return new DataUnit(this.id, this.name, this.parentId, String.valueOf(this.position.x), String.valueOf(this.position.y),
+				this.entity);
 	}
 
 }

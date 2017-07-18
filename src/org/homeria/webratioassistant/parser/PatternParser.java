@@ -19,7 +19,7 @@ import org.homeria.webratioassistant.elements.DataFlow;
 import org.homeria.webratioassistant.elements.DataUnit;
 import org.homeria.webratioassistant.elements.DeleteUnit;
 import org.homeria.webratioassistant.elements.DisconnectUnit;
-import org.homeria.webratioassistant.elements.ElementType;
+import org.homeria.webratioassistant.elements.ElementTypes;
 import org.homeria.webratioassistant.elements.EntryUnit;
 import org.homeria.webratioassistant.elements.IsNotNullUnit;
 import org.homeria.webratioassistant.elements.KOLink;
@@ -206,11 +206,11 @@ public class PatternParser {
 	private void parsePage(Element page, String parentId) throws NoIdException, IdNotUniqueException, NoSourceIdException,
 			NoTargetIdException {
 		this.validateAttributes(page, PAGES_SECTION);
-		if (page.getTagName().equals(ElementType.PAGE))
+		if (page.getTagName().equals(ElementTypes.PAGE))
 			this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("default"), page
 					.getAttribute("landmark"), page.getAttribute("x"), page.getAttribute("y")));
 
-		else if (page.getTagName().equals(ElementType.XOR_PAGE))
+		else if (page.getTagName().equals(ElementTypes.XOR_PAGE))
 			this.pages.add(new XOR(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("x"), page
 					.getAttribute("y")));
 
@@ -221,7 +221,7 @@ public class PatternParser {
 			if (nodeElement instanceof Element) {
 
 				Element element = (Element) nodeElement;
-				if (element.getTagName().equals(ElementType.PAGE) || element.getTagName().equals(ElementType.XOR_PAGE))
+				if (element.getTagName().equals(ElementTypes.PAGE) || element.getTagName().equals(ElementTypes.XOR_PAGE))
 					this.parsePage(element, page.getAttribute("id"));
 				else {
 					this.validateAttributes(element, PAGES_SECTION);
@@ -475,60 +475,60 @@ public class PatternParser {
 	private void createElement(Element xmlUnit, IEntity entity) {
 		String nodeName = xmlUnit.getNodeName();
 
-		if (nodeName.equals(ElementType.POWER_INDEX_UNIT)) {
+		if (nodeName.equals(ElementTypes.POWER_INDEX_UNIT)) {
 			this.units.add(new PowerIndexUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
 					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.DATA_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.DATA_UNIT)) {
 			this.units.add(new DataUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"), xmlUnit
 					.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.MULTI_MESSAGE_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.MULTI_MESSAGE_UNIT)) {
 			this.units.add(new MultiMessageUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
 					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y")));
 
-		} else if (nodeName.equals(ElementType.ENTRY_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.ENTRY_UNIT)) {
 			this.units.add(new EntryUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
 					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.SELECTOR_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.SELECTOR_UNIT)) {
 			this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
 					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.NO_OP_CONTENT_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.NO_OP_CONTENT_UNIT)) {
 			this.units.add(new NoOpContentUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
 					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.IS_NOT_NULL_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.IS_NOT_NULL_UNIT)) {
 			this.units.add(new IsNotNullUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
 					.getAttribute("y"), null));
 
-		} else if (nodeName.equals(ElementType.CREATE_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.CREATE_UNIT)) {
 			this.units.add(new CreateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
 					.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.DELETE_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.DELETE_UNIT)) {
 			this.units.add(new DeleteUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
 					.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.UPDATE_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.UPDATE_UNIT)) {
 			this.units.add(new UpdateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
 					.getAttribute("y"), entity));
 
-		} else if (nodeName.equals(ElementType.NORMAL_NAVIGATION_FLOW)) {
+		} else if (nodeName.equals(ElementTypes.NORMAL_NAVIGATION_FLOW)) {
 			this.links.add(new NormalNavigationFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
 					.getAttribute("sourceId"), xmlUnit.getAttribute("targetId"), xmlUnit.getAttribute("type"), xmlUnit
 					.getAttribute("validate"), entity));
 
-		} else if (nodeName.equals(ElementType.DATA_FLOW)) {
+		} else if (nodeName.equals(ElementTypes.DATA_FLOW)) {
 			this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
 					.getAttribute("targetId"), xmlUnit.getAttribute("type"), entity));
 
-		} else if (nodeName.equals(ElementType.OK_LINK)) {
+		} else if (nodeName.equals(ElementTypes.OK_LINK)) {
 			this.links.add(new OKLink(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
 					.getAttribute("targetId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("message")));
 
-		} else if (nodeName.equals(ElementType.KO_LINK)) {
+		} else if (nodeName.equals(ElementTypes.KO_LINK)) {
 			this.links.add(new KOLink(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
 					.getAttribute("targetId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("message")));
 
@@ -540,23 +540,23 @@ public class PatternParser {
 		String nodeName = xmlUnit.getNodeName();
 		boolean created = false;
 
-		if (nodeName.equals(ElementType.DATA_FLOW)) {
+		if (nodeName.equals(ElementTypes.DATA_FLOW)) {
 			created = this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
 					.getAttribute("sourceId"), xmlUnit.getAttribute("targetId"), xmlUnit.getAttribute("type"), this.entity, role));
 
-		} else if (nodeName.equals(ElementType.CONNECT_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.CONNECT_UNIT)) {
 			created = this.units.add(new ConnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
 					xmlUnit.getAttribute("y"), this.entity, role));
 
-		} else if (nodeName.equals(ElementType.DISCONNECT_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.DISCONNECT_UNIT)) {
 			created = this.units.add(new DisconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"),
 					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this.entity, role));
 
-		} else if (nodeName.equals(ElementType.RECONNECT_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.RECONNECT_UNIT)) {
 			created = this.units.add(new ReconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
 					xmlUnit.getAttribute("y"), this.entity, role));
 
-		} else if (nodeName.equals(ElementType.SELECTOR_UNIT)) {
+		} else if (nodeName.equals(ElementTypes.SELECTOR_UNIT)) {
 			created = this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
 					.getAttribute("parentId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this
 					.getTargetEntity(role), role));
@@ -615,7 +615,7 @@ public class PatternParser {
 		// COORDINATES AND SOURCE/TARGET (LINK) VALIDATION SECTION
 		List<String> linkTypes = new ArrayList<String>();
 		linkTypes
-				.addAll(Arrays.asList(ElementType.NORMAL_NAVIGATION_FLOW, ElementType.DATA_FLOW, ElementType.OK_LINK, ElementType.KO_LINK));
+				.addAll(Arrays.asList(ElementTypes.NORMAL_NAVIGATION_FLOW, ElementTypes.DATA_FLOW, ElementTypes.OK_LINK, ElementTypes.KO_LINK));
 
 		String tagName = element.getTagName();
 		if (linkTypes.contains(element.getTagName())) {

@@ -20,8 +20,8 @@ public class XOR extends WebRatioElement {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		WebRatioCalls evento = new NewAlternative(parent, this.position.x, this.position.y, this.name);
-		return evento.execute();
+		WebRatioCalls newAlternWRCall = new NewAlternative(parent, this.position.x, this.position.y, this.name);
+		return newAlternWRCall.execute();
 	}
 
 	@Override

@@ -5,10 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.homeria.webratioassistant.webratio.WebRatioCalls;
 import org.homeria.webratioassistant.webratio.NewLink;
 import org.homeria.webratioassistant.webratio.ProjectParameters;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.homeria.webratioassistant.webratio.WebRatioCalls;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
@@ -49,26 +49,26 @@ public class DataFlow extends Link {
 		IMFElement source = createdElements.get(this.sourceId);
 		IMFElement target = createdElements.get(this.targetId);
 
-		WebRatioCalls evento = new NewLink(this.name, source, target, "transport");
-		IMFElement link = evento.execute();
+		WebRatioCalls newUnitWRCall = new NewLink(this.name, source, target, "transport");
+		IMFElement link = newUnitWRCall.execute();
 
-		if (this.type.equals(ElementType.DATAFLOW_PRELOAD)) {
+		if (this.type.equals(ElementTypes.DATAFLOW_PRELOAD)) {
 			this.removeAutomaticCoupling(link);
 			this.putPreload(target, this.role, link);
 
-		} else if (this.type.equals(ElementType.DATAFLOW_ENTRY_TO_CONNECT) || this.type.equals(ElementType.DATAFLOW_ENTRY_TO_RECONNECT)) {
+		} else if (this.type.equals(ElementTypes.DATAFLOW_ENTRY_TO_CONNECT) || this.type.equals(ElementTypes.DATAFLOW_ENTRY_TO_RECONNECT)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingEntryToConnect(source, target, this.getTargetEntity(this.role), this.role, link);
 
-		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY)) {
+		} else if (this.type.equals(ElementTypes.DATAFLOW_UNIT_TO_ENTRY)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingUnitToEntry(source, target, this.entity, link);
 
-		} else if (this.type.equals(ElementType.DATAFLOW_UNIT_TO_ENTRY_ROLE)) {
+		} else if (this.type.equals(ElementTypes.DATAFLOW_UNIT_TO_ENTRY_ROLE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingUnitToEntry(source, target, this.entity, link, this.role);
 
-		} else if (this.type.equals(ElementType.FLOW_ENTRY_TO_CREATE)) {
+		} else if (this.type.equals(ElementTypes.FLOW_ENTRY_TO_CREATE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingEntryToCreateModify(source, target, link, this.entity, this.relshipsSelected);
 		}
@@ -86,27 +86,27 @@ public class DataFlow extends Link {
 	 * @param link
 	 */
 	private void putPreload(IMFElement destino, IRelationshipRole role, IMFElement link) {
-		IEntity entidadOrigen = this.getTargetEntity(role);
-		IAttribute atributoSeleccion = this.relshipsSelected.get(role);
+		IEntity sourceEntity = this.getTargetEntity(role);
+		IAttribute selectAtt = this.relshipsSelected.get(role);
 		ISubUnit field;
-		String nombreCampo;
-		List<ISubUnit> listaFields = ((IUnit) destino).getSubUnitList();
-		String nombreRole = Utilities.getAttribute(role, "name");
-		IEntity entidadPreload = this.getTargetEntity(role);
-		List<IAttribute> listaAt = entidadPreload.getAllAttributeList();
-		IAttribute atributo = null;
-		for (int i = 0; i < listaAt.size(); i++) {
-			if (Utilities.getAttribute(listaAt.get(i), "key").equals("true")) {
-				atributo = listaAt.get(i);
+		String fieldName;
+		List<ISubUnit> fieldList = ((IUnit) destino).getSubUnitList();
+		String roleName = Utilities.getAttribute(role, "name");
+		IEntity entityPreload = this.getTargetEntity(role);
+		List<IAttribute> attList = entityPreload.getAllAttributeList();
+		IAttribute attribute = null;
+		for (int i = 0; i < attList.size(); i++) {
+			if (Utilities.getAttribute(attList.get(i), "key").equals("true")) {
+				attribute = attList.get(i);
 				break;
 			}
 		}
 
-		for (Iterator<ISubUnit> iter = listaFields.iterator(); iter.hasNext();) {
+		for (Iterator<ISubUnit> iter = fieldList.iterator(); iter.hasNext();) {
 			field = iter.next();
-			nombreCampo = Utilities.getAttribute(field, "name");
-			if (nombreCampo.equals(nombreRole)) {
-				this.createParameterPreload(atributo, field, atributoSeleccion, link, entidadOrigen);
+			fieldName = Utilities.getAttribute(field, "name");
+			if (fieldName.equals(roleName)) {
+				this.createParameterPreload(attribute, field, selectAtt, link, sourceEntity);
 				break;
 			}
 		}
@@ -131,7 +131,7 @@ public class DataFlow extends Link {
 	/**
 	 * Nombre: createParameter Funcion: Añade un parametro a un link, para conectar un atributo con un campo de formulario
 	 * 
-	 * @param atributo
+	 * @param attribute
 	 *            : atributo que queremos conectar
 	 * @param subUnit
 	 *            : campo del formulario que queremos conectar
@@ -139,22 +139,22 @@ public class DataFlow extends Link {
 	 *            : link que contendrá el parametro
 	 * @return: el parametro creado
 	 */
-	private IMFElement createParameter(IAttribute atributo, ISubUnit subUnit, IMFElement link) {
+	private IMFElement createParameter(IAttribute attribute, ISubUnit subUnit, IMFElement link) {
 		IMFElement linkParameter;
 		IMFElement field = subUnit;
-		String nombre = Utilities.getAttribute(field, "name");
-		// Creamos un linkParameter con los datos necesarios
+		String name = Utilities.getAttribute(field, "name");
+		// We create a linkParameter with the necessary data
 		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
-		// Id: se forma de las id del link más las id de los elementos
+		// Id: form of the id of the link plus the id of the elements
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
-		// Nombre: se forma con el nombre del field
-		new SetAttributeMFOperation(linkParameter, "name", nombre + "_" + nombre, link.getRootElement()).execute();
-		// Origen: con los datos del atributo
-		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array",
+		// Name: is formed with the name of the field
+		new SetAttributeMFOperation(linkParameter, "name", name + "_" + name, link.getRootElement()).execute();
+		// Source: with attribute data
+		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(attribute.getIdsByFinalId().toString()) + "Array",
 				link.getRootElement()).execute();
-		// Destino: se crea con los campos del field del formulario
+		// Target: created with form field fields
 		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(field.getIdsByFinalId().toString()) + "_slot",
 				link.getRootElement()).execute();
 
@@ -164,27 +164,26 @@ public class DataFlow extends Link {
 	/**
 	 * Nombre: createParameterPreload Funcion: Crea un parametro en un link para poder hacer el preload de atributos
 	 * 
-	 * @param atributo
+	 * @param attribute
 	 *            : atributo que queremos relacionar
 	 * @param field
 	 *            : campo que queremos precargar
-	 * @param atributoSeleccion
+	 * @param selectAtt
 	 *            : atributo necesario para obtener el nombre del source
 	 * @param link
 	 *            : link que contendrá el paramtro
-	 * @param entidadOrigen
+	 * @param sourceEntity
 	 *            : entidad de la que proceden los atributos
 	 */
-	private void createParameterPreload(IAttribute atributo, ISubUnit field, IAttribute atributoSeleccion, IMFElement link,
-			IEntity entidadOrigen) {
+	private void createParameterPreload(IAttribute attribute, ISubUnit field, IAttribute selectAtt, IMFElement link, IEntity sourceEntity) {
 		IMFElement linkParameter;
-		IEntity padre = entidadOrigen;
+		IEntity padre = sourceEntity;
 
 		String id = this.cleanIds(link.getIdsByFinalId().toString());
-		String source_label = this.cleanIds(atributoSeleccion.getIdsByFinalId().toString()) + "Array";
-		String source_output = this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array";
+		String source_label = this.cleanIds(selectAtt.getIdsByFinalId().toString()) + "Array";
+		String source_output = this.cleanIds(attribute.getIdsByFinalId().toString()) + "Array";
 
-		String name_label = Utilities.getAttribute(atributoSeleccion, "name") + "_" + Utilities.getAttribute(padre, "name") + " [label]";
+		String name_label = Utilities.getAttribute(selectAtt, "name") + "_" + Utilities.getAttribute(padre, "name") + " [label]";
 		String name_output = "oid_" + Utilities.getAttribute(padre, "name") + " [output]";
 
 		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
@@ -210,54 +209,53 @@ public class DataFlow extends Link {
 	 * Nombre: guessCouplingEntryToConnect Funcion: Simula el GuessCoupling de webRatio entre una EntryUnit y una ConnectUnit para conectar
 	 * el oid de la entidad con la Role que esta en la condicion de la ConnectUnit
 	 * 
-	 * @param origen
+	 * @param source
 	 *            : unidadOrigen (entryUnit)
-	 * @param destino
+	 * @param target
 	 *            : unidadDestino (connect o disconnect unit)
-	 * @param entidadDestino
+	 * @param targetEntity
 	 *            : Entidad de la conectUnit, no tiene por que ser la misma que la del CRUD
 	 * @param role
 	 *            : role que esta en la roleCondition de la unidad destino
 	 * @param link
 	 *            : link que enlaza la unidad origen y destino, para añadirle el linkParameter
 	 */
-	private void guessCouplingEntryToConnect(IMFElement origen, IMFElement destino, IEntity entidadDestino, IRelationshipRole role,
+	private void guessCouplingEntryToConnect(IMFElement source, IMFElement target, IEntity targetEntity, IRelationshipRole role,
 			IMFElement link) {
 		// Obtenemos la keyCondition de la unidadDestino
-		IOperationUnit connectUnit = (IOperationUnit) destino;
+		IOperationUnit connectUnit = (IOperationUnit) target;
 		IMFElement keyCondition = connectUnit.selectSingleElement("TargetSelector").selectSingleElement("KeyCondition");
 		String name = Utilities.getAttribute(keyCondition, "name");
-		String nombreBuscar = Utilities.getAttribute(entidadDestino, "name");
+		String nameToSearch = Utilities.getAttribute(targetEntity, "name");
 
-		IAttribute keyAtributo = null;
+		IAttribute keyAtt = null;
 		IUnit entryUnit;
-		entryUnit = (IUnit) origen;
-		// Obtenemos la lista de campos del formularios y la lista de atributos
-		// de la entidad destino
-		List<ISubUnit> listaFields = entryUnit.getSubUnitList();
-		List<IAttribute> listaAtributos = entidadDestino.getAllAttributeList();
+		entryUnit = (IUnit) source;
+		// We get the list of form fields and the list of attributes of the target entity
+		List<ISubUnit> fieldList = entryUnit.getSubUnitList();
+		List<IAttribute> attList = targetEntity.getAllAttributeList();
 
-		// Buscamos el atributo que funciona como key
-		for (int i = 0; i < listaAtributos.size(); i++) {
-			if (Utilities.getAttribute(listaAtributos.get(i), "key").equals("true")) {
-				keyAtributo = listaAtributos.get(i);
+		// We look for the attribute that works as key
+		for (int i = 0; i < attList.size(); i++) {
+			if (Utilities.getAttribute(attList.get(i), "key").equals("true")) {
+				keyAtt = attList.get(i);
 				break;
 			}
 		}
 
-		// Creamos un hashMap con el nombre del campo y el campo.
-		Map<String, ISubUnit> mapaCampos = new HashMap<String, ISubUnit>();
-		Iterator<ISubUnit> iteratorCampos = listaFields.iterator();
+		// We create a hashMap with the name of the field and the field.
+		Map<String, ISubUnit> fieldMap = new HashMap<String, ISubUnit>();
+		Iterator<ISubUnit> fieldIterator = fieldList.iterator();
 		ISubUnit field;
-		while (iteratorCampos.hasNext()) {
-			field = iteratorCampos.next();
-			mapaCampos.put(Utilities.getAttribute(field, "name"), field);
+		while (fieldIterator.hasNext()) {
+			field = fieldIterator.next();
+			fieldMap.put(Utilities.getAttribute(field, "name"), field);
 		}
 
-		// Obtenemos el campo que se relaciona con la role
-		field = mapaCampos.get(Utilities.getAttribute(role, "name"));
+		// We get the field that relates to the role
+		field = fieldMap.get(Utilities.getAttribute(role, "name"));
 
-		// Creamos el link parameter que añadimos al link.
+		// We create the link parameter that we add to the link.
 		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
@@ -266,10 +264,10 @@ public class DataFlow extends Link {
 		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(field.getIdsByFinalId().toString()), link.getRootElement())
 				.execute();
 
-		new SetAttributeMFOperation(linkParameter, "name", nombreBuscar + "_" + name + " [oid] [" + nombreBuscar + "] [Target]",
+		new SetAttributeMFOperation(linkParameter, "name", nameToSearch + "_" + name + " [oid] [" + nameToSearch + "] [Target]",
 				link.getRootElement()).execute();
 		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(keyCondition.getIdsByFinalId().toString()) + "."
-				+ this.cleanIds(keyAtributo.getIdsByFinalId().toString()), link.getRootElement()).execute();
+				+ this.cleanIds(keyAtt.getIdsByFinalId().toString()), link.getRootElement()).execute();
 
 		((MFElement) link).addChild(linkParameter, null);
 	}
@@ -278,52 +276,52 @@ public class DataFlow extends Link {
 	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guessCoupling entre cualquier unidad y una entryUnit llamando a los metodos
 	 * creados anteriormente
 	 * 
-	 * @param origen
+	 * @param source
 	 *            : unidad (SelectorUnit, contentUnit...)
-	 * @param destino
+	 * @param target
 	 *            : entryUnit
-	 * @param entidadOrigen
+	 * @param sourceEntity
 	 *            : entidad que esta seleccionada en la unidad de origen
 	 * @param link
 	 *            : link sobre el que se creara el linkParameter
 	 */
-	private void guessCouplingUnitToEntry(IMFElement origen, IMFElement destino, IEntity entidadOrigen, IMFElement link) {
+	private void guessCouplingUnitToEntry(IMFElement source, IMFElement target, IEntity sourceEntity, IMFElement link) {
 
-		// Obtener lista FIELDS
-		List<ISubUnit> listaFields = ((IUnit) destino).getSubUnitList();
-		// Obtener lista Atributos de la entidad origen
-		List<IAttribute> listaAtributos = entidadOrigen.getAllAttributeList();
+		// Get field list
+		List<ISubUnit> fieldList = ((IUnit) target).getSubUnitList();
+		// Get list of source entity attributes
+		List<IAttribute> attList = sourceEntity.getAllAttributeList();
 
-		// Generar mapas para las listas de campos y atributos
-		Map<String, IAttribute> mapaAtributos = new HashMap<String, IAttribute>();
-		Map<String, ISubUnit> mapaCampos = new HashMap<String, ISubUnit>();
+		// Generate maps for lists of fields and attributes
+		Map<String, IAttribute> attMap = new HashMap<String, IAttribute>();
+		Map<String, ISubUnit> fieldMap = new HashMap<String, ISubUnit>();
 
-		// Iniciar los hashMap
-		for (ISubUnit field : listaFields)
-			mapaCampos.put(Utilities.getAttribute(field, "name"), field);
+		// Init hashmaps
+		for (ISubUnit field : fieldList)
+			fieldMap.put(Utilities.getAttribute(field, "name"), field);
 
-		for (IAttribute atributo : listaAtributos)
-			mapaAtributos.put(Utilities.getAttribute(atributo, "name"), atributo);
+		for (IAttribute att : attList)
+			attMap.put(Utilities.getAttribute(att, "name"), att);
 
 		ISubUnit field;
-		IAttribute atributo;
-		String tipoCampo;
+		IAttribute attribute;
+		String fieldType;
 		IMFElement linkParameter;
 		IRelationshipRole relationRole;
-		// Recorremos todos los campos
-		for (String nombreCampo : mapaCampos.keySet()) {
-			atributo = mapaAtributos.get(nombreCampo);
-			// Si nos retorna un atributo es un coupling por atributo
-			if (atributo != null) {
-				linkParameter = this.createParameter(atributo, mapaCampos.get(nombreCampo), link);
+
+		for (String fieldName : fieldMap.keySet()) {
+			attribute = attMap.get(fieldName);
+			// If it returns an attribute is a coupling by attribute
+			if (attribute != null) {
+				linkParameter = this.createParameter(attribute, fieldMap.get(fieldName), link);
 				((MFElement) link).addChild(linkParameter, null);
 			} else {
-				// En caso contrario es un coupling con selection o multiselection
-				relationRole = this.buscarRelation(nombreCampo, this.entity);
+				// Otherwise it is a coupling with selection or multiselection
+				relationRole = this.findRelation(fieldName, this.entity);
 
-				field = mapaCampos.get(nombreCampo);
-				tipoCampo = field.getQName().getName();
-				if (tipoCampo.equals("SelectionField")) {
+				field = fieldMap.get(fieldName);
+				fieldType = field.getQName().getName();
+				if (fieldType.equals("SelectionField")) {
 					linkParameter = this.createParameterRoleToField(relationRole, field, link, false);
 					((MFElement) link).addChild(linkParameter, null);
 				}
@@ -334,32 +332,32 @@ public class DataFlow extends Link {
 	/**
 	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guess Coupling entre cualquier unidad y la entryUnit
 	 * 
-	 * @param origen
+	 * @param source
 	 *            : unidad origen
-	 * @param destino
+	 * @param target
 	 *            : unidad destino, en este caso entryUnit
-	 * @param entidadOrigen
+	 * @param sourceEntity
 	 *            : entidad que esta seleccionada en la unidad origen
 	 * @param link
 	 *            : link sobre el que se creara el linkPArameter
 	 * @param role
 	 *            : role que de la unidad origen, en caso de tenerla
 	 */
-	private void guessCouplingUnitToEntry(IMFElement origen, IMFElement destino, IEntity entidadOrigen, IMFElement link,
+	private void guessCouplingUnitToEntry(IMFElement source, IMFElement target, IEntity sourceEntity, IMFElement link,
 			IRelationshipRole role) {
 		ISubUnit field;
 		ISubUnit preselect = null;
-		String nombreCampo;
+		String fieldName;
 		IMFElement linkParameter;
-		String nombreRole = Utilities.getAttribute(role, "name");
-		// Obtener lista FIELDS
-		List<ISubUnit> listaFields = ((IUnit) destino).getSubUnitList();
+		String roleName = Utilities.getAttribute(role, "name");
+		// Get field list
+		List<ISubUnit> listaFields = ((IUnit) target).getSubUnitList();
 
-		// Iniciar los hashMap
+		// init hashMap
 		for (Iterator<ISubUnit> iter = listaFields.iterator(); iter.hasNext();) {
 			field = iter.next();
-			nombreCampo = Utilities.getAttribute(field, "name");
-			if (nombreCampo.contains(nombreRole)) {
+			fieldName = Utilities.getAttribute(field, "name");
+			if (fieldName.contains(roleName)) {
 				preselect = field;
 				break;
 			}
@@ -385,14 +383,14 @@ public class DataFlow extends Link {
 		IMFElement linkParameter;
 		String nameRole = Utilities.getAttribute(role, "name");
 		String idRole = Utilities.getAttribute(role, "id");
-		IAttribute atributo = this.relshipsSelected.get(role);
-		IEntity entidadParent = (IEntity) atributo.getParentElement();
+		IAttribute attribute = this.relshipsSelected.get(role);
+		IEntity parentEntity = (IEntity) attribute.getParentElement();
 
-		List<IAttribute> listaAt = entidadParent.getAllAttributeList();
+		List<IAttribute> attList = parentEntity.getAllAttributeList();
 
-		for (int i = 0; i < listaAt.size(); i++) {
-			if (Utilities.getAttribute(listaAt.get(i), "key").equals("true")) {
-				atributo = listaAt.get(i);
+		for (int i = 0; i < attList.size(); i++) {
+			if (Utilities.getAttribute(attList.get(i), "key").equals("true")) {
+				attribute = attList.get(i);
 				break;
 			}
 		}
@@ -404,17 +402,17 @@ public class DataFlow extends Link {
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 
 		if (multi) {
-			new SetAttributeMFOperation(linkParameter, "name", Utilities.getAttribute(atributo, "name") + "_" + nameRole
+			new SetAttributeMFOperation(linkParameter, "name", Utilities.getAttribute(attribute, "name") + "_" + nameRole
 					+ " - Preselection", link.getRootElement()).execute();
 
-			new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(atributo.getIdsByFinalId().toString()) + "Array",
+			new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(attribute.getIdsByFinalId().toString()) + "Array",
 					link.getRootElement()).execute();
 		} else {
 
 			new SetAttributeMFOperation(linkParameter, "name", nameRole + ".oid_" + nameRole + " - Preselection", link.getRootElement())
 					.execute();
 
-			new SetAttributeMFOperation(linkParameter, "source", idRole + "_" + this.cleanIds(atributo.getIdsByFinalId().toString())
+			new SetAttributeMFOperation(linkParameter, "source", idRole + "_" + this.cleanIds(attribute.getIdsByFinalId().toString())
 					+ "Array", link.getRootElement()).execute();
 		}
 

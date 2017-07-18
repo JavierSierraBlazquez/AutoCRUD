@@ -17,8 +17,8 @@ public class DeleteUnit extends UnitOutsidePage {
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 
-		WebRatioCalls evento = new NewUnit(this.parent, ElementType.DELETE_UNIT, this.position.x, this.position.y, this.name, this.entity);
-		return evento.execute();
+		WebRatioCalls newUnitWRCall = new NewUnit(this.parent, ElementTypes.DELETE_UNIT, this.position.x, this.position.y, this.name, this.entity);
+		return newUnitWRCall.execute();
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import com.webratio.commons.mf.operations.MFUpdater;
 import com.webratio.commons.mf.ui.commands.SetAttributeCommand;
 import com.webratio.commons.mf.ui.editors.MFMultiEditor;
 import com.webratio.ide.core.UnitHelper;
+import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.ILinkParameter;
 import com.webratio.ide.model.IRelationship;
@@ -115,6 +116,14 @@ public class Utilities {
 	public static String getAttribute(IMFElement element, String attribute) {
 		updater = element.getRootElement().getModelUpdater();
 		return (updater.getAttribute(element, attribute));
+	}
+
+	public static String getDisplayName(IMFElement element) {
+		String displayName = "";
+		if (element instanceof ISiteView || element instanceof IArea)
+			displayName = Utilities.getAttribute(element, "name") + " (" + element.getFinalId() + ")";
+
+		return displayName;
 	}
 
 	/**

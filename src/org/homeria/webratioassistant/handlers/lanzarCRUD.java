@@ -18,6 +18,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -38,6 +39,8 @@ import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IRelationshipRole;
 
 public class lanzarCRUD extends AbstractHandler {
+	private static final Point DIALOGSIZE = new Point(650, 400);
+
 	public lanzarCRUD() {
 	}
 
@@ -65,7 +68,7 @@ public class lanzarCRUD extends AbstractHandler {
 
 				WizardDialogWithRegistryButton dialog = new WizardDialogWithRegistryButton(window.getShell(), wizard);
 				dialog.setHelpAvailable(false);
-				dialog.setPageSize(1000, 440);
+				dialog.setPageSize(DIALOGSIZE.x, DIALOGSIZE.y);
 				Utilities.setParentDialog(dialog);
 				Utilities.setIsClosed(false);
 

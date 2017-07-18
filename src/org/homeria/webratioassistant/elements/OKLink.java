@@ -23,10 +23,10 @@ public class OKLink extends Link {
 		IMFElement source = createdElements.get(this.sourceId);
 		IMFElement target = createdElements.get(this.targetId);
 
-		WebRatioCalls evento = new NewLink(this.name, source, target, "OKLink");
-		IMFElement link = evento.execute();
+		WebRatioCalls newLinkWRCall = new NewLink(this.name, source, target, "OKLink");
+		IMFElement link = newLinkWRCall.execute();
 
-		if (this.type.equals(ElementType.OK_LINK_NO_COUPLING)) {
+		if (this.type.equals(ElementTypes.OK_LINK_NO_COUPLING)) {
 			this.removeAutomaticCoupling(link);
 
 		} else if (!this.message.isEmpty()) {

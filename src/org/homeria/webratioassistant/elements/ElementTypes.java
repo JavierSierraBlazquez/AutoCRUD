@@ -1,6 +1,6 @@
 package org.homeria.webratioassistant.elements;
 
-public abstract class ElementType {
+public abstract class ElementTypes {
 	public static final String PAGE = "Page";
 	public static final String XOR_PAGE = "XOR";
 	

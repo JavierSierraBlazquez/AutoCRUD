@@ -21,10 +21,10 @@ public class NoOpContentUnit extends Unit {
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
 
-		WebRatioCalls evento = new NewUnit(parent, ElementType.NO_OP_CONTENT_UNIT, this.position.x, this.position.y, this.name,
+		WebRatioCalls newUnitWRCall = new NewUnit(parent, ElementTypes.NO_OP_CONTENT_UNIT, this.position.x, this.position.y, this.name,
 				this.entity);
 
-		return evento.execute();
+		return newUnitWRCall.execute();
 	}
 
 	@Override

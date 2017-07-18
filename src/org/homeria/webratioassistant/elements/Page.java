@@ -68,8 +68,8 @@ public class Page extends WebRatioElement {
 			return defaultPage;
 		}
 
-		WebRatioCalls evento = new NewPage(parent, this.position.x, this.position.y, this.name, this.isLandmark);
-		return evento.execute();
+		WebRatioCalls newPageWRCall = new NewPage(parent, this.position.x, this.position.y, this.name, this.isLandmark);
+		return newPageWRCall.execute();
 	}
 
 	@Override
