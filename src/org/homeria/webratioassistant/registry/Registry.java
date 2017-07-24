@@ -115,7 +115,8 @@ public class Registry {
 
 	public SortedMap<String, PatternRegisteredPOJO> getAllData() throws SAXException, IOException, ParserConfigurationException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		DocumentBuilder documentBuilder;
+		documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
 		Document document = documentBuilder.parse(this.path);
 		Element root = document.getDocumentElement();

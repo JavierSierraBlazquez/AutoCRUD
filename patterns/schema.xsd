@@ -25,7 +25,7 @@
 		<xs:choice>
    			<xs:element name="powerIndexUnit" type="stdUnitAttributesType"/>
    			<xs:element name="dataUnit" type="stdUnitAttributesType"/>
-   			<xs:element name="entryUnit" type="stdUnitAttributesType">
+   			<xs:element name="entryUnit">
 				<xs:complexType>
 					<xs:attributeGroup ref="stdUnitAttributes"/>
 					<xs:attribute name="type">
@@ -150,14 +150,6 @@
    			<xs:element ref="selectorUnit"/>
 		</xs:choice>
 	</xs:complexType>
-<!--
-<xs:simpleType name="USState">
-  <xs:restriction base="xs:string">
-    <xs:enumeration value="AK"/>
-    <xs:enumeration value="AL"/>
-    <xs:enumeration value="AR"/>
-  </xs:restriction>
-</xs:simpleType>-->
 
 	<xs:complexType name="okKoType">
 		<xs:attributeGroup ref="stdLinkAttributes"/>
@@ -197,9 +189,9 @@
 	<xs:complexType name="nmrelationsType">
 		<xs:sequence>
 			<xs:element name="ALL" type="relSubsectionType" minOccurs="0"/>
-			<xs:element name="FIRST" type="relSubsectionType" minOccurs="0"/>
-			<xs:element name="REMAINING" type="relSubsectionType" minOccurs="0"/>
-			<xs:element name="LAST" type="relSubsectionType" minOccurs="0"/>
+			<xs:element name="FIRST" type="linksType" minOccurs="0"/>
+			<xs:element name="REMAINING" type="linksType" minOccurs="0"/>
+			<xs:element name="LAST" type="linksType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -225,21 +217,3 @@
 	</xs:element>
 
 </xs:schema>
-
-<!-- 
-
-<xs:attributeGroup id="ItemDelivery">
-  <xs:attribute name="partNum"  type="SKU" use="required"/>
-  <xs:attribute name="weightKg" type="xs:decimal"/>
-  <xs:attribute name="shipBy">
-    <xs:simpleType>
-      <xs:restriction base="xs:string">
-        <xs:enumeration value="air"/>
-        <xs:enumeration value="land"/>
-        <xs:enumeration value="any"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:attribute>
-</xs:attributeGroup>
-
--->

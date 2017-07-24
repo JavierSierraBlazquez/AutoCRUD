@@ -6,7 +6,7 @@
 	
 	<!-- PAGES SECTION-->
 	<PAGES>
-		<page id="ReadPage" name="Delete Page" landmark="true" x="30" y="30">
+		<page id="DeletePage" name="Delete Page" landmark="true" x="30" y="30">
 			<powerIndexUnit id="powerIndexUnit" name="PowerIndexUnit" x="0" y="0"/>
 			<multiMessageUnit id="multiMessageUnit" name="MultiMessageUnit" x="0" y="100"/>
 		</page>

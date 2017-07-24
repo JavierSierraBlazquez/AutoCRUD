@@ -45,50 +45,47 @@ public class lanzarCRUD extends AbstractHandler {
 	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			// Obtenemos, mediante la busqueda en el workbench, el elemento seleccionado
-			IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
-			IWorkbenchPage page = window.getActivePage();
-			IEditorPart editor = page.getActiveEditor();
-			ProjectParameters.setShell(window.getShell());
-			ISelection selection = null;
-			IStructuredSelection structuredSelection = null;
-			if (editor != null) {
-				selection = editor.getSite().getSelectionProvider().getSelection();
+		// Obtenemos, mediante la busqueda en el workbench, el elemento seleccionado
+		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+		IWorkbenchPage page = window.getActivePage();
+		IEditorPart editor = page.getActiveEditor();
+		ProjectParameters.setShell(window.getShell());
+		ISelection selection = null;
+		IStructuredSelection structuredSelection = null;
+		if (editor != null) {
+			selection = editor.getSite().getSelectionProvider().getSelection();
 
-				if (((selection instanceof IStructuredSelection)) & (!((IStructuredSelection) selection).isEmpty())) {
-					structuredSelection = (IStructuredSelection) selection;
-				}
-
-				WizardCRUD wizard;
-
-				wizard = new WizardCRUD();
-				wizard.init(window.getWorkbench(), structuredSelection);
-				Registry.reloadInstance();
-
-				WizardDialogWithRegistryButton dialog = new WizardDialogWithRegistryButton(window.getShell(), wizard);
-				dialog.setHelpAvailable(false);
-				dialog.setPageSize(DIALOGSIZE.x, DIALOGSIZE.y);
-				Utilities.setParentDialog(dialog);
-				Utilities.setIsClosed(false);
-
-				if (dialog.open() == Window.OK && !Utilities.isPluginClosed()) {
-					// Get all the Data from Wizard Page
-					Queue<WebRatioElement> pages = wizard.getPagesGen();
-					List<Unit> units = wizard.getUnits();
-					List<Link> links = wizard.getLinks();
-					List<IMFElement> siteViewsAreas = wizard.getSiteViewsAreas();
-					Map<IRelationshipRole, IAttribute> relshipsSelected = wizard.getRelshipsSelected();
-
-					Generate generate = new Generate(pages, units, links, siteViewsAreas, relshipsSelected);
-					StepGenerationAppWindow appWindow = new StepGenerationAppWindow(window.getShell(), generate);
-
-					appWindow.open();
-				}
+			if (((selection instanceof IStructuredSelection)) & (!((IStructuredSelection) selection).isEmpty())) {
+				structuredSelection = (IStructuredSelection) selection;
 			}
-		} catch (Exception e) {
-			Utilities.showErrorUIMessage("Error while launch. Try selecting a Model first.");
+
+			WizardCRUD wizard;
+
+			wizard = new WizardCRUD();
+			wizard.init(window.getWorkbench(), structuredSelection);
+			Registry.reloadInstance();
+
+			WizardDialogWithRegistryButton dialog = new WizardDialogWithRegistryButton(window.getShell(), wizard);
+			dialog.setHelpAvailable(false);
+			dialog.setPageSize(DIALOGSIZE.x, DIALOGSIZE.y);
+			Utilities.setParentDialog(dialog);
+			Utilities.setIsClosed(false);
+
+			if (dialog.open() == Window.OK && !Utilities.isPluginClosed()) {
+				// Get all the Data from Wizard Page
+				Queue<WebRatioElement> pages = wizard.getPagesGen();
+				List<Unit> units = wizard.getUnits();
+				List<Link> links = wizard.getLinks();
+				List<IMFElement> siteViewsAreas = wizard.getSiteViewsAreas();
+				Map<IRelationshipRole, IAttribute> relshipsSelected = wizard.getRelshipsSelected();
+
+				Generate generate = new Generate(pages, units, links, siteViewsAreas, relshipsSelected);
+				StepGenerationAppWindow appWindow = new StepGenerationAppWindow(window.getShell(), generate);
+
+				appWindow.open();
+			}
 		}
+
 		return null;
 	}
 }

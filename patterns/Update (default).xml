@@ -45,7 +45,7 @@
 	<NMRELATIONS> <!-- Specific section only for N:M relations (Replaces RELATIONS)-->
 		<ALL> <!-- All N:M relations -->
 			<selectorUnit id="selector #" name="selector#" parentId="UpdatePage" x="300#" y="0"/>
-			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
+			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector #" targetId="entryUnit" type="preload"/>
 
 			<selectorUnit id="selectorNM%" name="selectorNM%" parentId="UpdatePage" type="roleCondition" x="0" y="150%"/>
 			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>

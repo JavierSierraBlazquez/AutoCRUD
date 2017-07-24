@@ -7,7 +7,7 @@
 	<!-- PAGES SECTION-->
 	<PAGES>
 		<page id="CRUDPage" name="CRUDPage" landmark="true" x="30" y="30">
-			<xor id="Alternative" name="Alternative" x="0" y="0">
+			<xor id="XORPage" name="Alternative" x="0" y="0">
 				<page id="DefaultPage" name="DefaultPage" default="true" x="30" y="30">
 					<noOpContentUnit id="noOpContentUnit" name="New" x="5" y="5"/>
 					<multiMessageUnit id="multiMessageUnit" name="MultiMessageUnit" x="0" y="150"/>
@@ -39,12 +39,12 @@
 	<!-- LINKS SECTION -->
 	<LINKS>
 		<normalNavigationFlow id= "nnf1" name="Close" sourceId="dataUnit" targetId="multiMessageUnit"/>
-		<normalNavigationFlow id= "nnf2" name="Cancel" sourceId="powerIndexUnit" targetId="multiMessageUnit" validate="false"/>
+		<normalNavigationFlow id= "nnf2" name="Cancel" sourceId="entryUnit" targetId="multiMessageUnit" validate="false"/>
 		<normalNavigationFlow id= "nnf3" name="New" sourceId="noOpContentUnit" targetId="selectorEntidad" type="fixedValue"/>
 		<normalNavigationFlow id= "nnf4" name="View" sourceId="powerIndexUnit" targetId="dataUnit"/>
 		<normalNavigationFlow id= "nnf5" name="Modify" sourceId="powerIndexUnit" targetId="selectorEntidad"/>
 		<normalNavigationFlow id= "nnf6" name="Delete" sourceId="powerIndexUnit" targetId="deleteUnit"/>
-		<normalNavigationFlow id= "nnf7" name="Accept" sourceId="powerIndexUnit" targetId="isNotNullUnit" type="isNotNull"/>
+		<normalNavigationFlow id= "nnf7" name="Accept" sourceId="entryUnit" targetId="isNotNullUnit" type="isNotNull"/>
 
 		<okLink id="okDelete" sourceId="deleteUnit" targetId="multiMessageUnit" message="Data deleted correctly"/>
 		<okLink id="okNN" sourceId="isNotNullUnit" targetId="updateUnit"/>
@@ -55,9 +55,9 @@
 		<koLink id="koNN" sourceId="isNotNullUnit" targetId="createUnit"/>
 
 
-		<dataFlow id="df1" name="Load" sourceId="selectorEntidad" targetId="powerIndexUnit" type="unitToEntry"/>
-		<dataFlow id="df2" name="Load" sourceId="powerIndexUnit" targetId="createUnit" type="entryToCreate"/>
-		<dataFlow id="df3" name="Load" sourceId="powerIndexUnit" targetId="updateUnit" type="entryToUpdate"/>
+		<dataFlow id="df1" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
+		<dataFlow id="df2" name="Load" sourceId="entryUnit" targetId="createUnit" type="entryToCreate"/>
+		<dataFlow id="df3" name="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
 	</LINKS>
 
 
@@ -65,7 +65,7 @@
 	<RELATIONS> <!-- Common section for 1:1, 1:N and N:M relations -->
 		<ALL> <!-- All relations -->
 			<selectorUnit id="selector#" name="selector#" parentId="FormPage" x="300#" y="0"/>
-			<dataFlow id="flowSelectorForm#" name="Load" sourceId="selector#" targetId="powerIndexUnit" type="preload"/>
+			<dataFlow id="flowSelectorForm#" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
 		</ALL>
 
 		<LAST> <!-- Last relation (used to close operations chain) -->
@@ -76,21 +76,20 @@
 
 	<NMRELATIONS> <!-- Specific section only for N:M relations (Replaces RELATIONS)-->
 		<ALL> <!-- All N:M relations -->
-			<selectorUnit id="selector #" name="selector#" parentId="FormPage" x="300#" y="0"/>
-			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector#" targetId="powerIndexUnit" type="preload"/>
+			<selectorUnit id="selector-#" name="selector#" parentId="FormPage" x="300#" y="0"/>
+			<dataFlow id="flowSelectorForm-#" name="Load" sourceId="selector-#" targetId="entryUnit" type="preload"/>
 			
 			<selectorUnit id="selectorNM%" name="selectorNM%" parentId="FormPage" type="roleCondition" x="0" y="130%"/>
 			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>
-			<dataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="powerIndexUnit" type="unitToEntryRole"/>
+			<dataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="entryUnit" type="unitToEntryRole"/>
 
 			<connectUnit id="connect%" name="connect%" x="850%" y="500"/>
-			<dataFlow id="flowFormConnect%" name="Load" sourceId="powerIndexUnit" targetId="connect%" type="entryToConnect"/>
+			<dataFlow id="flowFormConnect%" name="Load" sourceId="entryUnit" targetId="connect%" type="entryToConnect"/>
 			<koLink id="koConnect%" sourceId="connect%" targetId="multiMessageUnit" message="Failed creating/modifying data"/>
 
 			<reconnectUnit id="reconnect%" name="reconnect%" x="850%" y="800"/>
-			<dataFlow id="flowFormReconnect%" name="Load" sourceId="powerIndexUnit" targetId="reconnect%" type="entryToReconnect"/>
+			<dataFlow id="flowFormReconnect%" name="Load" sourceId="entryUnit" targetId="reconnect%" type="entryToReconnect"/>
 			<koLink id="koReconnect%" sourceId="reconnect%" targetId="multiMessageUnit" message="Failed modifying data"/>
-
 		</ALL>
 
 		<FIRST> <!-- First N:M relation (used to start operations chain) -->

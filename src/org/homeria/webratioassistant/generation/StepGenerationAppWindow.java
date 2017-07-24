@@ -63,7 +63,6 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 					if (!StepGenerationAppWindow.this.generate.next())
 						StepGenerationAppWindow.this.close();
 				} catch (TransformerException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -80,7 +79,6 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 					StepGenerationAppWindow.this.generate.end();
 					StepGenerationAppWindow.this.close();
 				} catch (TransformerException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}

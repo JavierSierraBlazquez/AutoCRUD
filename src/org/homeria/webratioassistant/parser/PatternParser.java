@@ -3,7 +3,6 @@ package org.homeria.webratioassistant.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -36,14 +35,8 @@ import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UpdateUnit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
 import org.homeria.webratioassistant.elements.XOR;
-import org.homeria.webratioassistant.exceptions.CantOpenFileException;
-import org.homeria.webratioassistant.exceptions.CantParseXmlFileException;
 import org.homeria.webratioassistant.exceptions.ExceptionHandler;
 import org.homeria.webratioassistant.exceptions.IdNotUniqueException;
-import org.homeria.webratioassistant.exceptions.MissingSectionException;
-import org.homeria.webratioassistant.exceptions.NoIdException;
-import org.homeria.webratioassistant.exceptions.NoSourceIdException;
-import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.registry.Registry;
 import org.homeria.webratioassistant.webratio.Utilities;
 import org.w3c.dom.Document;
@@ -59,15 +52,32 @@ import com.webratio.ide.model.IRelationshipRole;
 public class PatternParser {
 	private static int UNIT_GAP = 120;
 
-	private static String PAGES_SECTION = "PAGES SECTION";
-	private static String OPUNITS_SECTION = "OPERATION UNITS SECTION";
-	private static String LINKS_SECTION = "LINKS SECTION";
-	private static String RELATIONS_SECTION = "RELATIONS SECTION";
-	private static String NMRELATIONS_SECTION = "N:M RELATIONS SECTION";
-	private static String IFFIRSTRELATION_SECTION = "IfFirstRelation into N:M RELATIONS SECTION";
-	private static String IFNOTFIRSTRELATION_SECTION = "IfNotFirstRelation into N:M RELATIONS SECTION";
-	private static String IFSOMENMRELATION_SECTION = "IfSomeNMRelation after N:M RELATIONS SECTION";
-	private static String IFNOTSOMENMRELATION_SECTION = "IfNotSomeNMRelation after N:M RELATIONS SECTION";
+	private static final String PAGES = "PAGES";
+	private static final String OUTSIDEUNITS = "OUTSIDEUNITS";
+	private static final String LINKS = "LINKS";
+	private static final String RELATIONS = "RELATIONS";
+	private static final String NMRELATIONS = "NMRELATIONS";
+	private static final String ALL = "ALL";
+	private static final String FIRST = "FIRST";
+	private static final String REMAINING = "REMAINING";
+	private static final String LAST = "LAST";
+
+	private static final String ID = "id";
+	private static final String NAME = "name";
+	private static final String TYPE = "type";
+	private static final String PARENTID = "parentId";
+	private static final String X = "x";
+	private static final String Y = "y";
+	private static final String DEFAULT = "default";
+	private static final String LANDMARK = "landmark";
+	private static final String SOURCEID = "sourceId";
+	private static final String TARGETID = "targetId";
+
+	private static final String MARKER_RELATION = "#";
+	private static final String MARKER_NMRELATION = "%";
+
+	private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+	private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
 
 	private Document doc;
 	private File fXmlFile;
@@ -79,71 +89,48 @@ public class PatternParser {
 	private List<Unit> units;
 	private List<Link> links;
 
-	private List<String> idPool;
-
-	public PatternParser(String path, IEntity entity) throws CantOpenFileException, CantParseXmlFileException {
+	public PatternParser(String path, IEntity entity) throws SAXException, IOException, ParserConfigurationException {
 		this.pages = new LinkedList<WebRatioElement>();
 		this.units = new ArrayList<Unit>();
 		this.links = new ArrayList<Link>();
 		this.entity = entity;
-		this.idPool = new ArrayList<String>();
 
 		this.fXmlFile = new File(path);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		try {
-			this.dBuilder = dbFactory.newDocumentBuilder();
-			this.generateDoc();
+		dbFactory.setNamespaceAware(true);
+		dbFactory.setValidating(true);
+		dbFactory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
+		this.dBuilder = dbFactory.newDocumentBuilder();
+		this.dBuilder.setErrorHandler(new ExceptionHandler());
+		this.generateDoc();
 
-			String id = this.doc.getDocumentElement().getAttribute("id");
-			String name = this.doc.getDocumentElement().getAttribute("name");
-			Registry.getInstance().setPatternData(id, name);
+		String id = this.doc.getDocumentElement().getAttribute(ID);
+		String name = this.doc.getDocumentElement().getAttribute(NAME);
+		Registry.getInstance().setPatternData(id, name);
 
-
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
 	}
 
-	public static void checkPatternsIdAreUnique(File[] files) {
+	public static void checkPatternsIdAreUnique(File[] files) throws IdNotUniqueException, SAXException, IOException,
+			ParserConfigurationException {
 		List<String> patternsIdsList = new ArrayList<String>();
 		Document doc;
 		DocumentBuilder dBuilder;
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		try {
 			dBuilder = dbFactory.newDocumentBuilder();
 
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isFile() && files[i].getName().contains(".xml")) {
-					try {
 
-						doc = dBuilder.parse(files[i]);
-						String patternId = doc.getDocumentElement().getAttribute("id");
+					doc = dBuilder.parse(files[i]);
+					String patternId = doc.getDocumentElement().getAttribute(ID);
 
-						if (null == patternId || patternId.isEmpty())
-							throw new NoIdException("Root element of " + files[i].getAbsolutePath());
+					if (patternsIdsList.contains(patternId))
+						throw new IdNotUniqueException(patternId, "Root element of " + files[i].getAbsolutePath());
+					else
+						patternsIdsList.add(patternId);
 
-						if (patternsIdsList.contains(patternId))
-							throw new IdNotUniqueException(patternId, "Root element of " + files[i].getAbsolutePath());
-						else
-							patternsIdsList.add(patternId);
-
-					} catch (NoIdException e) {
-						ExceptionHandler.handle(e);
-					} catch (IdNotUniqueException e) {
-						ExceptionHandler.handle(e);
-					} catch (IOException e) {
-						throw new CantOpenFileException(files[i].getAbsolutePath());
-					} catch (SAXException e) {
-						throw new CantParseXmlFileException(files[i].getAbsolutePath());
-					}
 				}
 			}
-
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	public Queue<WebRatioElement> getPages() {
@@ -170,279 +157,323 @@ public class PatternParser {
 		this.links = links;
 	}
 
-	private void generateDoc() throws CantOpenFileException, CantParseXmlFileException {
-		try {
-			this.doc = this.dBuilder.parse(this.fXmlFile);
-		} catch (IOException e) {
-			throw new CantOpenFileException(this.fXmlFile.getAbsolutePath());
-		} catch (SAXException e) {
-			throw new CantParseXmlFileException(this.fXmlFile.getAbsolutePath());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private void generateDoc() throws SAXException, IOException {
+		this.doc = this.dBuilder.parse(this.fXmlFile);
 	}
 
-	public void parsePagesSection() throws NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
-			MissingSectionException {
-		// Procesamos todas las páginas:
-		NodeList pagesNodeList;
-		try {
-			pagesNodeList = this.doc.getElementsByTagName("Pages").item(0).getChildNodes();
-		} catch (Exception e) {
-			throw new MissingSectionException(PAGES_SECTION, e);
-		}
+	public void parsePagesSection() {
+		NodeList pagesSection = this.doc.getElementsByTagName(PAGES);
 
-		for (int iPage = 0; iPage < pagesNodeList.getLength(); iPage++) {
-			Node nodePage = pagesNodeList.item(iPage);
-			if (nodePage instanceof Element) {
+		if (pagesSection.getLength() > 0) {
+			NodeList pagesNodeList;
+			pagesNodeList = pagesSection.item(0).getChildNodes();
 
-				Element page = (Element) nodePage;
-				// null because is the first page. Its parent is the siteView selected in the UI
-				this.parsePage(page, null);
+			for (int iPage = 0; iPage < pagesNodeList.getLength(); iPage++) {
+				Node nodePage = pagesNodeList.item(iPage);
+				if (nodePage instanceof Element) {
+
+					Element page = (Element) nodePage;
+					// null because is the first page. Its parent is the siteView selected in the UI
+					this.parsePage(page, null);
+				}
 			}
 		}
 	}
 
-	private void parsePage(Element page, String parentId) throws NoIdException, IdNotUniqueException, NoSourceIdException,
-			NoTargetIdException {
-		this.validateAttributes(page, PAGES_SECTION);
-		if (page.getTagName().equals(ElementTypes.PAGE))
-			this.pages.add(new Page(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("default"), page
-					.getAttribute("landmark"), page.getAttribute("x"), page.getAttribute("y")));
+	private void parsePage(Element page, String parentId) {
 
-		else if (page.getTagName().equals(ElementTypes.XOR_PAGE))
-			this.pages.add(new XOR(page.getAttribute("id"), page.getAttribute("name"), parentId, page.getAttribute("x"), page
-					.getAttribute("y")));
+		// Create new Page or Alternative (XOR)
+		if (page.getTagName().equalsIgnoreCase(ElementTypes.PAGE))
+			this.pages.add(new Page(page.getAttribute(ID), page.getAttribute(NAME), parentId, page.getAttribute(DEFAULT), page
+					.getAttribute(LANDMARK), page.getAttribute(X), page.getAttribute(Y)));
 
-		// Proceso los elementos dentro de cada página:
+		else if (page.getTagName().equalsIgnoreCase(ElementTypes.XOR_PAGE))
+			this.pages.add(new XOR(page.getAttribute(ID), page.getAttribute(NAME), parentId, page.getAttribute(X), page.getAttribute(Y)));
+
+		// Process the elements within each page:
 		NodeList pageChild = page.getChildNodes();
 		for (int iUnit = 0; iUnit < pageChild.getLength(); iUnit++) {
 			Node nodeElement = pageChild.item(iUnit);
 			if (nodeElement instanceof Element) {
 
 				Element element = (Element) nodeElement;
-				if (element.getTagName().equals(ElementTypes.PAGE) || element.getTagName().equals(ElementTypes.XOR_PAGE))
-					this.parsePage(element, page.getAttribute("id"));
+				if (element.getTagName().equalsIgnoreCase(ElementTypes.PAGE)
+						|| element.getTagName().equalsIgnoreCase(ElementTypes.XOR_PAGE))
+					this.parsePage(element, page.getAttribute(ID));
 				else {
-					this.validateAttributes(element, PAGES_SECTION);
-					element.setAttribute("parentId", page.getAttribute("id"));
+					element.setAttribute(PARENTID, page.getAttribute(ID));
 					// Creo la unit
-					this.createElement(element, this.entity);
+					this.createContentUnit(element, this.entity);
 				}
 			}
 		}
 
 	}
 
-	public void parseOpUnitsSection() throws NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
-			MissingSectionException {
-		NodeList opuChilds;
+	private void createContentUnit(Element xmlUnit, IEntity entity) {
+		String nodeName = xmlUnit.getNodeName();
 
-		try {
-			opuChilds = this.doc.getElementsByTagName("OperationUnits").item(0).getChildNodes();
-		} catch (Exception e) {
-			throw new MissingSectionException(OPUNITS_SECTION, e);
+		if (nodeName.equalsIgnoreCase(ElementTypes.POWER_INDEX_UNIT)) {
+			this.units.add(new PowerIndexUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
+					.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.DATA_UNIT)) {
+			this.units.add(new DataUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
+					.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.MULTI_MESSAGE_UNIT)) {
+			this.units.add(new MultiMessageUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID),
+					xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y)));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.ENTRY_UNIT)) {
+			this.units.add(new EntryUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
+					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.SELECTOR_UNIT)) {
+			this.units.add(new SelectorUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
+					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.NO_OP_CONTENT_UNIT)) {
+			this.units.add(new NoOpContentUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID),
+					xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+
 		}
+	}
 
-		for (int i = 0; i < opuChilds.getLength(); i++) {
-			Node node = opuChilds.item(i);
-			if (node instanceof Element) {
-				Element opUnit = (Element) node;
+	public void parseOutsideUnitsSection() {
+		NodeList outUnitSection = this.doc.getElementsByTagName(OUTSIDEUNITS);
 
-				this.validateAttributes(opUnit, OPUNITS_SECTION);
-				this.createElement(opUnit, this.entity);
+		if (outUnitSection.getLength() > 0) {
+			NodeList outUnitChilds = outUnitSection.item(0).getChildNodes();
+
+			for (int i = 0; i < outUnitChilds.getLength(); i++) {
+				Node node = outUnitChilds.item(i);
+				if (node instanceof Element) {
+					Element outUnit = (Element) node;
+
+					this.createOutsideUnit(outUnit, this.entity);
+				}
 			}
 		}
 	}
 
-	public void parseLinksSection() throws NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
-			MissingSectionException {
-		NodeList linkChilds;
-		try {
-			linkChilds = this.doc.getElementsByTagName("Links").item(0).getChildNodes();
-		} catch (Exception e) {
-			throw new MissingSectionException(LINKS_SECTION, e);
+	private void createOutsideUnit(Element xmlUnit, IEntity entity) {
+		String nodeName = xmlUnit.getNodeName();
+
+		if (nodeName.equalsIgnoreCase(ElementTypes.SELECTOR_UNIT)) {
+			this.units.add(new SelectorUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
+					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.IS_NOT_NULL_UNIT)) {
+			this.units.add(new IsNotNullUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
+					.getAttribute(Y), null));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.CREATE_UNIT)) {
+			this.units.add(new CreateUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
+					.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.DELETE_UNIT)) {
+			this.units.add(new DeleteUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
+					.getAttribute(Y), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.UPDATE_UNIT)) {
+			this.units.add(new UpdateUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
+					.getAttribute(Y), entity));
+
 		}
+	}
 
-		for (int i = 0; i < linkChilds.getLength(); i++) {
-			Node node = linkChilds.item(i);
-			if (node instanceof Element) {
-				Element link = (Element) node;
+	public void parseLinksSection() {
+		NodeList linksSection = this.doc.getElementsByTagName(LINKS);
 
-				this.validateAttributes(link, LINKS_SECTION);
-				this.createElement(link, this.entity);
+		if (linksSection.getLength() > 0) {
+			NodeList linkChilds = linksSection.item(0).getChildNodes();
+
+			for (int i = 0; i < linkChilds.getLength(); i++) {
+				Node node = linkChilds.item(i);
+				if (node instanceof Element) {
+					Element link = (Element) node;
+
+					this.createLink(link, this.entity);
+				}
 			}
+		}
+	}
+
+	private void createLink(Element xmlUnit, IEntity entity) {
+		String nodeName = xmlUnit.getNodeName();
+
+		if (nodeName.equalsIgnoreCase(ElementTypes.NORMAL_NAVIGATION_FLOW)) {
+			this.links.add(new NormalNavigationFlow(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID),
+					xmlUnit.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute("validate"), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.DATA_FLOW)) {
+			this.links.add(new DataFlow(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID), xmlUnit
+					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), entity));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.OK_LINK)) {
+			this.links.add(new OKLink(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID), xmlUnit
+					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute("message")));
+
+		} else if (nodeName.equalsIgnoreCase(ElementTypes.KO_LINK)) {
+			this.links.add(new KOLink(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID), xmlUnit
+					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute("message")));
+
 		}
 
 	}
 
-	public void parseRelationsSection(Set<IRelationshipRole> relationshipRolesSelected) throws CantOpenFileException,
-			CantParseXmlFileException, NoIdException, IdNotUniqueException, NoSourceIdException, NoTargetIdException,
-			MissingSectionException {
-		// forEachRelation
-		int countRelation = 0;
-		int countNM = 0;
+	public void parseRelations(Set<IRelationshipRole> relationshipRolesSelected) throws SAXException, IOException {
+		int countRel = 0;
+		int countNMRel = 0;
 		boolean someNMrelation = false;
 
+		Element nmRelSection = (Element) this.doc.getElementsByTagName(NMRELATIONS).item(0);
+		Element relSection = (Element) this.doc.getElementsByTagName(RELATIONS).item(0);
+
 		for (IRelationshipRole role : relationshipRolesSelected) {
+			if (this.isNtoN(role, this.entity) && null != nmRelSection) {
+				this.nmRelationsSection(nmRelSection, role, countRel, countNMRel++);
+				someNMrelation = true;
+			} else if (null != relSection)
+				this.relationsSection(relSection, role, countRel);
 
-			// Dentro del bucle, asi en cada pasada se cogen los elementos originales y no los modificados por la iteración anterior
+			countRel++;
+			// generateDoc within the loop, so in each pass are taken the original elements and not those modified by the previous iteration
 			this.generateDoc();
-			NodeList relationsNodeList;
-			try {
-				relationsNodeList = this.doc.getElementsByTagName("forEachRelation").item(0).getChildNodes();
-			} catch (Exception e) {
-				throw new MissingSectionException(RELATIONS_SECTION, e);
-			}
+			nmRelSection = (Element) this.doc.getElementsByTagName(NMRELATIONS).item(0);
+			relSection = (Element) this.doc.getElementsByTagName(RELATIONS).item(0);
+		}
 
-			for (int i = 0; i < relationsNodeList.getLength(); i++) {
-				Node node = relationsNodeList.item(i);
-				if (node instanceof Element) {
-					Element element = (Element) node;
+		// LAST:
+		Element section;
+		if (someNMrelation) {
+			section = nmRelSection;
+			countNMRel -= 1;
+			countRel = 0;
 
-					if (element.getTagName().equals("IfNMRelation")) {
-						if (null != this.isNtoN(role, this.entity)) {
-							someNMrelation = true;
-							this.NMrelationSection(element.getChildNodes(), role, countNM++);
-						}
+		} else {
+			section = relSection;
+			countNMRel = 0;
+			countRel -= 1;
+		}
+		if (null != section) {
+			Element last = (Element) section.getElementsByTagName(LAST).item(0);
+			if (null != last) {
 
-					} else {
-						this.replaceMarkerWithNum(element, countRelation);
-						this.validateAttributes(element, RELATIONS_SECTION);
-						this.createElement(element, role);
+				NodeList elementNodeList = last.getChildNodes();
+				for (int i = 0; i < elementNodeList.getLength(); i++) {
+					Node node = elementNodeList.item(i);
+					if (node instanceof Element) {
+						Element link = (Element) node;
+
+						this.replaceMarkersWithNum(link, countRel, countNMRel);
+						this.createLink(link, this.entity);
 					}
 				}
 			}
-			countRelation++;
 		}
+	}
 
-		NodeList elementNodeList;
+	private void relationsSection(Element relSection, IRelationshipRole role, int countRel) {
+		Element section;
 
-		if (someNMrelation) {
-			try {
-				elementNodeList = this.doc.getElementsByTagName("IfSomeNMRelation").item(0).getChildNodes();
-			} catch (Exception e) {
-				throw new MissingSectionException(IFSOMENMRELATION_SECTION, e);
-			}
-			for (int i = 0; i < elementNodeList.getLength(); i++) {
-				Node node = elementNodeList.item(i);
-				if (node instanceof Element) {
-					Element element = (Element) node;
+		section = (Element) relSection.getElementsByTagName(ALL).item(0);
+		if (null != section)
+			this.createElementsRole(section, role, countRel, 0);
+	}
 
-					this.replaceMarkerWithNum(element, countNM - 1);
-					this.validateAttributes(element, IFSOMENMRELATION_SECTION);
-					this.createElement(element, this.entity);
-				}
-			}
+	private void nmRelationsSection(Element nmSection, IRelationshipRole role, int countRel, int countNMRel) {
+		Element section;
+
+		section = (Element) nmSection.getElementsByTagName(ALL).item(0);
+		if (null != section)
+			this.createElementsRole(section, role, countRel, countNMRel);
+
+		if (countNMRel == 0) {
+			section = (Element) nmSection.getElementsByTagName(FIRST).item(0);
+			if (null != section)
+				this.createElementsRole(section, role, countRel, countNMRel);
 		} else {
-			try {
-				elementNodeList = this.doc.getElementsByTagName("IfNotSomeNMRelation").item(0).getChildNodes();
-			} catch (Exception e) {
-				throw new MissingSectionException(IFNOTSOMENMRELATION_SECTION, e);
-			}
-			for (int i = 0; i < elementNodeList.getLength(); i++) {
-				Node node = elementNodeList.item(i);
-				if (node instanceof Element) {
-					Element element = (Element) node;
-
-					this.replaceMarkerWithNum(element, countRelation - 1);
-					this.validateAttributes(element, IFNOTSOMENMRELATION_SECTION);
-					this.createElement(element, this.entity);
-				}
-			}
+			section = (Element) nmSection.getElementsByTagName(REMAINING).item(0);
+			if (null != section)
+				this.createElementsRole(section, role, countRel, countNMRel);
 		}
 
 	}
 
-	private void NMrelationSection(NodeList nmElements, IRelationshipRole role, int count) throws NoIdException, IdNotUniqueException,
-			NoSourceIdException, NoTargetIdException {
-		for (int i = 0; i < nmElements.getLength(); i++) {
+	private void createElementsRole(Element section, IRelationshipRole role, int countRel, int countNMRel) {
+		NodeList elements = section.getChildNodes();
 
-			Node node = nmElements.item(i);
+		for (int i = 0; i < elements.getLength(); i++) {
+			Node node = elements.item(i);
 			if (node instanceof Element) {
-				Element nmElement = (Element) node;
+				Element element = (Element) node;
 
-				if (nmElement.getTagName().equals("IfFirstRelation")) {
+				this.replaceMarkersWithNum(element, countRel, countNMRel);
 
-					if (count == 0) {
-						NodeList firstRelElements = nmElement.getChildNodes();
+				String nodeName = element.getNodeName();
 
-						for (int j = 0; j < firstRelElements.getLength(); j++) {
-							Node node2 = firstRelElements.item(j);
-							if (node2 instanceof Element) {
-								Element firstRelElement = (Element) node2;
+				if (nodeName.equalsIgnoreCase(ElementTypes.DATA_FLOW)) {
+					this.links.add(new DataFlow(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(SOURCEID),
+							element.getAttribute(TARGETID), element.getAttribute(TYPE), this.entity, role));
 
-								this.replaceMarkerWithNum(firstRelElement, count);
-								this.validateAttributes(firstRelElement, IFFIRSTRELATION_SECTION);
-								// Solo va a crearse una vez, dependiendo del tipo que sea:
-								if (!this.createElement(firstRelElement, role))
-									this.createElement(firstRelElement, this.entity);
-							}
-						}
-					}
+				} else if (nodeName.equalsIgnoreCase(ElementTypes.CONNECT_UNIT)) {
+					this.units.add(new ConnectUnit(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(X), element
+							.getAttribute(Y), this.entity, role));
 
-				} else if (nmElement.getTagName().equals("IfNotFirstRelation")) {
+				} else if (nodeName.equalsIgnoreCase(ElementTypes.DISCONNECT_UNIT)) {
+					this.units.add(new DisconnectUnit(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(X),
+							element.getAttribute(Y), this.entity, role));
 
-					if (count > 0) {
-						NodeList notFirstRelElements = nmElement.getChildNodes();
+				} else if (nodeName.equalsIgnoreCase(ElementTypes.RECONNECT_UNIT)) {
+					this.units.add(new ReconnectUnit(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(X), element
+							.getAttribute(Y), this.entity, role));
 
-						for (int j = 0; j < notFirstRelElements.getLength(); j++) {
-							Node node2 = notFirstRelElements.item(j);
-							if (node2 instanceof Element) {
-								Element notFirstRelElement = (Element) node2;
-
-								this.replaceMarkerWithNum(notFirstRelElement, count);
-								this.validateAttributes(notFirstRelElement, IFNOTFIRSTRELATION_SECTION);
-								// Solo va a crearse una vez, dependiendo del tipo que sea:
-								if (!this.createElement(notFirstRelElement, role))
-									this.createElement(notFirstRelElement, this.entity);
-							}
-						}
-					}
-
+				} else if (nodeName.equalsIgnoreCase(ElementTypes.SELECTOR_UNIT)) {
+					this.units
+							.add(new SelectorUnit(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(PARENTID),
+									element.getAttribute(TYPE), element.getAttribute(X), element.getAttribute(Y), this
+											.getTargetEntity(role), role));
 				} else {
-
-					this.replaceMarkerWithNum(nmElement, count);
-					this.validateAttributes(nmElement, NMRELATIONS_SECTION);
-					// Solo va a crearse una vez, dependiendo del tipo que sea:
-					if (!this.createElement(nmElement, role))
-						this.createElement(nmElement, this.entity);
+					this.createLink(element, this.entity);
 				}
 			}
 		}
+	}
 
+	private void replaceAtt(Element element, String attribute, int countRel, int countNMRel) {
+		String aux = element.getAttribute(attribute);
+		if (aux.contains(MARKER_RELATION))
+			aux = this.replaceMarkerWithNum2(aux, MARKER_RELATION, countRel);
+		if (aux.contains(MARKER_NMRELATION))
+			aux = this.replaceMarkerWithNum2(aux, MARKER_NMRELATION, countNMRel);
+		element.setAttribute(attribute, aux);
+	}
+
+	private void replaceCoord(Element element, String coord, int countRel, int countNMRel) {
+		String aux = element.getAttribute(coord);
+		if (aux.contains(MARKER_RELATION))
+			aux = this.replaceCoords(aux, MARKER_RELATION, countRel);
+		if (aux.contains(MARKER_NMRELATION))
+			aux = this.replaceCoords(aux, MARKER_NMRELATION, countNMRel);
+		element.setAttribute(coord, aux);
 	}
 
 	// sustituye la almohadilla por el parámetro y opera si fuese necesario #-n #-n
 	// en los atributos id, sourceId y targetId
-	private void replaceMarkerWithNum(Element element, int count) {
-		if (element.getAttribute("id").contains("#") || element.getAttribute("id").contains("%"))
-			element.setAttribute("id", this.replaceMarkerWithNum2(element.getAttribute("id"), count));
+	private void replaceMarkersWithNum(Element element, int countRel, int countNMRel) {
+		this.replaceAtt(element, ID, countRel, countNMRel);
+		this.replaceAtt(element, NAME, countRel, countNMRel);
+		this.replaceAtt(element, SOURCEID, countRel, countNMRel);
+		this.replaceAtt(element, TARGETID, countRel, countNMRel);
 
-		if (element.getAttribute("name").contains("#") || element.getAttribute("name").contains("%"))
-			element.setAttribute("name", this.replaceMarkerWithNum2(element.getAttribute("name"), count));
-
-		if (element.getAttribute("sourceId").contains("#") || element.getAttribute("sourceId").contains("%"))
-			element.setAttribute("sourceId", this.replaceMarkerWithNum2(element.getAttribute("sourceId"), count));
-
-		if (element.getAttribute("targetId").contains("#") || element.getAttribute("targetId").contains("%"))
-			element.setAttribute("targetId", this.replaceMarkerWithNum2(element.getAttribute("targetId"), count));
-
-		if (element.getAttribute("x").contains("#") || element.getAttribute("x").contains("%"))
-			element.setAttribute("x", this.replaceCoords(element.getAttribute("x"), count));
-
-		if (element.getAttribute("y").contains("#") || element.getAttribute("y").contains("%"))
-			element.setAttribute("y", this.replaceCoords(element.getAttribute("y"), count));
+		this.replaceCoord(element, X, countRel, countNMRel);
+		this.replaceCoord(element, Y, countRel, countNMRel);
 	}
 
 	// str formato: cadena# || cadena#-n || cadena#+n
-	private String replaceMarkerWithNum2(String str, int count) {
-		String marker = "";
-		if (str.contains("#"))
-			marker = "#";
-		else if (str.contains("%"))
-			marker = "%";
-
+	private String replaceMarkerWithNum2(String str, String marker, int count) {
 		String s2[] = str.split(marker);
 		if (s2.length > 1) {
 			// tanto si es + como - cojo el número a la derecha
@@ -457,112 +488,13 @@ public class PatternParser {
 	}
 
 	// str formato: 200# || 200% RESULTADO: 200*count
-	private String replaceCoords(String str, int count) {
-		String marker = "";
-		if (str.contains("#"))
-			marker = "#";
-		else if (str.contains("%"))
-			marker = "%";
-
+	private String replaceCoords(String str, String marker, int count) {
 		String s2[] = str.split(marker);
 		int value = Integer.valueOf(s2[0]);
 		value += UNIT_GAP * count;
 		s2[0] = String.valueOf(value);
 
 		return s2[0];
-	}
-
-	private void createElement(Element xmlUnit, IEntity entity) {
-		String nodeName = xmlUnit.getNodeName();
-
-		if (nodeName.equals(ElementTypes.POWER_INDEX_UNIT)) {
-			this.units.add(new PowerIndexUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.DATA_UNIT)) {
-			this.units.add(new DataUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"), xmlUnit
-					.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.MULTI_MESSAGE_UNIT)) {
-			this.units.add(new MultiMessageUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y")));
-
-		} else if (nodeName.equals(ElementTypes.ENTRY_UNIT)) {
-			this.units.add(new EntryUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.SELECTOR_UNIT)) {
-			this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.NO_OP_CONTENT_UNIT)) {
-			this.units.add(new NoOpContentUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("parentId"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.IS_NOT_NULL_UNIT)) {
-			this.units.add(new IsNotNullUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
-					.getAttribute("y"), null));
-
-		} else if (nodeName.equals(ElementTypes.CREATE_UNIT)) {
-			this.units.add(new CreateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
-					.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.DELETE_UNIT)) {
-			this.units.add(new DeleteUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
-					.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.UPDATE_UNIT)) {
-			this.units.add(new UpdateUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"), xmlUnit
-					.getAttribute("y"), entity));
-
-		} else if (nodeName.equals(ElementTypes.NORMAL_NAVIGATION_FLOW)) {
-			this.links.add(new NormalNavigationFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
-					.getAttribute("sourceId"), xmlUnit.getAttribute("targetId"), xmlUnit.getAttribute("type"), xmlUnit
-					.getAttribute("validate"), entity));
-
-		} else if (nodeName.equals(ElementTypes.DATA_FLOW)) {
-			this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
-					.getAttribute("targetId"), xmlUnit.getAttribute("type"), entity));
-
-		} else if (nodeName.equals(ElementTypes.OK_LINK)) {
-			this.links.add(new OKLink(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
-					.getAttribute("targetId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("message")));
-
-		} else if (nodeName.equals(ElementTypes.KO_LINK)) {
-			this.links.add(new KOLink(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("sourceId"), xmlUnit
-					.getAttribute("targetId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("message")));
-
-		}
-
-	}
-
-	private boolean createElement(Element xmlUnit, IRelationshipRole role) {
-		String nodeName = xmlUnit.getNodeName();
-		boolean created = false;
-
-		if (nodeName.equals(ElementTypes.DATA_FLOW)) {
-			created = this.links.add(new DataFlow(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
-					.getAttribute("sourceId"), xmlUnit.getAttribute("targetId"), xmlUnit.getAttribute("type"), this.entity, role));
-
-		} else if (nodeName.equals(ElementTypes.CONNECT_UNIT)) {
-			created = this.units.add(new ConnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
-					xmlUnit.getAttribute("y"), this.entity, role));
-
-		} else if (nodeName.equals(ElementTypes.DISCONNECT_UNIT)) {
-			created = this.units.add(new DisconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"),
-					xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this.entity, role));
-
-		} else if (nodeName.equals(ElementTypes.RECONNECT_UNIT)) {
-			created = this.units.add(new ReconnectUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit.getAttribute("x"),
-					xmlUnit.getAttribute("y"), this.entity, role));
-
-		} else if (nodeName.equals(ElementTypes.SELECTOR_UNIT)) {
-			created = this.units.add(new SelectorUnit(xmlUnit.getAttribute("id"), xmlUnit.getAttribute("name"), xmlUnit
-					.getAttribute("parentId"), xmlUnit.getAttribute("type"), xmlUnit.getAttribute("x"), xmlUnit.getAttribute("y"), this
-					.getTargetEntity(role), role));
-		}
-
-		return created;
 	}
 
 	private IEntity getTargetEntity(IRelationshipRole role) {
@@ -581,7 +513,7 @@ public class PatternParser {
 	 *            : relacion en la que comprobar la cardinalidad
 	 * @return: la relacion en caso se existir o null en caso contrario
 	 */
-	private IRelationship isNtoN(IRelationshipRole role, IEntity entity) {
+	private boolean isNtoN(IRelationshipRole role, IEntity entity) {
 		IEntity entidad1 = entity;
 		List<IRelationship> lista = entidad1.getOutgoingRelationshipList();
 		lista.addAll(entidad1.getIncomingRelationshipList());
@@ -596,38 +528,9 @@ public class PatternParser {
 		maxCard2 = Utilities.getAttribute(role2, "maxCard");
 		// Si ambos cardinales son N se retorna la relación
 		if ((maxCard1.equals("N")) && (maxCard2.equals("N")))
-			return relacion;
-		return null;
+			return true;
+		return false;
 
 	}
 
-	private void validateAttributes(Element element, String section) throws NoIdException, IdNotUniqueException, NoSourceIdException,
-			NoTargetIdException {
-		// ID VALIDATION SECTION
-		String id = element.getAttribute("id");
-		if (id.isEmpty())
-			throw new NoIdException(section);
-
-		if (this.idPool.contains(id))
-			throw new IdNotUniqueException(id, section);
-		this.idPool.add(id);
-
-		// COORDINATES AND SOURCE/TARGET (LINK) VALIDATION SECTION
-		List<String> linkTypes = new ArrayList<String>();
-		linkTypes
-				.addAll(Arrays.asList(ElementTypes.NORMAL_NAVIGATION_FLOW, ElementTypes.DATA_FLOW, ElementTypes.OK_LINK, ElementTypes.KO_LINK));
-
-		String tagName = element.getTagName();
-		if (linkTypes.contains(element.getTagName())) {
-			// is a Link element
-			if (element.getAttribute("sourceId").isEmpty())
-				throw new NoSourceIdException(tagName, section);
-			if (element.getAttribute("targetId").isEmpty())
-				throw new NoTargetIdException(tagName, section);
-		} else {
-			// is not a Link element
-			// FIXME quitar?
-		}
-
-	}
 }

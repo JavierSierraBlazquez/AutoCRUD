@@ -1,6 +1,7 @@
 package org.homeria.webratioassistant.wizards;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardPage;
@@ -45,20 +48,14 @@ import org.homeria.webratioassistant.elements.PowerIndexUnit;
 import org.homeria.webratioassistant.elements.Unit;
 import org.homeria.webratioassistant.elements.UpdateUnit;
 import org.homeria.webratioassistant.elements.WebRatioElement;
-import org.homeria.webratioassistant.exceptions.CantOpenFileException;
-import org.homeria.webratioassistant.exceptions.CantParseXmlFileException;
 import org.homeria.webratioassistant.exceptions.ExceptionHandler;
-import org.homeria.webratioassistant.exceptions.IdNotUniqueException;
-import org.homeria.webratioassistant.exceptions.MissingSectionException;
-import org.homeria.webratioassistant.exceptions.NoIdException;
 import org.homeria.webratioassistant.exceptions.NoPatternFileFoundException;
 import org.homeria.webratioassistant.exceptions.NoPatternsFolderFoundException;
-import org.homeria.webratioassistant.exceptions.NoSourceIdException;
-import org.homeria.webratioassistant.exceptions.NoTargetIdException;
 import org.homeria.webratioassistant.parser.PatternParser;
 import org.homeria.webratioassistant.webratio.MyIEntityComparator;
 import org.homeria.webratioassistant.webratio.ProjectParameters;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.xml.sax.SAXException;
 
 import com.webratio.commons.mf.IMFElement;
 import com.webratio.ide.model.IArea;
@@ -143,37 +140,41 @@ public class WizardPatternPage extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
-		this.containerComposite = new Composite(parent, SWT.NULL);
-		FormLayout thisLayout = new FormLayout();
-		this.containerComposite.setLayout(thisLayout);
-		this.containerComposite.layout();
-		this.setControl(this.containerComposite);
-
-		this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
-
 		try {
-			this.createLeftComposite();
-			this.createRightComposite();
+			File folder = new File(this.PATTERNS_DIR);
+			if (!folder.exists())
+				throw new NoPatternsFolderFoundException(this.PATTERNS_DIR);
 
-			this.entityCombo.select(0);
-			this.entitySelectionListener();
-			this.patternCombo.select(0);
-			this.patternSelectionListener();
-			/*this.dispose();
-			this.finalize();
-			*/
-		} catch (NoPatternsFolderFoundException e) {
-			ExceptionHandler.handle(e);
-		} catch (NoPatternFileFoundException e) {
-			ExceptionHandler.handle(e);
+			File[] listOfFiles = folder.listFiles();
+			if (listOfFiles.length == 0)
+				throw new NoPatternFileFoundException(this.PATTERNS_DIR);
+			else
+				PatternParser.checkPatternsIdAreUnique(listOfFiles);
+
+			if (!Utilities.isPluginClosed()) {
+				this.containerComposite = new Composite(parent, SWT.NULL);
+				FormLayout thisLayout = new FormLayout();
+				this.containerComposite.setLayout(thisLayout);
+				this.containerComposite.layout();
+				this.setControl(this.containerComposite);
+
+				this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
+
+				this.createLeftComposite();
+				this.createRightComposite();
+
+				this.entityCombo.select(0);
+				this.entitySelectionListener();
+				this.patternCombo.select(0);
+				this.patternSelectionListener();
+			}
+
 		} catch (Exception e) {
-			e.printStackTrace();
-		} catch (Throwable e) {
-			e.printStackTrace();
+			ExceptionHandler.handle(e);
 		}
 	}
 
-	private void createLeftComposite() throws NoPatternsFolderFoundException, NoPatternFileFoundException {
+	private void createLeftComposite() {
 		// Creating left composite and its content
 		this.leftComposite = new Composite(this.containerComposite, SWT.NONE);
 		GridLayout leftCompositeLayout = new GridLayout(1, false);
@@ -248,14 +249,8 @@ public class WizardPatternPage extends WizardPage {
 
 		// Get patterns list and fill the Combo
 		File folder = new File(this.PATTERNS_DIR);
-		if (!folder.exists())
-			throw new NoPatternsFolderFoundException(this.PATTERNS_DIR);
 
 		File[] listOfFiles = folder.listFiles();
-		if (listOfFiles.length == 0)
-			throw new NoPatternFileFoundException(this.PATTERNS_DIR);
-		else
-			PatternParser.checkPatternsIdAreUnique(listOfFiles);
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(".xml"))
@@ -303,8 +298,7 @@ public class WizardPatternPage extends WizardPage {
 		this.tabFolder = new TabFolder(this.rightComposite, SWT.NONE);
 	}
 
-	private void patternSelectionListener() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
-			NoSourceIdException, NoTargetIdException, MissingSectionException {
+	private void patternSelectionListener() throws SAXException, IOException, ParserConfigurationException {
 		// Actualizo el estado del botón Finish
 		this.getWizard().getContainer().updateButtons();
 
@@ -321,7 +315,7 @@ public class WizardPatternPage extends WizardPage {
 		// Obtener elementos del XML (salvo las relaciones que se necesita que el usuario elija primero)
 		this.xmlParser = new PatternParser(this.PATTERNS_DIR + patternFileSelected, this.entitySelected);
 		this.xmlParser.parsePagesSection();
-		this.xmlParser.parseOpUnitsSection();
+		this.xmlParser.parseOutsideUnitsSection();
 		this.xmlParser.parseLinksSection();
 
 		this.pages = this.xmlParser.getPages();
@@ -420,11 +414,9 @@ public class WizardPatternPage extends WizardPage {
 		this.containerComposite.layout(true, true);
 	}
 
-	private void entitySelectionListener() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
-			NoSourceIdException, NoTargetIdException, MissingSectionException {
+	private void entitySelectionListener() throws SAXException, IOException, ParserConfigurationException {
 		this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
 
-		// De aqui se obtienen los atributos de la entidad
 		this.listaAtributosEntidad = this.entitySelected.getAllAttributeList();
 		Iterator<IAttribute> iteratorAtributos = this.listaAtributosEntidad.iterator();
 		IAttribute atributo;
@@ -651,15 +643,14 @@ public class WizardPatternPage extends WizardPage {
 	}
 
 	// Ejecutado desde WizardCRUD para parsear las relaciones
-	public void finalizePage() throws CantOpenFileException, CantParseXmlFileException, NoIdException, IdNotUniqueException,
-			NoSourceIdException, NoTargetIdException, MissingSectionException {
+	public void finalizePage() throws SAXException, IOException {
 		// Actualizo los cambios realizados en las listas del xmlParser
 		this.xmlParser.setPages(this.pages);
 		this.xmlParser.setUnits(this.units);
 		this.xmlParser.setLinks(this.links);
 
 		// Ahora parseo las relaciones, y las nuevas unidades se añaden a las anteriores que han sido cambiadas.
-		this.xmlParser.parseRelationsSection(this.getRelationshipsSelected().keySet());
+		this.xmlParser.parseRelations(this.getRelationshipsSelected().keySet());
 
 		// Me traigo los elementos con todos los cambios nuevos.
 		this.pages = this.xmlParser.getPages();

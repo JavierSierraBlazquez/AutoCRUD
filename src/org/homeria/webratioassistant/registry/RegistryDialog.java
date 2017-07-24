@@ -1,7 +1,10 @@
 package org.homeria.webratioassistant.registry;
 
+import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -21,7 +24,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.homeria.webratioassistant.exceptions.ExceptionHandler;
 import org.homeria.webratioassistant.webratio.Utilities;
+import org.xml.sax.SAXException;
 
 public class RegistryDialog extends Dialog {
 	private static final int WIDTH = 500;
@@ -60,8 +65,12 @@ public class RegistryDialog extends Dialog {
 		this.checkRegistryExists();
 		try {
 			this.pattDataMap = Registry.getInstance().getAllData();
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (SAXException e) {
+			ExceptionHandler.handle(e);
+		} catch (IOException e) {
+			ExceptionHandler.handle(e);
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
 		}
 
 		Shell shell = this.getShell();

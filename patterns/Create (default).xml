@@ -41,7 +41,7 @@
 	<NMRELATIONS> <!-- Specific section only for N:M relations (Replaces RELATIONS)-->
 		<ALL> <!-- All N:M relations -->
 			<selectorUnit id="selector #" name="selector#" parentId="CreatePage" x="0" y="0#"/>
-			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector#" targetId="entryUnit" type="preload"/>
+			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector #" targetId="entryUnit" type="preload"/>
 
 			<connectUnit id="connect%" name="connect%" x="450" y="130%"/>
 			<dataFlow id="flowFormConnect%" name="Load" sourceId="entryUnit" targetId="connect%" type="entryToConnect"/>
