@@ -59,103 +59,110 @@ public class RegistryDialog extends Dialog {
 		return true;
 	}
 
+	private boolean existsRegistry() {
+		if (!Registry.getInstance().fileExists()) {
+			Utilities.showErrorUIMessage("Registry file is not created yet. Try to generate a pattern first.");
+			return false;
+		}
+		return true;
+	}
+
 	@Override
 	public void create() {
 		super.create();
-		this.checkRegistryExists();
-		try {
-			this.pattDataMap = Registry.getInstance().getAllData();
-		} catch (SAXException e) {
-			ExceptionHandler.handle(e);
-		} catch (IOException e) {
-			ExceptionHandler.handle(e);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-
-		Shell shell = this.getShell();
-		shell.setMinimumSize(WIDTH, HEIGHT);
-		GridLayout shellLayout = new GridLayout();
-		shellLayout.marginHeight = 10;
-		shellLayout.marginWidth = 10;
-
-		shell.setLayout(shellLayout);
-		// Center the window
-		Point parentSize = shell.getParent().getSize();
-		Point parentLocation = shell.getParent().getLocation();
-
-		int x = parentLocation.x + (parentSize.x - WIDTH) / 2;
-		int y = parentLocation.y + (parentSize.y - HEIGHT) / 2;
-
-		shell.setLocation(x, y);
-
-		// Clean the shell previous adding new components
-		for (Control control : shell.getChildren()) {
-			control.dispose();
-		}
-
-		// General (top) group
-
-		Group generalGroup = new Group(shell, SWT.NONE);
-		generalGroup.setText("General");
-		generalGroup.setLayout(new GridLayout(1, false));
-		GridData generalGroupData = new GridData(SWT.FILL, SWT.FILL, true, false);
-		generalGroup.setLayoutData(generalGroupData);
-
-		Label generalLabel = new Label(generalGroup, SWT.LEFT);
-
-		// Create pattern group and content
-		Group pattGroup = new Group(shell, SWT.NONE);
-		pattGroup.setText("Pattern");
-		pattGroup.setLayout(new GridLayout(1, false));
-		GridData pattGroupData = new GridData(SWT.FILL, SWT.FILL, true, true);
-		pattGroupData.heightHint = 200;
-		pattGroup.setLayoutData(pattGroupData);
-
-		this.pattCombo = new Combo(pattGroup, SWT.NONE);
-
-		this.addItemsToCombo();
-		this.pattCombo.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				RegistryDialog.this.comboSelectionListener();
+		if (!this.existsRegistry()) {
+			this.close();
+		} else {
+			try {
+				this.pattDataMap = Registry.getInstance().getAllData();
+			} catch (SAXException e) {
+				ExceptionHandler.handle(e);
+			} catch (IOException e) {
+				ExceptionHandler.handle(e);
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
 			}
 
-		});
+			Shell shell = this.getShell();
+			shell.setMinimumSize(WIDTH, HEIGHT);
+			GridLayout shellLayout = new GridLayout();
+			shellLayout.marginHeight = 10;
+			shellLayout.marginWidth = 10;
 
-		this.pattText = new Text(pattGroup, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+			shell.setLayout(shellLayout);
+			// Center the window
+			Point parentSize = shell.getParent().getSize();
+			Point parentLocation = shell.getParent().getLocation();
 
-		this.pattText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		this.pattText.setEditable(false);
+			int x = parentLocation.x + (parentSize.x - WIDTH) / 2;
+			int y = parentLocation.y + (parentSize.y - HEIGHT) / 2;
 
-		Composite butCompo = new Composite(shell, SWT.NULL);
-		butCompo.setLayout(new GridLayout(2, true));
-		butCompo.setLayoutData(new GridData(SWT.FILL, SWT.END, true, false));
+			shell.setLocation(x, y);
 
-		Button exportBut = new Button(butCompo, SWT.CENTER);
-		exportBut.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
-		exportBut.setText("Export CSV");
-
-		Button closeBut = new Button(butCompo, SWT.CENTER);
-		closeBut.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
-		closeBut.setText("Close");
-		closeBut.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				super.mouseDown(e);
-				RegistryDialog.this.close();
+			// Clean the shell previous adding new components
+			for (Control control : shell.getChildren()) {
+				control.dispose();
 			}
-		});
 
-		// Load allOutputText with pattDataMap's data
-		this.loadDataMap();
+			// General (top) group
 
-		generalLabel.setText(this.loadSummaryData());
+			Group generalGroup = new Group(shell, SWT.NONE);
+			generalGroup.setText("General");
+			generalGroup.setLayout(new GridLayout(1, false));
+			GridData generalGroupData = new GridData(SWT.FILL, SWT.FILL, true, false);
+			generalGroup.setLayoutData(generalGroupData);
 
-		// Set - All - to combo default selection
-		this.pattCombo.select(0);
-		this.comboSelectionListener();
+			Label generalLabel = new Label(generalGroup, SWT.LEFT);
+
+			// Create pattern group and content
+			Group pattGroup = new Group(shell, SWT.NONE);
+			pattGroup.setText("Pattern");
+			pattGroup.setLayout(new GridLayout(1, false));
+			GridData pattGroupData = new GridData(SWT.FILL, SWT.FILL, true, true);
+			pattGroupData.heightHint = 200;
+			pattGroup.setLayoutData(pattGroupData);
+
+			this.pattCombo = new Combo(pattGroup, SWT.NONE);
+
+			this.addItemsToCombo();
+			this.pattCombo.addSelectionListener(new SelectionAdapter() {
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					RegistryDialog.this.comboSelectionListener();
+				}
+
+			});
+
+			this.pattText = new Text(pattGroup, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+
+			this.pattText.setLayoutData(new GridData(GridData.FILL_BOTH));
+			this.pattText.setEditable(false);
+
+			Composite butCompo = new Composite(shell, SWT.NULL);
+			butCompo.setLayout(new GridLayout(1, true));
+			butCompo.setLayoutData(new GridData(SWT.FILL, SWT.END, true, false));
+
+			Button closeBut = new Button(butCompo, SWT.CENTER);
+			closeBut.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+			closeBut.setText("Close");
+			closeBut.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					super.mouseDown(e);
+					RegistryDialog.this.close();
+				}
+			});
+
+			// Load allOutputText with pattDataMap's data
+			this.loadDataMap();
+
+			generalLabel.setText(this.loadSummaryData());
+
+			// Set - All - to combo default selection
+			this.pattCombo.select(0);
+			this.comboSelectionListener();
+		}
 	}
 
 	private String loadSummaryData() {
@@ -167,13 +174,6 @@ public class RegistryDialog extends Dialog {
 		output += "Elements generated: " + this.elemSummary + "\n";
 
 		return output;
-	}
-
-	private void checkRegistryExists() {
-		if (!Registry.getInstance().fileExists()) {
-			Utilities.showErrorUIMessage("Registry file is not created yet. Try to generate a pattern first.");
-			this.close();
-		}
 	}
 
 	private void addItemsToCombo() {

@@ -88,7 +88,6 @@ public class WizardPatternPage extends WizardPage {
 	private List<CCombo> listCombosRelations;
 
 	private List<String> patternFileList;
-	private List<ISiteView> listaSiteViews;
 	private List<IAttribute> listaAtributosEntidad;
 	private List<IAttribute> listaAtributosSinDerivados;
 	private List<IEntity> entityList;
@@ -108,7 +107,6 @@ public class WizardPatternPage extends WizardPage {
 		this.setTitle("Automatic pattern generation");
 
 		this.patternFileList = new ArrayList<String>();
-		this.listaSiteViews = new ArrayList<ISiteView>();
 		this.entityList = new ArrayList<IEntity>();
 		this.listaAtributosEntidad = new ArrayList<IAttribute>();
 		this.listaAtributosSinDerivados = new ArrayList<IAttribute>();
@@ -157,8 +155,6 @@ public class WizardPatternPage extends WizardPage {
 				this.containerComposite.setLayout(thisLayout);
 				this.containerComposite.layout();
 				this.setControl(this.containerComposite);
-
-				this.listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
 
 				this.createLeftComposite();
 				this.createRightComposite();
@@ -334,6 +330,7 @@ public class WizardPatternPage extends WizardPage {
 				this.relationsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 				this.tableRelations = new Table(this.relationsComposite, SWT.CHECK | SWT.V_SCROLL);
+				this.tableRelations.setHeaderVisible(true);
 				this.relationsComposite.addPaintListener(new PaintListener() {
 					public void paintControl(PaintEvent evt) {
 						WizardPatternPage.this.relationsCompositePaintControl(evt);
@@ -363,7 +360,6 @@ public class WizardPatternPage extends WizardPage {
 
 				// Table
 				final Table table = new Table(composite, SWT.CHECK | SWT.V_SCROLL);
-
 				GridData gridDataIndex = new GridData(SWT.FILL, SWT.FILL, true, true);
 				table.setLayoutData(gridDataIndex);
 
@@ -373,16 +369,16 @@ public class WizardPatternPage extends WizardPage {
 				GridData gridDataButtonSelectPower = new GridData(GridData.FILL, GridData.CENTER, false, false);
 				gridDataButtonSelectPower.horizontalSpan = 1;
 				buttonSelectPower.setLayoutData(gridDataButtonSelectPower);
-				buttonSelectPower.setSelection(Boolean.FALSE);
+				buttonSelectPower.setSelection(false);
 
 				buttonSelectPower.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent e) {
 						if (null != table && null != table.getItems() && table.getItems().length > 0) {
-							Boolean hayCheckeados = Boolean.FALSE;
+							boolean hayCheckeados = false;
 
 							for (int i = 0; i < table.getItems().length; i++) {
 								if (table.getItems()[i].getChecked()) {
-									hayCheckeados = Boolean.TRUE;
+									hayCheckeados = true;
 								}
 							}
 
@@ -467,19 +463,15 @@ public class WizardPatternPage extends WizardPage {
 		}
 	}
 
-	private void addAttributesToTable(Table tabla) {
-		Iterator<IAttribute> iteratorAttribute;
+	private void addAttributesToTable(Table table) {
 		// TODO pattern remodelation (update)
 		/*
 		 * if (tabla == this.tableRelFormUpdate) iteratorAttribute =
 		 * this.listaAtributosSinDerivados.iterator(); else
 		 */
-		iteratorAttribute = this.listaAtributosEntidad.iterator();
-		IAttribute atributo;
-		while (iteratorAttribute.hasNext()) {
-			atributo = iteratorAttribute.next();
-			new TableItem(tabla, SWT.NONE).setText(Utilities.getAttribute(atributo, "name") + " (" + atributo.getFinalId() + ")");
-		}
+		for (IAttribute attribute : this.listaAtributosEntidad)
+			new TableItem(table, SWT.NONE).setText(Utilities.getAttribute(attribute, "name") + " (" + attribute.getFinalId() + ")");
+
 	}
 
 	private void relationsCompositePaintControl(PaintEvent evt) {
@@ -491,9 +483,13 @@ public class WizardPatternPage extends WizardPage {
 	}
 
 	private void addRelationRolesToTable(Table table, List<CCombo> list) {
-		for (int i = 0; i < 2; i++) {
+		final int COLSNUM = 2;
+		String[] titles = { "Relation", "Visible attribute" };
+
+		for (int i = 0; i < COLSNUM; i++) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setWidth(150);
+			column.setText(titles[i]);
 		}
 		this.relatedEntities = this.getRelationshipRoles(this.entitySelected);
 		for (int i = 0; i < this.relatedEntities.size(); i++) {
@@ -526,7 +522,6 @@ public class WizardPatternPage extends WizardPage {
 			editor.grabHorizontal = true;
 			editor.setEditor(combo, items[i], 1);
 		}
-		// table.pack();
 	}
 
 	private List<IRelationshipRole> getRelationshipRoles(IEntity entidad) {
