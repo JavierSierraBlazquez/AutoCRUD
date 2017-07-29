@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratioaux;
 
@@ -25,6 +26,9 @@ import com.webratio.ide.units.core.ISelector;
 import com.webratio.ide.units.core.ISubUnitType;
 import com.webratio.ide.units.core.IUnitProperty;
 
+/**
+ * Manages the creation of a new selector condition command using WebRatio library calls
+ */
 public final class AddSelectorConditionCommand extends AbstractMFCommand {
 	private IMFElement parent;
 	private IMFElement unit;
@@ -40,8 +44,7 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 		this.unit = unit;
 		this.condType = condType;
 		this.selType = ((ISelector) condType.getParent());
-		IMFElement sel = unit
-				.selectSingleElement(this.selType.getElementName());
+		IMFElement sel = unit.selectSingleElement(this.selType.getElementName());
 		if (sel != null) {
 			this.parent = sel;
 			this.addSelector = false;
@@ -54,13 +57,9 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 	public final void execute() {
 		MFUpdater updater = this.parent.getRootElement().getModelUpdater();
 		if (this.addSelector) {
-			this.newElem = this.createGenericElement(ISubUnit.class,
-					this.selType.getElementName(), "webml");
-			Pair id = this.parent
-					.getRootElement()
-					.getIdProvider()
-					.getFirstFreeId(this.parent.valueOf("@id"),
-							this.selType.getIdPrefix(), null, true);
+			this.newElem = this.createGenericElement(ISubUnit.class, this.selType.getElementName(), "webml");
+			Pair id = this.parent.getRootElement().getIdProvider()
+					.getFirstFreeId(this.parent.valueOf("@id"), this.selType.getIdPrefix(), null, true);
 			this.setAttribute(this.newElem, "id", (String) id.first);
 			this.addDefaultProperties(this.newElem, this.selType);
 			this.addChild(this.newElem, this.parent, null);
@@ -71,19 +70,14 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 		updater.added(this.newElem);
 		this.postOperations = updater.update();
 		this.endOperationSession();
-		this.setLabel("Add "
-				+ WebMLElementLabelProvider.INSTANCE.getText(this.newElem));
+		this.setLabel("Add " + WebMLElementLabelProvider.INSTANCE.getText(this.newElem));
 		this.directEdit(this.elemToSelect);
 	}
 
 	private IMFElement addCondition(IMFElement selector) {
-		IMFElement cond = this.createGenericElement(ISubUnit.class,
-				this.condType.getElementName(), this.getModelId());
-		Pair id = selector
-				.getRootElement()
-				.getIdProvider()
-				.getFirstFreeId(selector.valueOf("@id"),
-						this.condType.getIdPrefix(), null, true);
+		IMFElement cond = this.createGenericElement(ISubUnit.class, this.condType.getElementName(), this.getModelId());
+		Pair id = selector.getRootElement().getIdProvider()
+				.getFirstFreeId(selector.valueOf("@id"), this.condType.getIdPrefix(), null, true);
 		this.setAttribute(cond, "id", (String) id.first);
 		this.setAttribute(cond, "name", this.condType.getNamePrefix() + id.second);
 		this.addDefaultProperties(cond, this.condType);
@@ -103,15 +97,11 @@ public final class AddSelectorConditionCommand extends AbstractMFCommand {
 			if ((this.condType instanceof IRelationshipRoleCondition)) {
 				String attrName = prop.get("attributeName");
 				if ("role".equals(attrName)) {
-					IMFElement refElem = this.unit.getElementById(this.unit
-							.valueOf("@entity"));
+					IMFElement refElem = this.unit.getElementById(this.unit.valueOf("@entity"));
 					if ((refElem instanceof IEntity)) {
-						List roles = DataModelHelper
-								.getAllIncomingRelationshipRoles((IEntity) refElem);
+						List roles = DataModelHelper.getAllIncomingRelationshipRoles((IEntity) refElem);
 						if (roles.size() == 1)
-							this.setAttribute(elem, "role",
-									((IRelationshipRole) roles.get(0))
-											.valueOf("@id"));
+							this.setAttribute(elem, "role", ((IRelationshipRole) roles.get(0)).valueOf("@id"));
 					}
 				}
 			}

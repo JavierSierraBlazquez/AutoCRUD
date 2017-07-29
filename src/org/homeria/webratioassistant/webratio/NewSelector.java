@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -18,18 +19,30 @@ import com.webratio.ide.core.UnitHelper;
 import com.webratio.ide.units.core.ISubUnitType;
 import com.webratio.ide.units.internal.core.Selector;
 
+/**
+ * Manages the creation of a new SelectorUnit using WebRatio library calls
+ */
 @SuppressWarnings("restriction")
 public final class NewSelector extends WebRatioCalls {
 
 	private String type;
 	private IMFElement element;
 
+	/**
+	 * Constructs a new instance.
+	 * 
+	 * @param element
+	 * @param type
+	 */
 	public NewSelector(IMFElement element, String type) {
 		super(null, 0, 0);
 		this.element = element;
 		this.type = type;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.webratio.WebRatioCalls#execute()
+	 */
 	@Override
 	public IMFElement execute() {
 		List<ISubUnitType> list = UnitHelper.getUnitType(this.element).getSubUnitTypes();

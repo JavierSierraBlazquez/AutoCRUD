@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratioaux;
 
@@ -43,6 +44,9 @@ import com.webratio.ide.units.core.ISubUnitType;
 import com.webratio.ide.units.core.IUnitProperty;
 import com.webratio.ide.units.core.IUnitType;
 
+/**
+ * Manages the creation of a new unit command using WebRatio library calls.This is used to create a new Unit.
+ */
 public class AddUnitCommand extends SelectionCommand {
 	private Pair<List<IMFOperation>, List<IMFOperation>> postOperations;
 	private IMFElement parent;
@@ -72,12 +76,8 @@ public class AddUnitCommand extends SelectionCommand {
 		}
 		if ((this.source instanceof IAbstractPage))
 			return this.unitType.isContent();
-		if (((this.source instanceof ISiteView))
-				|| ((this.source instanceof IArea))
-				|| ((this.source instanceof IOperationGroup))
-				|| ((this.source instanceof IPort))
-				|| ((this.source instanceof IJob))
-				|| ((this.source instanceof IOperationModule))
+		if (((this.source instanceof ISiteView)) || ((this.source instanceof IArea)) || ((this.source instanceof IOperationGroup))
+				|| ((this.source instanceof IPort)) || ((this.source instanceof IJob)) || ((this.source instanceof IOperationModule))
 				|| ((this.source instanceof IHybridModule))) {
 			return this.unitType.isOperation();
 		}
@@ -94,26 +94,20 @@ public class AddUnitCommand extends SelectionCommand {
 				this.parent = this.createElement(IContentUnits.class, this.getModelId());
 				this.addChild(this.parent, this.source, null);
 			}
-			this.newUnit = this.createGenericElement(IContentUnit.class,
-					this.unitType.getName(), this.getModelId());
+			this.newUnit = this.createGenericElement(IContentUnit.class, this.unitType.getName(), this.getModelId());
 		} else {
 			this.parent = this.source.selectSingleElement("OperationUnits");
 			if (this.parent == null) {
 				this.parent = this.createElement(IOperationUnits.class, this.getModelId());
 				this.addChild(this.parent, this.source, null);
 			}
-			this.newUnit = this.createGenericElement(IOperationUnit.class,
-					this.unitType.getName(), this.getModelId());
+			this.newUnit = this.createGenericElement(IOperationUnit.class, this.unitType.getName(), this.getModelId());
 		}
 		this.setLocation(this.newUnit, "gr:x", "gr:y");
-		Pair id = this.source
-				.getRootElement()
-				.getIdProvider()
-				.getFirstFreeId(this.parent.getParentElement().valueOf("@id"),
-						this.unitType.getIdPrefix(), null, true);
+		Pair id = this.source.getRootElement().getIdProvider()
+				.getFirstFreeId(this.parent.getParentElement().valueOf("@id"), this.unitType.getIdPrefix(), null, true);
 		this.setAttribute(this.newUnit, "id", (String) id.first);
-		this.setAttribute(this.newUnit, "name", this.unitType.getNamePrefix()
-				+ id.second);
+		this.setAttribute(this.newUnit, "name", this.unitType.getNamePrefix() + id.second);
 		for (IUnitProperty prop : this.unitType.getProperties()) {
 			String attrName = prop.get("attributeName");
 			if (StringUtils.isBlank(attrName)) {
@@ -124,19 +118,12 @@ public class AddUnitCommand extends SelectionCommand {
 			if (!defaultValue.equals("")) {
 				this.setAttribute(this.newUnit, attrName, defaultValue);
 			} else {
-				if (!IUnitProperty.Type.SITE_VIEW.getElementName().equals(
-						prop.getType()))
+				if (!IUnitProperty.Type.SITE_VIEW.getElementName().equals(prop.getType()))
 					continue;
 				try {
-					List availableSiteViews = SiteViewProperty
-							.getAvailableSiteViews(
-									(IWebProject) this.parent.getRootElement(),
-									prop);
-					if ((availableSiteViews != null)
-							&& (availableSiteViews.size() == 1))
-						this.setAttribute(this.newUnit, attrName,
-								((ISiteView) availableSiteViews.get(0))
-										.valueOf("@id"));
+					List availableSiteViews = SiteViewProperty.getAvailableSiteViews((IWebProject) this.parent.getRootElement(), prop);
+					if ((availableSiteViews != null) && (availableSiteViews.size() == 1))
+						this.setAttribute(this.newUnit, attrName, ((ISiteView) availableSiteViews.get(0)).valueOf("@id"));
 				} catch (Throwable e) {
 					WRUIStartupPlugin.logException(e, "com.webratio.ide.ui");
 				}
@@ -144,21 +131,18 @@ public class AddUnitCommand extends SelectionCommand {
 		}
 
 		this.addChild(this.newUnit, this.parent, null);
-		if (WRUIPlugin.getDefault().getPreferenceStore()
-				.getBoolean("MODELING_LAYOUT_UNIT_AUTOPLACEMENT")) {
+		if (WRUIPlugin.getDefault().getPreferenceStore().getBoolean("MODELING_LAYOUT_UNIT_AUTOPLACEMENT")) {
 
 			// caguadof--insertado por cambio deprecated de metodo
 			// AutoPlacer.placeOnGrid(this.newUnit, this.source
 			IMFElement location = null;
-			IAbstractPage topLevelAncestorPage = WebModelHelper
-					.getTopLevelAbstractPageWithoutContentPageTest(this.source);
+			IAbstractPage topLevelAncestorPage = WebModelHelper.getTopLevelAbstractPageWithoutContentPageTest(this.source);
 			if (topLevelAncestorPage != null) {
 				GridHelper helper = new GridHelper(topLevelAncestorPage);
 				location = helper.getFirstFreeLocation((IWebMLElement) this.source);
 			}
 
-			Pair pair = AutoPlacer.placeOnGrid(this.newUnit, this.source,
-					location);
+			Pair pair = AutoPlacer.placeOnGrid(this.newUnit, this.source, location);
 			this.location = ((IMFElement) pair.first);
 			this.newLayoutUnit = ((IMFElement) pair.second);
 			if ((this.location != null) && (this.newLayoutUnit != null)) {
@@ -169,33 +153,20 @@ public class AddUnitCommand extends SelectionCommand {
 			if ((subUnitType instanceof ISelector)) {
 				ISelector selector = (ISelector) subUnitType;
 				if (selector.isAutomatic()) {
-					this.selectorElement = this.createGenericElement(ISubUnit.class,
-							selector.getElementName(), this.getModelId());
-					Pair selectorId = this.newUnit
-							.getRootElement()
-							.getIdProvider()
-							.getFirstFreeId(this.newUnit.valueOf("@id"),
-									subUnitType.getIdPrefix(), null, true);
-					this.setAttribute(this.selectorElement, "id",
-							(String) selectorId.first);
+					this.selectorElement = this.createGenericElement(ISubUnit.class, selector.getElementName(), this.getModelId());
+					Pair selectorId = this.newUnit.getRootElement().getIdProvider()
+							.getFirstFreeId(this.newUnit.valueOf("@id"), subUnitType.getIdPrefix(), null, true);
+					this.setAttribute(this.selectorElement, "id", (String) selectorId.first);
 					this.setAttribute(this.selectorElement, "defaultPolicy", "fill");
 					this.setAttribute(this.selectorElement, "booleanOperator", "and");
 					this.addChild(this.selectorElement, this.newUnit, null);
-					IMFElement keyCondition = this.createGenericElement(
-							ISubUnit.class, "KeyCondition", this.getModelId());
-					ISubUnitType type = subUnitType
-							.getSubUnitType("KeyCondition");
+					IMFElement keyCondition = this.createGenericElement(ISubUnit.class, "KeyCondition", this.getModelId());
+					ISubUnitType type = subUnitType.getSubUnitType("KeyCondition");
 					if (type != null) {
-						Pair conditionId = this.newUnit
-								.getRootElement()
-								.getIdProvider()
-								.getFirstFreeId(
-										this.selectorElement.valueOf("@id"),
-										type.getIdPrefix(), null, true);
-						this.setAttribute(keyCondition, "id",
-								(String) conditionId.first);
-						this.setAttribute(keyCondition, "name", type.getNamePrefix()
-								+ conditionId.second);
+						Pair conditionId = this.newUnit.getRootElement().getIdProvider()
+								.getFirstFreeId(this.selectorElement.valueOf("@id"), type.getIdPrefix(), null, true);
+						this.setAttribute(keyCondition, "id", (String) conditionId.first);
+						this.setAttribute(keyCondition, "name", type.getNamePrefix() + conditionId.second);
 						this.setAttribute(keyCondition, "predicate", "in");
 						this.setAttribute(keyCondition, "implied", "false");
 					}
@@ -210,8 +181,7 @@ public class AddUnitCommand extends SelectionCommand {
 		}
 		this.postOperations = updater.update();
 		this.endOperationSession();
-		this.setLabel("Add "
-				+ WebMLElementLabelProvider.INSTANCE.getText(this.newUnit));
+		this.setLabel("Add " + WebMLElementLabelProvider.INSTANCE.getText(this.newUnit));
 		this.directEdit(this.newUnit);
 	}
 

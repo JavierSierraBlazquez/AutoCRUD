@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ */
 package org.homeria.webratioassistant.wizards;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -14,6 +23,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.homeria.webratioassistant.registry.RegistryDialog;
 
+/**
+ * This Wizard Dialog adds a Registry button in the button bar.
+ */
 public class WizardDialogWithRegistryButton extends WizardDialog {
 
 	public WizardDialogWithRegistryButton(Shell parentShell, IWizard newWizard) {
@@ -32,7 +44,7 @@ public class WizardDialogWithRegistryButton extends WizardDialog {
 			public void mouseDown(MouseEvent e) {
 				super.mouseDown(e);
 				RegistryDialog dialog = new RegistryDialog(WizardDialogWithRegistryButton.this.getShell());
-				
+
 				dialog.setBlockOnOpen(true);
 				dialog.open();
 			}

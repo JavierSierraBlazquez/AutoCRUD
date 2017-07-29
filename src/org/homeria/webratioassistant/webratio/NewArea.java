@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -19,17 +20,36 @@ import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.ISiteView;
 import com.webratio.ide.ui.commands.AddAreaCommand;
 
+/**
+ * Manages the creation of a new Area using WebRatio library calls
+ */
 @SuppressWarnings("restriction")
 public final class NewArea extends WebRatioCalls {
 
 	private String name;
 	private IMFElement element;
 
+	/**
+	 * Constructs a new instance.
+	 * 
+	 * @param parent
+	 *            : the parent Page
+	 * @param x
+	 *            : X coord to situate the XOR Page in WR model
+	 * @param y
+	 *            : Y coord to situate the XOR Page in WR model
+	 * @param name
+	 *            : display name
+	 */
 	public NewArea(IMFElement parent, int x, int y, String name) {
 		super(parent, x, y);
 		this.name = name;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.webratio.WebRatioCalls#execute()
+	 */
+	@Override
 	public IMFElement execute() {
 		try {
 			// We verify that the parent is a SiteView or Area, the Area can only go within a SiteView or another Area
@@ -59,6 +79,13 @@ public final class NewArea extends WebRatioCalls {
 
 	}
 
+	/**
+	 * Returns the last area created
+	 * 
+	 * @param element
+	 *            : the ISiteView or IArea parent of the last area created. If not an ISiteView or IArea instance returns null.
+	 * @return last IArea created
+	 */
 	private IMFElement getLastArea(IMFElement element) {
 		ISiteView siteView;
 		IArea area;

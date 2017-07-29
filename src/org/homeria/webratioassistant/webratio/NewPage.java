@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -20,6 +21,9 @@ import com.webratio.ide.model.IArea;
 import com.webratio.ide.model.ISiteView;
 import com.webratio.ide.ui.commands.AddPageCommand;
 
+/**
+ * Manages the creation of a new Page using WebRatio library calls
+ */
 @SuppressWarnings("restriction")
 public final class NewPage extends WebRatioCalls {
 
@@ -27,15 +31,30 @@ public final class NewPage extends WebRatioCalls {
 	private IMFElement page;
 	private Boolean isLandmark;
 
+	/**
+	 * Constructs a new instance.
+	 * 
+	 * @param parent
+	 *            : the parent SiteView or Page
+	 * @param x
+	 *            : X coord to situate the XOR Page in WR model
+	 * @param y
+	 *            : Y coord to situate the XOR Page in WR model
+	 * @param name
+	 *            : display name
+	 * @param isLandmark
+	 *            : sets the property 'landmark' of this page.
+	 */
 	public NewPage(IMFElement parent, int x, int y, String name, Boolean isLandmark) {
 		super(parent, x, y);
 		this.name = name;
 		this.isLandmark = isLandmark;
 	}
 
-	/**
- * 
- */
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.webratio.WebRatioCalls#execute()
+	 */
+	@Override
 	public IMFElement execute() {
 		try {
 			// We verify that the site to create the page is a SiteView or an alternative page
@@ -71,10 +90,12 @@ public final class NewPage extends WebRatioCalls {
 
 	/**
 	 * 
-	 * Nombre: getLastPage Funcion:
+	 * 
+	 * Returns the last page created *
 	 * 
 	 * @param element
-	 * @return
+	 *            : the parent that contains the last page created. If not an instance of ISiteView, IAlternative or IArea, returns null
+	 * @return the last IPage created
 	 */
 	private IMFElement getLastPage(IMFElement element) {
 		ISiteView siteView;

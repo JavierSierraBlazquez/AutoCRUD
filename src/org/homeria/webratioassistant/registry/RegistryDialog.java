@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.registry;
 
 import java.io.IOException;
@@ -28,6 +37,9 @@ import org.homeria.webratioassistant.exceptions.ExceptionHandler;
 import org.homeria.webratioassistant.webratio.Utilities;
 import org.xml.sax.SAXException;
 
+/**
+ * This Dialog shows all the Registry information.
+ */
 public class RegistryDialog extends Dialog {
 	private static final int WIDTH = 500;
 	private static final int HEIGHT = 500;
@@ -41,6 +53,12 @@ public class RegistryDialog extends Dialog {
 	int svSummary;
 	int elemSummary;
 
+	/**
+	 * Constructor of this Dialog
+	 * 
+	 * @param parentShell
+	 *            : the parent Shell
+	 */
 	public RegistryDialog(Shell parentShell) {
 		super(parentShell);
 
@@ -49,16 +67,27 @@ public class RegistryDialog extends Dialog {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.Dialog#createButton(org.eclipse.swt.widgets.Composite, int, java.lang.String, boolean)
+	 */
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
 		if (id == IDialogConstants.OK_ID || id == IDialogConstants.CANCEL_ID)
 			return null;
 		return super.createButton(parent, id, label, defaultButton);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.Dialog#isResizable()
+	 */
 	protected boolean isResizable() {
 		return true;
 	}
 
+	/**
+	 * Check if the Registry file exists
+	 * 
+	 * @return true if the file exists, false otherwise
+	 */
 	private boolean existsRegistry() {
 		if (!Registry.getInstance().fileExists()) {
 			Utilities.showErrorUIMessage("Registry file is not created yet. Try to generate a pattern first.");
@@ -67,6 +96,9 @@ public class RegistryDialog extends Dialog {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.Dialog#create()
+	 */
 	@Override
 	public void create() {
 		super.create();
@@ -154,8 +186,7 @@ public class RegistryDialog extends Dialog {
 				}
 			});
 
-			// Load allOutputText with pattDataMap's data
-			this.loadDataMap();
+			this.allOutputText = this.loadDataMap();
 
 			generalLabel.setText(this.loadSummaryData());
 
@@ -165,6 +196,41 @@ public class RegistryDialog extends Dialog {
 		}
 	}
 
+	private void addItemsToCombo() {
+		this.pattCombo.add(" - All - ");
+
+		for (String id : this.pattDataMap.keySet()) {
+			this.pattCombo.add(id);
+		}
+	}
+
+	/**
+	 * Fills the UI with the data asociated to the pattern selected by this combo
+	 */
+	public void comboSelectionListener() {
+		int selectionIndex = this.pattCombo.getSelectionIndex();
+		String selectionText = this.pattCombo.getText();
+
+		// Format Data and set it to the widget
+		if (selectionIndex == 0) {
+			// All
+			this.pattText.setText(this.allOutputText);
+
+		} else {
+			if (!selectionText.isEmpty()) {
+				PatternRegisteredPOJO data = this.pattDataMap.get(selectionText);
+
+				this.pattText.setText(data.toString());
+
+			}
+		}
+	}
+
+	/**
+	 * Retrieves the summary data
+	 * 
+	 * @return : the summary data in a String
+	 */
 	private String loadSummaryData() {
 		String output = "";
 
@@ -176,17 +242,12 @@ public class RegistryDialog extends Dialog {
 		return output;
 	}
 
-	private void addItemsToCombo() {
-		// this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
-
-		this.pattCombo.add(" - All - ");
-
-		for (String id : this.pattDataMap.keySet()) {
-			this.pattCombo.add(id);
-		}
-	}
-
-	private void loadDataMap() {
+	/**
+	 * Retrieves all the registry data
+	 * 
+	 * @return the registry data in a String
+	 */
+	private String loadDataMap() {
 		SortedMap<String, Integer> allSv = new TreeMap<String, Integer>();
 		SortedMap<String, Integer> allElements = new TreeMap<String, Integer>();
 		String pattOutput = " - Patterns: \n";
@@ -228,25 +289,6 @@ public class RegistryDialog extends Dialog {
 			this.elemSummary += auxNum;
 			elementsOutput += "\t" + element + " (" + auxNum + ")\n";
 		}
-		this.allOutputText = pattOutput + svOutput + elementsOutput;
-	}
-
-	public void comboSelectionListener() {
-		int selectionIndex = this.pattCombo.getSelectionIndex();
-		String selectionText = this.pattCombo.getText();
-
-		// Format Data and set it to the widget
-		if (selectionIndex == 0) {
-			// All
-			this.pattText.setText(this.allOutputText);
-
-		} else {
-			if (!selectionText.isEmpty()) {
-				PatternRegisteredPOJO data = this.pattDataMap.get(selectionText);
-
-				this.pattText.setText(data.toString());
-
-			}
-		}
+		return pattOutput + svOutput + elementsOutput;
 	}
 }

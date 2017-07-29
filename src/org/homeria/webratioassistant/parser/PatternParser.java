@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.parser;
 
 import java.io.File;
@@ -49,6 +58,7 @@ import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationship;
 import com.webratio.ide.model.IRelationshipRole;
 
+/** Class responsible for reading and analyzing pattern, serializing elements into more manageable objects. */
 public class PatternParser {
 	private static int UNIT_GAP = 120;
 
@@ -68,10 +78,12 @@ public class PatternParser {
 	private static final String PARENTID = "parentId";
 	private static final String X = "x";
 	private static final String Y = "y";
-	private static final String DEFAULT = "default";
-	private static final String LANDMARK = "landmark";
 	private static final String SOURCEID = "sourceId";
 	private static final String TARGETID = "targetId";
+	private static final String VALIDATE = "validate";
+	private static final String DEFAULT = "default";
+	private static final String LANDMARK = "landmark";
+	private static final String MESSAGE = "message";
 
 	private static final String MARKER_RELATION = "#";
 	private static final String MARKER_NMRELATION = "%";
@@ -89,6 +101,17 @@ public class PatternParser {
 	private List<Unit> units;
 	private List<Link> links;
 
+	/**
+	 * Constructs a new instance and prepares for parsing
+	 * 
+	 * @param path
+	 *            : absolute path to the pattern file
+	 * @param entity
+	 *            : entity selected by the user
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	public PatternParser(String path, IEntity entity) throws SAXException, IOException, ParserConfigurationException {
 		this.pages = new LinkedList<WebRatioElement>();
 		this.units = new ArrayList<Unit>();
@@ -110,27 +133,37 @@ public class PatternParser {
 
 	}
 
+	/**
+	 * Checks if all patterns have different id (in the root node). If some id are not unique IdNotUniqueException is raised.
+	 * 
+	 * @param files
+	 *            : array with the patterns for checking
+	 * @throws IdNotUniqueException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
 	public static void checkPatternsIdAreUnique(File[] files) throws IdNotUniqueException, SAXException, IOException,
 			ParserConfigurationException {
 		List<String> patternsIdsList = new ArrayList<String>();
 		Document doc;
 		DocumentBuilder dBuilder;
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			dBuilder = dbFactory.newDocumentBuilder();
+		dBuilder = dbFactory.newDocumentBuilder();
 
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isFile() && files[i].getName().contains(".xml")) {
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isFile() && files[i].getName().contains(".xml")) {
 
-					doc = dBuilder.parse(files[i]);
-					String patternId = doc.getDocumentElement().getAttribute(ID);
+				doc = dBuilder.parse(files[i]);
+				String patternId = doc.getDocumentElement().getAttribute(ID);
 
-					if (patternsIdsList.contains(patternId))
-						throw new IdNotUniqueException(patternId, "Root element of " + files[i].getAbsolutePath());
-					else
-						patternsIdsList.add(patternId);
+				if (patternsIdsList.contains(patternId))
+					throw new IdNotUniqueException(patternId, "Root element of " + files[i].getAbsolutePath());
+				else
+					patternsIdsList.add(patternId);
 
-				}
 			}
+		}
 	}
 
 	public Queue<WebRatioElement> getPages() {
@@ -161,6 +194,9 @@ public class PatternParser {
 		this.doc = this.dBuilder.parse(this.fXmlFile);
 	}
 
+	/**
+	 * Parse the PAGES section. Call getPages() and getUnits() to get the element parsed.
+	 */
 	public void parsePagesSection() {
 		NodeList pagesSection = this.doc.getElementsByTagName(PAGES);
 
@@ -180,6 +216,14 @@ public class PatternParser {
 		}
 	}
 
+	/**
+	 * Auxiliary method for parsePagesSection().
+	 * 
+	 * @param page
+	 *            : XML Element that represents the page or xor page to parse.
+	 * @param parentId
+	 *            : the parent id of the page to parse
+	 */
 	private void parsePage(Element page, String parentId) {
 
 		// Create new Page or Alternative (XOR)
@@ -203,23 +247,28 @@ public class PatternParser {
 				else {
 					element.setAttribute(PARENTID, page.getAttribute(ID));
 					// Creo la unit
-					this.createContentUnit(element, this.entity);
+					this.createContentUnit(element);
 				}
 			}
 		}
-
 	}
 
-	private void createContentUnit(Element xmlUnit, IEntity entity) {
+	/**
+	 * Creates the ContentUnits
+	 * 
+	 * @param xmlUnit
+	 *            : XML Element that represents the content unit to parse
+	 */
+	private void createContentUnit(Element xmlUnit) {
 		String nodeName = xmlUnit.getNodeName();
 
 		if (nodeName.equalsIgnoreCase(ElementTypes.POWER_INDEX_UNIT)) {
 			this.units.add(new PowerIndexUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
-					.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+					.getAttribute(X), xmlUnit.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.DATA_UNIT)) {
 			this.units.add(new DataUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
-					.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+					.getAttribute(X), xmlUnit.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.MULTI_MESSAGE_UNIT)) {
 			this.units.add(new MultiMessageUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID),
@@ -227,19 +276,22 @@ public class PatternParser {
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.ENTRY_UNIT)) {
 			this.units.add(new EntryUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
-					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.SELECTOR_UNIT)) {
 			this.units.add(new SelectorUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
-					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.NO_OP_CONTENT_UNIT)) {
 			this.units.add(new NoOpContentUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID),
-					xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+					xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), this.entity));
 
 		}
 	}
 
+	/**
+	 * Parse the OUTSIDEUNITS section. Call getUnits() to get the element parsed.
+	 */
 	public void parseOutsideUnitsSection() {
 		NodeList outUnitSection = this.doc.getElementsByTagName(OUTSIDEUNITS);
 
@@ -251,18 +303,24 @@ public class PatternParser {
 				if (node instanceof Element) {
 					Element outUnit = (Element) node;
 
-					this.createOutsideUnit(outUnit, this.entity);
+					this.createOutsideUnit(outUnit);
 				}
 			}
 		}
 	}
 
-	private void createOutsideUnit(Element xmlUnit, IEntity entity) {
+	/**
+	 * Creates the OutsideUnit (units that its parents are the SiteView or Area)
+	 * 
+	 * @param xmlUnit
+	 *            : XML Element that represents the outsideunit to parse
+	 */
+	private void createOutsideUnit(Element xmlUnit) {
 		String nodeName = xmlUnit.getNodeName();
 
 		if (nodeName.equalsIgnoreCase(ElementTypes.SELECTOR_UNIT)) {
 			this.units.add(new SelectorUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(PARENTID), xmlUnit
-					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), entity));
+					.getAttribute(TYPE), xmlUnit.getAttribute(X), xmlUnit.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.IS_NOT_NULL_UNIT)) {
 			this.units.add(new IsNotNullUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
@@ -270,19 +328,22 @@ public class PatternParser {
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.CREATE_UNIT)) {
 			this.units.add(new CreateUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
-					.getAttribute(Y), entity));
+					.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.DELETE_UNIT)) {
 			this.units.add(new DeleteUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
-					.getAttribute(Y), entity));
+					.getAttribute(Y), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.UPDATE_UNIT)) {
 			this.units.add(new UpdateUnit(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(X), xmlUnit
-					.getAttribute(Y), entity));
+					.getAttribute(Y), this.entity));
 
 		}
 	}
 
+	/**
+	 * Parse the LINKS section. Call getLinks() to get the element parsed.
+	 */
 	public void parseLinksSection() {
 		NodeList linksSection = this.doc.getElementsByTagName(LINKS);
 
@@ -294,35 +355,49 @@ public class PatternParser {
 				if (node instanceof Element) {
 					Element link = (Element) node;
 
-					this.createLink(link, this.entity);
+					this.createLink(link);
 				}
 			}
 		}
 	}
 
-	private void createLink(Element xmlUnit, IEntity entity) {
+	/**
+	 * Creates the links
+	 * 
+	 * @param xmlUnit
+	 *            : XML Element that represents the outsideunit to parse
+	 */
+	private void createLink(Element xmlUnit) {
 		String nodeName = xmlUnit.getNodeName();
 
 		if (nodeName.equalsIgnoreCase(ElementTypes.NORMAL_NAVIGATION_FLOW)) {
 			this.links.add(new NormalNavigationFlow(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID),
-					xmlUnit.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute("validate"), entity));
+					xmlUnit.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute(VALIDATE), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.DATA_FLOW)) {
 			this.links.add(new DataFlow(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID), xmlUnit
-					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), entity));
+					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), this.entity));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.OK_LINK)) {
 			this.links.add(new OKLink(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID), xmlUnit
-					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute("message")));
+					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute(MESSAGE)));
 
 		} else if (nodeName.equalsIgnoreCase(ElementTypes.KO_LINK)) {
 			this.links.add(new KOLink(xmlUnit.getAttribute(ID), xmlUnit.getAttribute(NAME), xmlUnit.getAttribute(SOURCEID), xmlUnit
-					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute("message")));
+					.getAttribute(TARGETID), xmlUnit.getAttribute(TYPE), xmlUnit.getAttribute(MESSAGE)));
 
 		}
 
 	}
 
+	/**
+	 * Parse the RELATIONS section. Call getUnits() and getLinks() to get the element parsed.
+	 * 
+	 * @param relationshipRolesSelected
+	 *            : the relationship roles selected by the user
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	public void parseRelations(Set<IRelationshipRole> relationshipRolesSelected) throws SAXException, IOException {
 		int countRel = 0;
 		int countNMRel = 0;
@@ -368,13 +443,23 @@ public class PatternParser {
 						Element link = (Element) node;
 
 						this.replaceMarkersWithNum(link, countRel, countNMRel);
-						this.createLink(link, this.entity);
+						this.createLink(link);
 					}
 				}
 			}
 		}
 	}
 
+	/**
+	 * Auxiliary function for parseRelations() to parse RELATIONS section
+	 * 
+	 * @param relSection
+	 *            : XML Element that represents the RELATIONS section
+	 * @param role
+	 *            : the relationship role
+	 * @param countRel
+	 *            : number of relations processed
+	 */
 	private void relationsSection(Element relSection, IRelationshipRole role, int countRel) {
 		Element section;
 
@@ -383,6 +468,18 @@ public class PatternParser {
 			this.createElementsRole(section, role, countRel, 0);
 	}
 
+	/**
+	 * Auxiliary function for parseRelations() to parse NMRELATIONS section
+	 * 
+	 * @param nmSection
+	 *            : XML Element that represents the NMRELATIONS section
+	 * @param role
+	 *            : the relationship role
+	 * @param countRel
+	 *            : number of relations processed
+	 * @param countNMRel
+	 *            : number of N:M relations processed
+	 */
 	private void nmRelationsSection(Element nmSection, IRelationshipRole role, int countRel, int countNMRel) {
 		Element section;
 
@@ -402,6 +499,18 @@ public class PatternParser {
 
 	}
 
+	/**
+	 * Creates the elements with a relationship role
+	 * 
+	 * @param section
+	 *            : the section that contains the Element nodes with the units or links
+	 * @param role
+	 *            : the relationship role
+	 * @param countRel
+	 *            : number of relations processed
+	 * @param countNMRel
+	 *            : number of N:M relations processed
+	 */
 	private void createElementsRole(Element section, IRelationshipRole role, int countRel, int countNMRel) {
 		NodeList elements = section.getChildNodes();
 
@@ -431,37 +540,30 @@ public class PatternParser {
 							.getAttribute(Y), this.entity, role));
 
 				} else if (nodeName.equalsIgnoreCase(ElementTypes.SELECTOR_UNIT)) {
-					this.units
-							.add(new SelectorUnit(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(PARENTID),
-									element.getAttribute(TYPE), element.getAttribute(X), element.getAttribute(Y), this
-											.getTargetEntity(role), role));
+					this.units.add(new SelectorUnit(element.getAttribute(ID), element.getAttribute(NAME), element.getAttribute(PARENTID),
+							element.getAttribute(TYPE), element.getAttribute(X), element.getAttribute(Y), Utilities.getTargetEntity(role,
+									this.entity), role));
 				} else {
-					this.createLink(element, this.entity);
+					this.createLink(element);
 				}
 			}
 		}
 	}
 
-	private void replaceAtt(Element element, String attribute, int countRel, int countNMRel) {
-		String aux = element.getAttribute(attribute);
-		if (aux.contains(MARKER_RELATION))
-			aux = this.replaceMarkerWithNum2(aux, MARKER_RELATION, countRel);
-		if (aux.contains(MARKER_NMRELATION))
-			aux = this.replaceMarkerWithNum2(aux, MARKER_NMRELATION, countNMRel);
-		element.setAttribute(attribute, aux);
-	}
-
-	private void replaceCoord(Element element, String coord, int countRel, int countNMRel) {
-		String aux = element.getAttribute(coord);
-		if (aux.contains(MARKER_RELATION))
-			aux = this.replaceCoords(aux, MARKER_RELATION, countRel);
-		if (aux.contains(MARKER_NMRELATION))
-			aux = this.replaceCoords(aux, MARKER_NMRELATION, countNMRel);
-		element.setAttribute(coord, aux);
-	}
-
-	// sustituye la almohadilla por el parámetro y opera si fuese necesario #-n #-n
-	// en los atributos id, sourceId y targetId
+	/**
+	 * Replace the pad with the counter parameter and operate if necessary (# + n or # -n) on the attributes id, name, sourceId, targetId
+	 * and at the x and y coordinates. <br>
+	 * Examples: <br>
+	 * Input: Attribute "id" with value "idCreate#" and countRel=5 Output: Attribute "id" with value "idCreate5". <br>
+	 * Input: Attribute "id" with value "idConnect%-1" and countNMRel=3 Output: Attribute "id" with value "idConnect2"
+	 * 
+	 * @param element
+	 *            : XML Element that contains the attributes to modify
+	 * @param countRel
+	 *            : number of relations processed
+	 * @param countNMRel
+	 *            : number of N:M relations processed
+	 */
 	private void replaceMarkersWithNum(Element element, int countRel, int countNMRel) {
 		this.replaceAtt(element, ID, countRel, countNMRel);
 		this.replaceAtt(element, NAME, countRel, countNMRel);
@@ -472,7 +574,27 @@ public class PatternParser {
 		this.replaceCoord(element, Y, countRel, countNMRel);
 	}
 
-	// str formato: cadena# || cadena#-n || cadena#+n
+	/** @see org.homeria.webratioassistant.parser.PatternParser#replaceMarkersWithNum(Element, int, int) */
+	private void replaceAtt(Element element, String attribute, int countRel, int countNMRel) {
+		String aux = element.getAttribute(attribute);
+		if (aux.contains(MARKER_RELATION))
+			aux = this.replaceMarkerWithNum2(aux, MARKER_RELATION, countRel);
+		if (aux.contains(MARKER_NMRELATION))
+			aux = this.replaceMarkerWithNum2(aux, MARKER_NMRELATION, countNMRel);
+		element.setAttribute(attribute, aux);
+	}
+
+	/** @see org.homeria.webratioassistant.parser.PatternParser#replaceMarkersWithNum(Element, int, int) */
+	private void replaceCoord(Element element, String coord, int countRel, int countNMRel) {
+		String aux = element.getAttribute(coord);
+		if (aux.contains(MARKER_RELATION))
+			aux = this.replaceCoords(aux, MARKER_RELATION, countRel);
+		if (aux.contains(MARKER_NMRELATION))
+			aux = this.replaceCoords(aux, MARKER_NMRELATION, countNMRel);
+		element.setAttribute(coord, aux);
+	}
+
+	/** @see org.homeria.webratioassistant.parser.PatternParser#replaceMarkersWithNum(Element, int, int) */
 	private String replaceMarkerWithNum2(String str, String marker, int count) {
 		String s2[] = str.split(marker);
 		if (s2.length > 1) {
@@ -487,7 +609,7 @@ public class PatternParser {
 		return s2[0];
 	}
 
-	// str formato: 200# || 200% RESULTADO: 200*count
+	/** @see org.homeria.webratioassistant.parser.PatternParser#replaceMarkersWithNum(Element, int, int) */
 	private String replaceCoords(String str, String marker, int count) {
 		String s2[] = str.split(marker);
 		int value = Integer.valueOf(s2[0]);
@@ -497,21 +619,12 @@ public class PatternParser {
 		return s2[0];
 	}
 
-	private IEntity getTargetEntity(IRelationshipRole role) {
-		IRelationship relation = (IRelationship) role.getParentElement();
-		if (relation.getTargetEntity() == this.entity) {
-			return relation.getSourceEntity();
-		} else
-			return relation.getTargetEntity();
-
-	}
-
 	/**
-	 * Nombre: isNtoN Funcion: Comprueba si la relacion es NaN
+	 * Check if the relationship is N: M
 	 * 
 	 * @param role
-	 *            : relacion en la que comprobar la cardinalidad
-	 * @return: la relacion en caso se existir o null en caso contrario
+	 *            : Relationship in which to check the cardinality
+	 * @return: true if the relationship is N:M, false otherwise
 	 */
 	private boolean isNtoN(IRelationshipRole role, IEntity entity) {
 		IEntity entidad1 = entity;

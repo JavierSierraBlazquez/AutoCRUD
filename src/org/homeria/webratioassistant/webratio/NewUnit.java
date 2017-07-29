@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -30,27 +31,49 @@ import com.webratio.ide.units.UnitsPlugin;
 import com.webratio.ide.units.core.IUnitProject;
 import com.webratio.ide.units.core.IUnitType;
 
+/**
+ * Manages the creation of a new Unit using WebRatio library calls
+ */
 public final class NewUnit extends WebRatioCalls {
 	private IEntity entity;
 	private String name;
 	private String type;
 	private IUnit unit;
-	private HashMap<String, IUnitType> UnitTypes;
+	private HashMap<String, IUnitType> unitTypes;
 
-	public NewUnit(IMFElement parent, String tipo, int x, int y, String name, IEntity entity) {
+	/**
+	 * Constructs a new instance.
+	 * 
+	 * @param parent
+	 *            : unit parent
+	 * @param type
+	 *            : unit type
+	 * @param x
+	 *            : X coord to situate the XOR Page in WR model
+	 * @param y
+	 *            : Y coord to situate the XOR Page in WR model
+	 * @param name
+	 *            : display name
+	 * @param entity
+	 *            : entity associated with the unit
+	 */
+	public NewUnit(IMFElement parent, String type, int x, int y, String name, IEntity entity) {
 		super(parent, x, y);
 		this.name = name;
 		this.loadUnitTypes();
-		this.type = tipo;
+		this.type = type;
 		this.entity = entity;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.webratio.WebRatioCalls#execute()
+	 */
 	@Override
 	public final IMFElement execute() {
 		IUnitType unitType;
 		this.unit = null;
 		// We obtain a corresponding unit with the indicated type
-		unitType = this.getUnitType(this.type);
+		unitType = this.unitTypes.get(this.type);
 		try {
 			// We create an instance in the class that the units create, indicating the type
 			AddUnitCommand cmd = new AddUnitCommand(unitType);
@@ -102,13 +125,9 @@ public final class NewUnit extends WebRatioCalls {
 		return null;
 	}
 
-	private IUnitType getUnitType(String type) {
-		return this.UnitTypes.get(type);
-	}
-
 	private void loadUnitTypes() {
 		IWebProject webProject = ProjectParameters.getWebProject();
-		this.UnitTypes = new HashMap<String, IUnitType>();
+		this.unitTypes = new HashMap<String, IUnitType>();
 		// Get unit types list
 		IProject[] project = new IProject[1];
 		project[0] = MFPlugin.getDefault().getFile(webProject).getProject();
@@ -125,7 +144,7 @@ public final class NewUnit extends WebRatioCalls {
 			while (iter.hasNext()) {
 				iu = iter.next();
 				// Save the name and unitType
-				this.UnitTypes.put(iu.getName(), iu);
+				this.unitTypes.put(iu.getName(), iu);
 			}
 		}
 	}

@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.elements;
 
 import java.util.HashMap;
@@ -22,11 +31,32 @@ import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISubUnit;
 import com.webratio.ide.model.IUnit;
 
+/**
+ * This class contains the data previously parsed. It is needed to create the DataFlow in the WebRatio Model using generate method.
+ */
 public class DataFlow extends Link {
 	private IRelationshipRole role;
 	private IEntity entity;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 
+	/**
+	 * Creates a new instance with the given data.
+	 * 
+	 * @param id
+	 *            : used to uniquely identify the element.
+	 * @param name
+	 *            : the element name to display.
+	 * @param sourceId
+	 *            : the element's id that is the source of the flow
+	 * @param targetId
+	 *            : the element's id that is the target of the flow
+	 * @param type
+	 *            : specifies the type of coupling to do.
+	 * @param entity
+	 *            : the entity to associate to this unit
+	 * @param role
+	 *            : the relationship role
+	 */
 	public DataFlow(String id, String name, String sourceId, String targetId, String type, IEntity entity, IRelationshipRole role) {
 		super(id, name, sourceId, targetId, type);
 		this.entity = entity;
@@ -34,16 +64,42 @@ public class DataFlow extends Link {
 
 	}
 
+	/**
+	 * Creates a new instance with the given data.
+	 * 
+	 * @param id
+	 *            : used to uniquely identify the element.
+	 * @param name
+	 *            : the element name to display.
+	 * @param sourceId
+	 *            : the element's id that is the source of the flow
+	 * @param targetId
+	 *            : the element's id that is the target of the flow
+	 * @param type
+	 *            : specifies the type of coupling to do.
+	 * @param entity
+	 *            : the entity to associate to this unit
+	 */
 	public DataFlow(String id, String name, String sourceId, String targetId, String type, IEntity entity) {
 		super(id, name, sourceId, targetId, type);
 		this.type = type;
 		this.entity = entity;
 	}
 
+	/**
+	 * Set the relationship roles selected in the UI. Each map entry is a pair <K,V>: Key is the relationship role. Value is the oid(key)
+	 * attribute related with the role
+	 * 
+	 * @param relshipsSelected
+	 *            : Map with the relationship roles selected
+	 */
 	public void setRelshipsSelected(Map<IRelationshipRole, IAttribute> relshipsSelected) {
 		this.relshipsSelected = relshipsSelected;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.elements.WebRatioElement#generate(java.util.Map)
+	 */
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement source = createdElements.get(this.sourceId);
@@ -77,20 +133,21 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: putPreload Funcion: Clase que se encarga de poner los datos preload dada una RelationShipRole
+	 * This method creates the entryUnit fields that are related to the relationship role
 	 * 
-	 * @param destino
-	 *            : unidad destino, entryUnit
+	 * @param target
+	 *            : EntryUnit
 	 * @param role
-	 *            : role que
+	 *            : Relationship role
 	 * @param link
+	 *            : Link making the coupling
 	 */
-	private void putPreload(IMFElement destino, IRelationshipRole role, IMFElement link) {
+	private void putPreload(IMFElement target, IRelationshipRole role, IMFElement link) {
 		IEntity sourceEntity = this.getTargetEntity(role);
 		IAttribute selectAtt = this.relshipsSelected.get(role);
 		ISubUnit field;
 		String fieldName;
-		List<ISubUnit> fieldList = ((IUnit) destino).getSubUnitList();
+		List<ISubUnit> fieldList = ((IUnit) target).getSubUnitList();
 		String roleName = Utilities.getAttribute(role, "name");
 		IEntity entityPreload = this.getTargetEntity(role);
 		List<IAttribute> attList = entityPreload.getAllAttributeList();
@@ -113,11 +170,11 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: getTargetEntity Funcion: Obtiene la entidad de destino dada una Role
+	 * Gets the target entity given a relationship role
 	 * 
 	 * @param role
-	 *            : role de la que obtener la entidad destino
-	 * @return: targetEntity
+	 *            : Role from which to obtain the target entity
+	 * @return target entity required
 	 */
 	private IEntity getTargetEntity(IRelationshipRole role) {
 		IRelationship relation = (IRelationship) role.getParentElement();
@@ -129,22 +186,22 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: createParameter Funcion: Añade un parametro a un link, para conectar un atributo con un campo de formulario
+	 * Adds a parameter to a link, to connect an attribute with a form field
 	 * 
 	 * @param attribute
-	 *            : atributo que queremos conectar
+	 *            : Attribute we want to connect
 	 * @param subUnit
-	 *            : campo del formulario que queremos conectar
+	 *            : Field of the form that we want to connect
 	 * @param link
-	 *            : link que contendrá el parametro
-	 * @return: el parametro creado
+	 *            : Link that will contain the parameter
+	 * @return: The parameter created
 	 */
 	private IMFElement createParameter(IAttribute attribute, ISubUnit subUnit, IMFElement link) {
 		IMFElement linkParameter;
 		IMFElement field = subUnit;
 		String name = Utilities.getAttribute(field, "name");
 		// We create a linkParameter with the necessary data
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		// Id: form of the id of the link plus the id of the elements
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
@@ -162,31 +219,31 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: createParameterPreload Funcion: Crea un parametro en un link para poder hacer el preload de atributos
+	 * Create a parameter in a link to be able to preload attributes
 	 * 
 	 * @param attribute
-	 *            : atributo que queremos relacionar
+	 *            : Attribute we want to relate
 	 * @param field
-	 *            : campo que queremos precargar
+	 *            : Field we want to preload
 	 * @param selectAtt
-	 *            : atributo necesario para obtener el nombre del source
+	 *            : Attribute needed to get the name of the source
 	 * @param link
-	 *            : link que contendrá el paramtro
+	 *            : Link that will contain the parameter
 	 * @param sourceEntity
-	 *            : entidad de la que proceden los atributos
+	 *            : Entity from which the attributes
 	 */
 	private void createParameterPreload(IAttribute attribute, ISubUnit field, IAttribute selectAtt, IMFElement link, IEntity sourceEntity) {
 		IMFElement linkParameter;
-		IEntity padre = sourceEntity;
+		IEntity parent = sourceEntity;
 
 		String id = this.cleanIds(link.getIdsByFinalId().toString());
 		String source_label = this.cleanIds(selectAtt.getIdsByFinalId().toString()) + "Array";
 		String source_output = this.cleanIds(attribute.getIdsByFinalId().toString()) + "Array";
 
-		String name_label = Utilities.getAttribute(selectAtt, "name") + "_" + Utilities.getAttribute(padre, "name") + " [label]";
-		String name_output = "oid_" + Utilities.getAttribute(padre, "name") + " [output]";
+		String name_label = Utilities.getAttribute(selectAtt, "name") + "_" + Utilities.getAttribute(parent, "name") + " [label]";
+		String name_output = "oid_" + Utilities.getAttribute(parent, "name") + " [output]";
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", id + "#" + linkParameter.getFinalId(), link.getRootElement()).execute();
 		new SetAttributeMFOperation(linkParameter, "name", name_label, link.getRootElement()).execute();
@@ -195,7 +252,7 @@ public class DataFlow extends Link {
 				link.getRootElement()).execute();
 		((MFElement) link).addChild(linkParameter, null);
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", id + "#" + linkParameter.getFinalId(), link.getRootElement()).execute();
 		new SetAttributeMFOperation(linkParameter, "name", name_output, link.getRootElement()).execute();
@@ -206,23 +263,23 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: guessCouplingEntryToConnect Funcion: Simula el GuessCoupling de webRatio entre una EntryUnit y una ConnectUnit para conectar
-	 * el oid de la entidad con la Role que esta en la condicion de la ConnectUnit
+	 * Performs the GuessCoupling between an EntryUnit and a ConnectUnit. Used to connect the entity oid with the Role that is in the
+	 * condition of the ConnectUnit
 	 * 
 	 * @param source
-	 *            : unidadOrigen (entryUnit)
+	 *            : Source unit (entryUnit)
 	 * @param target
-	 *            : unidadDestino (connect o disconnect unit)
+	 *            : Target unit (connect, disconnect or reconnect unit)
 	 * @param targetEntity
-	 *            : Entidad de la conectUnit, no tiene por que ser la misma que la del CRUD
+	 *            : Entity of the target unit.
 	 * @param role
-	 *            : role que esta en la roleCondition de la unidad destino
+	 *            : Role that is in the roleCondition of the target unit
 	 * @param link
-	 *            : link que enlaza la unidad origen y destino, para añadirle el linkParameter
+	 *            : Link to which linkParameter is added
 	 */
 	private void guessCouplingEntryToConnect(IMFElement source, IMFElement target, IEntity targetEntity, IRelationshipRole role,
 			IMFElement link) {
-		// Obtenemos la keyCondition de la unidadDestino
+		// We get the keyCondition of the target unit
 		IOperationUnit connectUnit = (IOperationUnit) target;
 		IMFElement keyCondition = connectUnit.selectSingleElement("TargetSelector").selectSingleElement("KeyCondition");
 		String name = Utilities.getAttribute(keyCondition, "name");
@@ -256,7 +313,7 @@ public class DataFlow extends Link {
 		field = fieldMap.get(Utilities.getAttribute(role, "name"));
 
 		// We create the link parameter that we add to the link.
-		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		ILinkParameter linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
@@ -273,17 +330,16 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guessCoupling entre cualquier unidad y una entryUnit llamando a los metodos
-	 * creados anteriormente
+	 * Performs the GuessCoupling between any Unit and a EntryUnit
 	 * 
 	 * @param source
-	 *            : unidad (SelectorUnit, contentUnit...)
+	 *            : Unit (SelectorUnit, contentUnit...)
 	 * @param target
-	 *            : entryUnit
+	 *            : EntryUnit
 	 * @param sourceEntity
-	 *            : entidad que esta seleccionada en la unidad de origen
+	 *            : Entity that is selected in the source unit
 	 * @param link
-	 *            : link sobre el que se creara el linkParameter
+	 *            : Link in which the linkParameter is created
 	 */
 	private void guessCouplingUnitToEntry(IMFElement source, IMFElement target, IEntity sourceEntity, IMFElement link) {
 
@@ -330,18 +386,18 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: guessCouplingUnitToEntry Funcion: Simula un guess Coupling entre cualquier unidad y la entryUnit
+	 * Performs the GuessCoupling between any Unit and a EntryUnit
 	 * 
 	 * @param source
-	 *            : unidad origen
+	 *            : unit (SelectorUnit, contentUnit...)
 	 * @param target
-	 *            : unidad destino, en este caso entryUnit
+	 *            : entryUnit
 	 * @param sourceEntity
-	 *            : entidad que esta seleccionada en la unidad origen
+	 *            : Entity that is selected in the source unit
 	 * @param link
-	 *            : link sobre el que se creara el linkPArameter
+	 *            : Link in which the linkParameter is created
 	 * @param role
-	 *            : role que de la unidad origen, en caso de tenerla
+	 *            : relationship role from source unit
 	 */
 	private void guessCouplingUnitToEntry(IMFElement source, IMFElement target, IEntity sourceEntity, IMFElement link,
 			IRelationshipRole role) {
@@ -367,17 +423,17 @@ public class DataFlow extends Link {
 	}
 
 	/**
-	 * Nombre: createParameterRoleToField Funcion: Crea los parametros del link que enlaza la role con un campo del formulario
+	 * Create the parameters of the link that links the role with a form field
 	 * 
 	 * @param role
-	 *            : role de la que obtener el source del parametro
+	 *            : Role from which to obtain the source of the parameter
 	 * @param field
-	 *            : campo al que queremos enlazar
+	 *            : Field to which we want to link
 	 * @param link
-	 *            : link que contendrá el parametro
+	 *            : Link that will contain the parameter
 	 * @param multi
-	 *            : para distinguir entre selectionField y multiSelectionField
-	 * @return: parametro creado.
+	 *            : Used to distinguish between selectionField and multiSelectionField
+	 * @return: The parameter created.
 	 */
 	private IMFElement createParameterRoleToField(IRelationshipRole role, ISubUnit field, IMFElement link, boolean multi) {
 		IMFElement linkParameter;
@@ -395,7 +451,7 @@ public class DataFlow extends Link {
 			}
 		}
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
@@ -404,14 +460,12 @@ public class DataFlow extends Link {
 		if (multi) {
 			new SetAttributeMFOperation(linkParameter, "name", Utilities.getAttribute(attribute, "name") + "_" + nameRole
 					+ " - Preselection", link.getRootElement()).execute();
-
 			new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(attribute.getIdsByFinalId().toString()) + "Array",
 					link.getRootElement()).execute();
-		} else {
 
+		} else {
 			new SetAttributeMFOperation(linkParameter, "name", nameRole + ".oid_" + nameRole + " - Preselection", link.getRootElement())
 					.execute();
-
 			new SetAttributeMFOperation(linkParameter, "source", idRole + "_" + this.cleanIds(attribute.getIdsByFinalId().toString())
 					+ "Array", link.getRootElement()).execute();
 		}
@@ -422,6 +476,9 @@ public class DataFlow extends Link {
 		return linkParameter;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.elements.WebRatioElement#getCopy()
+	 */
 	@Override
 	public WebRatioElement getCopy() {
 		return new DataFlow(this.id, this.name, this.sourceId, this.targetId, this.type, this.entity, this.role);

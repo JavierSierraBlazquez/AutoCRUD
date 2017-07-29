@@ -69,7 +69,6 @@
 					<xs:attribute name="type">
 						<xs:simpleType>
 						 	<xs:restriction base="xs:token">
-						   		<xs:enumeration value="automatic"/>
 						    	<xs:enumeration value="preload"/>
 						    	<xs:enumeration value="entryToConnect"/>
 						    	<xs:enumeration value="entryToReconnect"/>

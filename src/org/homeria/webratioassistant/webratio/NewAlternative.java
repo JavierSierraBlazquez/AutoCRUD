@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -18,20 +19,36 @@ import com.webratio.commons.mf.ui.commands.SelectionCommand;
 import com.webratio.ide.model.IPage;
 import com.webratio.ide.ui.commands.AddAlternativeCommand;
 
+/**
+ * Manages the creation of a new Alternative Page (XOR) using WebRatio library calls
+ */
 @SuppressWarnings("restriction")
 public final class NewAlternative extends WebRatioCalls {
 
 	private String name;
 	private IMFElement page;
 
+	/**
+	 * Constructs a new instance.
+	 * 
+	 * @param parent
+	 *            : the parent Page
+	 * @param x
+	 *            : X coord to situate the XOR Page in WR model
+	 * @param y
+	 *            : Y coord to situate the XOR Page in WR model
+	 * @param name
+	 *            : display name
+	 */
 	public NewAlternative(IMFElement parent, int x, int y, String name) {
 		super(parent, x, y);
 		this.name = name;
 	}
 
-	/**
-	 * 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.webratio.WebRatioCalls#execute()
 	 */
+	@Override
 	public IMFElement execute() {
 		try {
 			// We verify that the parent is a page, since the alternative can only go within a page
@@ -44,7 +61,7 @@ public final class NewAlternative extends WebRatioCalls {
 
 				((CommandStack) ProjectParameters.getWorkbenchPartWebRatio().getAdapter(CommandStack.class)).execute(cmd);
 				// We get the page that has been created within the alternative zone
-				this.page = this.getLastArea(this.getParent());
+				this.page = this.getLastAlternative(this.getParent());
 				Utilities.setAttribute(this.page, "name", this.name);
 
 			}
@@ -57,13 +74,13 @@ public final class NewAlternative extends WebRatioCalls {
 	}
 
 	/**
-	 * 
-	 * Nombre: getLastArea Funcion:
+	 * Returns the last alternative created
 	 * 
 	 * @param element
-	 * @return
+	 *            : the IPage that contains the XOR page. If not an IPage instance returns null.
+	 * @return last XOR Page created
 	 */
-	private IMFElement getLastArea(IMFElement element) {
+	private IMFElement getLastAlternative(IMFElement element) {
 		IPage page;
 		if (element instanceof IPage) {
 			page = (IPage) element;

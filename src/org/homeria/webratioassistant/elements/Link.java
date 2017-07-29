@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.elements;
 
 import java.util.HashMap;
@@ -10,6 +19,8 @@ import org.homeria.webratioassistant.webratio.Utilities;
 
 import com.webratio.commons.internal.mf.MFElement;
 import com.webratio.commons.mf.IMFElement;
+import com.webratio.commons.mf.IMFIdProvider;
+import com.webratio.commons.mf.operations.CreateMFOperation;
 import com.webratio.commons.mf.operations.SetAttributeMFOperation;
 import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IEntity;
@@ -19,12 +30,29 @@ import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISubUnit;
 import com.webratio.ide.model.IUnit;
 
+/**
+ * Hierarchy part used to serialize the links parsed in the pattern. Abstract class.
+ */
 public abstract class Link extends WebRatioElement {
 
 	protected String sourceId;
 	protected String targetId;
 	protected String type;
 
+	/**
+	 * Creates a new instance with the given data.
+	 * 
+	 * @param id
+	 *            : used to uniquely identify the element.
+	 * @param name
+	 *            : the element name to display.
+	 * @param sourceId
+	 *            : the element's id that is the source of the flow
+	 * @param targetId
+	 *            : the element's id that is the target of the flow
+	 * @param type
+	 *            : specifies the type of coupling to do.
+	 */
 	public Link(String id, String name, String sourceId, String targetId, String type) {
 		super(id, name, null, null);
 		this.sourceId = sourceId;
@@ -40,21 +68,29 @@ public abstract class Link extends WebRatioElement {
 		return this.targetId;
 	}
 
+	/**
+	 * Removes the default binding. Used to do custom coupling.
+	 * 
+	 * @param link
+	 *            : the link element
+	 */
 	protected void removeAutomaticCoupling(IMFElement link) {
 		Utilities.setAttribute(link, "automaticCoupling", null);
 	}
 
 	/**
-	 * Nombre: guessCouplingEntryToCreateModify Funcion: Simula el guessCoupling entre la entryUnit y la Create o Modify unit
+	 * Performs the guessCoupling between the entryUnit and the Create or Modify unit
 	 * 
 	 * @param source
-	 *            : entry unit
+	 *            : the entry unit
 	 * @param target
-	 *            : unidad create o modify
+	 *            : the create unit or modify unit
 	 * @param link
-	 *            : link sobre el que añadir el linkParameter
+	 *            : link on which the linkParameter is added
 	 * @param relshipsSelected
+	 *            : relationships selected in the UI
 	 * @param entity
+	 *            : entity selected in the UI
 	 */
 	protected void guessCouplingEntryToCreateModify(IMFElement source, IMFElement target, IMFElement link, IEntity entity,
 			Map<IRelationshipRole, IAttribute> relshipsSelected) {
@@ -117,19 +153,19 @@ public abstract class Link extends WebRatioElement {
 	}
 
 	/**
-	 * Nombre: createParameterFieldToRole Funcion: Crea un parametro desde un campo de un formulario con una roleCondition. El procedimiento
-	 * es igual a las anteriores, solo variando el nombre y algunos datos mas
+	 * Create a parameter from a field in a form with a role condition.
 	 * 
 	 * @param role
-	 *            : role que queremos conectar
+	 *            : role wanted to connect
 	 * @param targetUnit
-	 *            : unidad en la que estará la roleCondition (createUnit, modifyUnit...)
+	 *            : Unit in which will be the roleCondition (createUnit, modifyUnit ...)
 	 * @param field
-	 *            : campo del formulario
+	 *            : field in the form
 	 * @param link
-	 *            : link que contendrá el parametro
+	 *            : Link that will contain the parameter
 	 * @param relshipsSelected
-	 * @return: el parametro creado
+	 *            : relationships selected in the UI
+	 * @return: The parameter created
 	 */
 	private IMFElement createParameterFieldToRole(IRelationshipRole role, IMFElement targetUnit, ISubUnit field, IMFElement link,
 			Map<IRelationshipRole, IAttribute> relshipsSelected) {
@@ -152,8 +188,7 @@ public abstract class Link extends WebRatioElement {
 		// As in the previous methods, you create the necessary fields (id, name, source, target)
 		String attId = Utilities.getAttribute(attribute, "id");
 		String attName = Utilities.getAttribute(attribute, "name");
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
-				link.getFinalId());
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(), link.getFinalId());
 
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
@@ -170,20 +205,19 @@ public abstract class Link extends WebRatioElement {
 	}
 
 	/**
-	 * Nombre: createParameterField2Att Funcion: Su funcionamiento es igual que la funcion createParameter pero de manera inversa, se crea
-	 * la relacion entre el campo del formulario y el atributo de una unidad (create, modify...)
+	 * The relationship between the form field and the attribute of a unit (create, modify ...) is created
 	 * 
 	 * @param attribute
-	 *            : atributo que queremos relacionar
+	 *            : Attribute we want to connect
 	 * @param sourceUnit
-	 *            : unidad sobre la que trabajar
+	 *            : Unit to work on
 	 * @param subUnit
 	 *            : field
 	 * @param link
-	 *            : link que contendrá el parametro
+	 *            : Link that will contain the parameter
 	 * @param key
-	 *            : para indicar si es un oid
-	 * @return: el parametro creado
+	 *            : To indicate if it is an oid
+	 * @return The parameter created
 	 */
 	private IMFElement createParameterField2Att(IAttribute attribute, IMFElement sourceUnit, ISubUnit subUnit, IMFElement link, boolean key) {
 		IMFElement linkParameter;
@@ -193,8 +227,7 @@ public abstract class Link extends WebRatioElement {
 
 		String attId = Utilities.getAttribute(attribute, "id");
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
-				link.getFinalId());
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(), link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
 		// If it is not of type key (to relate the oid) it is done just like the previous function.
@@ -225,17 +258,17 @@ public abstract class Link extends WebRatioElement {
 	}
 
 	/**
-	 * Nombre: putMessageOnMultiMessageUnit Funcion: añade un mensaje a un link OK o linkKO que van dirigidos a una multiMessageUnit
+	 * It adds a message to an OK / KO link addressed to a multiMessageUnit
 	 * 
 	 * @param link
-	 *            : link al que añadir el mensaje
+	 *            : Link to which to add the message
 	 * @param target
-	 *            : multiMessageUnit que mostrará el mensaje
+	 *            : multiMessageUnit that shows the message
 	 * @param message
-	 *            : mensaje a mostrar
+	 *            : message to show
 	 */
 	protected void putMessageOnMultiMessageUnit(IMFElement link, IMFElement target, String message) {
-		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		ILinkParameter linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
@@ -251,22 +284,24 @@ public abstract class Link extends WebRatioElement {
 	}
 
 	/**
-	 * Nombre: cleanIds Funcion: Funcion auxiliar, limpia una cadena eliminando el primer y ultimo caracter
+	 * Auxiliary function. Clears a string by removing the first and last character
 	 * 
 	 * @param string
-	 *            : string que se quiere tratar
-	 * @return: cadena resultante
+	 *            : String to be treated
+	 * @return the same string without the first and last character
 	 */
 	protected String cleanIds(String string) {
 		return string.substring(1, string.length() - 1);
 	}
 
 	/**
-	 * Nombre: buscarRelation Funcion: Busca una relacion por su nombre
+	 * Find a relationship by its name
 	 * 
 	 * @param fieldName
-	 *            : nombre por el que buscar
-	 * @return la relacion si se encuentra, null en caso contrario
+	 *            : Name to look for
+	 * @param entity
+	 *            : Entity from which relationships are obtained
+	 * @return the relationship if found, null otherwise
 	 */
 	protected IRelationshipRole findRelation(String fieldName, IEntity entity) {
 
@@ -287,5 +322,20 @@ public abstract class Link extends WebRatioElement {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Creates a link parameter
+	 * 
+	 * @param modelId
+	 * @param idProvider
+	 * @param parentId
+	 * @return the LinkParameter created
+	 */
+	protected ILinkParameter createLinkParameter(String modelId, IMFIdProvider idProvider, String parentId) {
+		Class<ILinkParameter> publicType = ILinkParameter.class;
+		ILinkParameter newLinkParameter = (ILinkParameter) new CreateMFOperation(publicType, modelId).execute();
+		((MFElement) newLinkParameter).setAttribute("id", idProvider.getFirstFreeId(parentId, publicType, null, true).first);
+		return newLinkParameter;
 	}
 }

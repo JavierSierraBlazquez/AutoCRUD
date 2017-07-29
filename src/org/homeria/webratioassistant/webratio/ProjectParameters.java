@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -33,7 +34,10 @@ import com.webratio.ide.model.IWebModel;
 import com.webratio.ide.model.IWebProject;
 import com.webratio.ide.ui.editors.WebProjectEditor;
 
-public class ProjectParameters {
+/**
+ * This class contains the variables needed to interactuate with WebRatio Platform. Abstract class.
+ */
+public abstract class ProjectParameters {
 	private static Shell shell;
 	private static IEditorPart activeEditor;
 	private static IWorkbenchPage activePage;
@@ -43,11 +47,9 @@ public class ProjectParameters {
 	private static Map<ISiteView, MFGraphEditor> siteViews;
 	private static IWebModel webModel;
 	private static IWebProject webProject;
-	static WebProjectEditor webProjectEditor;
+	private static WebProjectEditor webProjectEditor;
 	private static IWorkbenchPart workbenchPart;
 	private static IWorkbenchPart workbenchPartWebRatio = null;
-
-	private static List<ObjStViewArea> siteViewAreaList = null;
 
 	private static MFMultiEditor multiEditor;
 	/**
@@ -57,14 +59,6 @@ public class ProjectParameters {
 
 	static public MFMultiEditor getMultiEditor() {
 		return ProjectParameters.multiEditor;
-	}
-
-	static public List<ObjStViewArea> getlistaSiteViewArea() {
-		return ProjectParameters.siteViewAreaList;
-	}
-
-	static public void setlistaSiteViewArea(List<ObjStViewArea> lista) {
-		ProjectParameters.siteViewAreaList = lista;
 	}
 
 	static public IEditorPart getActiveEditor() {
@@ -115,6 +109,12 @@ public class ProjectParameters {
 		ProjectParameters.init(PlatformUI.getWorkbench());
 	}
 
+	/**
+	 * Initialices the ProjectParameters and its variables.
+	 * 
+	 * @param workbench
+	 * @throws ExecutionException
+	 */
 	static public void init(IWorkbench workbench) throws ExecutionException {
 		ProjectParameters.toNullValues();
 		entryKeyfieldMap = new HashMap<IMFElement, IMFElement>();
@@ -134,7 +134,6 @@ public class ProjectParameters {
 
 			ProjectParameters.workbenchPart = MFUIPlugin.getActiveWorkbenchWindow().getPartService().getActivePart();
 
-			// if (ProjectParameters.workbenchPartWebRatio == null)
 			ProjectParameters.workbenchPartWebRatio = ProjectParameters.workbenchPart;
 			if (ProjectParameters.workbenchPart == null)
 				throw new ExecutionException("no workbenchPart");
@@ -156,7 +155,7 @@ public class ProjectParameters {
 
 			}
 
-			// Crear siteView
+			// Create siteView
 			ProjectParameters.multiEditor = MFUIPlugin.getActiveMultiEditor();
 
 		} catch (ExecutionException e) {
@@ -167,6 +166,9 @@ public class ProjectParameters {
 		}
 	}
 
+	/**
+	 * Fill "Map<ISiteView, MFGraphEditor> siteViews" variable with the SiteViews
+	 */
 	public static void initSiteViews() {
 		// Iniciamos la estructura que albergar� los siteviews
 		ProjectParameters.siteViews = new HashMap<ISiteView, MFGraphEditor>();

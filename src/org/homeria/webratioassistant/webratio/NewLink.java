@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratio;
 
@@ -20,6 +21,9 @@ import com.webratio.ide.ui.commands.AddKOLinkCommand;
 import com.webratio.ide.ui.commands.AddLinkCommand;
 import com.webratio.ide.ui.commands.AddOKLinkCommand;
 
+/**
+ * Manages the creation of a new Link using WebRatio library calls
+ */
 @SuppressWarnings("restriction")
 public final class NewLink extends WebRatioCalls {
 	private IMFElement target;
@@ -28,15 +32,30 @@ public final class NewLink extends WebRatioCalls {
 	private IMFElement source;
 	private String type;
 
-	public NewLink(String name, IMFElement source, IMFElement target, String tipo) {
+	/**
+	 * Constructs a new instance.
+	 * 
+	 * @param name
+	 *            : link name
+	 * @param source
+	 *            : source element
+	 * @param target
+	 *            : target element
+	 * @param type
+	 *            : link type
+	 */
+	public NewLink(String name, IMFElement source, IMFElement target, String type) {
 		super(null, 0, 0);
 		this.name = name;
 		this.source = source;
 		this.target = target;
 		this.link = null;
-		this.type = tipo;
+		this.type = type;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.webratio.WebRatioCalls#execute()
+	 */
 	@Override
 	public IMFElement execute() {
 		try {
@@ -109,6 +128,13 @@ public final class NewLink extends WebRatioCalls {
 		return this.link;
 	}
 
+	/**
+	 * Returns the last link created
+	 * 
+	 * @param element
+	 *            : the source element of the link.
+	 * @return last link created
+	 */
 	private IMFElement getLastLink(IMFElement element) {
 		IPage page;
 		IContentUnit unit;

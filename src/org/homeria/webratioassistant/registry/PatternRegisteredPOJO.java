@@ -1,9 +1,21 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.registry;
 
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+/**
+ * Data object to store the pattern information
+ */
 public class PatternRegisteredPOJO {
 	private String id;
 	private int timesUsed;
@@ -11,6 +23,9 @@ public class PatternRegisteredPOJO {
 	private SortedMap<String, Integer> svReg;
 	private SortedMap<String, Integer> elementsReg;
 
+	/**
+	 * Constructs a new instance.
+	 */
 	public PatternRegisteredPOJO() {
 		this.id = "";
 		this.timesUsed = 0;
@@ -42,6 +57,12 @@ public class PatternRegisteredPOJO {
 		return this.elementsReg;
 	}
 
+	/**
+	 * store the siteView id and initialize the counter. If its already stored, increments the counter.
+	 * 
+	 * @param svId
+	 *            : the id of the SiteView
+	 */
 	public void addSv(String svId) {
 		Integer count;
 
@@ -53,21 +74,25 @@ public class PatternRegisteredPOJO {
 		this.svReg.put(svId, count);
 	}
 
-	public void addElement(String unitType) {
+	/**
+	 * store the element id and initialize the counter. If its already stored, increments the counter.
+	 * 
+	 * @param elementType
+	 *            : the type of element to store
+	 */
+	public void addElement(String elementType) {
 		Integer count;
 
-		if (this.elementsReg.containsKey(unitType))
-			count = 1 + this.elementsReg.get(unitType);
+		if (this.elementsReg.containsKey(elementType))
+			count = 1 + this.elementsReg.get(elementType);
 		else
 			count = new Integer(1);
 
-		this.elementsReg.put(unitType, count);
+		this.elementsReg.put(elementType, count);
 	}
 
 	@Override
 	public String toString() {
-		//Arrays.sort(this.svReg.keySet().toArray());
-		//Arrays.sort(this.elementsReg.keySet().toArray());
 		String output = "";
 
 		output += " - Pattern: \n";

@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.generation;
 
 import java.util.HashMap;
@@ -28,6 +37,11 @@ import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.ISiteView;
 
+/**
+ * This class allows the WebRatio elements to be generated with the data provided. Also register the units.
+ * 
+ * @see org.homeria.webratioassistant.registry.Registry
+ */
 public final class Generate {
 
 	private Queue<WebRatioElement> pages;
@@ -41,10 +55,25 @@ public final class Generate {
 
 	private ProgressBar progressBar;
 	private Label elemLabel;
-	int progress;
+	int actualProgress;
 
 	Map<String, IMFElement> createdElements;
 
+	/**
+	 * Creates a new instance of this class and fills it with the data provided
+	 * 
+	 * @param pages
+	 *            : Queue with Pages and XOR Pages
+	 * @param units
+	 *            : List with the units
+	 * @param links
+	 *            : List with the links
+	 * @param siteViewsAreas
+	 *            : List with the SiteViews and Areas where the elements will be generated
+	 * @param relshipsSelected
+	 *            : Map with the relationship roles selected in the UI. Each map entry is a pair <K,V>: Key is the relationship role. Value
+	 *            is the oid(key) attribute related with the role
+	 */
 	public Generate(Queue<WebRatioElement> pages, List<Unit> units, List<Link> links, List<IMFElement> siteViewsAreas,
 			Map<IRelationshipRole, IAttribute> relshipsSelected) {
 
@@ -58,16 +87,20 @@ public final class Generate {
 		this.currentParent = null;
 		this.createdElements = new HashMap<String, IMFElement>();
 
-		this.progress = 0;
+		this.actualProgress = 0;
 		this.preprocess();
 	}
 
+	/**
+	 * This method prepares all pages, units and links to be executed sequentially. These items are populated with missing data such as the
+	 * parent SiteView.
+	 */
 	private void preprocess() {
 		Point coords;
 
 		for (IMFElement parent : this.siteViewsAreas) {
 			coords = new Point(0, 0);
-			// obtenemos las coordenadas del elemento más a la derecha para no superponer unidades
+			// We get the coordinates of the rightmost element to avoid overlapping units
 
 			if (parent instanceof ISiteView) {
 				Utilities.switchSiteView((ISiteView) parent);
@@ -113,6 +146,13 @@ public final class Generate {
 		}
 	}
 
+	/**
+	 * Generates and adds to the registry the parent element in the Pre-Processed Queue. If there are no items in the queue, this method
+	 * calls the log to save the data to the file and returns false.
+	 * 
+	 * @return true if the unit is generated, false otherwise
+	 * @throws TransformerException
+	 */
 	public boolean next() throws TransformerException {
 		if (this.allElemPreprocessed.isEmpty()) {
 			// End
@@ -154,23 +194,38 @@ public final class Generate {
 		}
 	}
 
+	/**
+	 * Generates the rest of the pre-processed queue elements, fill the Registry with the generated unit and calls to save the data in the
+	 * registry file
+	 * 
+	 * @throws TransformerException
+	 */
 	public void end() throws TransformerException {
 		while (this.next())
 			;
 	}
 
+	/**
+	 * Sets the progressBar and Label elements used to bring information to the user about the generation process
+	 * 
+	 * @param progressBar
+	 * @param nextElemLabel
+	 */
 	public void setUIelements(ProgressBar progressBar, Label nextElemLabel) {
-		this.progress = 0;
+		this.actualProgress = 0;
 		this.progressBar = progressBar;
 		this.progressBar.setMaximum(this.allElemPreprocessed.size());
-		this.progressBar.setSelection(this.progress);
+		this.progressBar.setSelection(this.actualProgress);
 
 		this.elemLabel = nextElemLabel;
 		nextElemLabel.setText(this.allElemPreprocessed.peek().getClass().getSimpleName());
 	}
 
+	/**
+	 * Modify the progress of the UI progressBar widget and the next element Label
+	 */
 	private void updateUI() {
-		this.progressBar.setSelection(++this.progress);
+		this.progressBar.setSelection(++this.actualProgress);
 
 		String nextElement;
 		if (this.allElemPreprocessed.isEmpty())

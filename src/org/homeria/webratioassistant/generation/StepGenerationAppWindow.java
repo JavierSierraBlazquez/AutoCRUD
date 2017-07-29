@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.generation;
 
 import javax.xml.transform.TransformerException;
@@ -15,6 +24,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
+/**
+ * This window gives generation process information to the user and gives him the control to generate one or more units
+ */
 public class StepGenerationAppWindow extends ApplicationWindow {
 
 	Generate generate;
@@ -24,6 +36,14 @@ public class StepGenerationAppWindow extends ApplicationWindow {
 	Label titleNextElemLabel;
 	Label nextElemLabel;
 
+	/**
+	 * Constructor that creates the new instance
+	 * 
+	 * @param parentShell
+	 *            the parent Shell
+	 * @param generate
+	 *            the Generate instance with all the elements to generate
+	 */
 	public StepGenerationAppWindow(Shell parentShell, Generate generate) {
 		super(parentShell);
 		this.generate = generate;

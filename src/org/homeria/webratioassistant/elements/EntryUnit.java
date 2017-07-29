@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ */
 package org.homeria.webratioassistant.elements;
 
 import java.util.List;
@@ -16,12 +25,33 @@ import com.webratio.ide.model.IEntity;
 import com.webratio.ide.model.IRelationship;
 import com.webratio.ide.model.IRelationshipRole;
 
+/**
+ * This class contains the data previously parsed. It is needed to create the EntryUnit in the WebRatio Model using generate method.
+ */
 public class EntryUnit extends Unit {
 	private String parentId;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 	private String type;
 	private IMFElement fieldOid;
 
+	/**
+	 * Creates a new instance with the given data. It calls super constructor.
+	 * 
+	 * @param id
+	 *            : used to uniquely identify the element.
+	 * @param name
+	 *            : the element name to display.
+	 * @param parentId
+	 *            : The id of the parent of this unit
+	 * @param type
+	 *            : type of EntryUnit. {@link org.homeria.webratioassistant.elements.ElementTypes}
+	 * @param x
+	 *            : Relative X coordinate. Used to place the element in the model.
+	 * @param y
+	 *            : Relative Y coordinate. Used to place the element in the model.
+	 * @param entity
+	 *            : the entity to associate to this unit
+	 */
 	public EntryUnit(String id, String name, String parentId, String type, String x, String y, IEntity entity) {
 		super(id, name, x, y, entity);
 		this.parentId = parentId;
@@ -29,10 +59,20 @@ public class EntryUnit extends Unit {
 		this.type = type;
 	}
 
+	/**
+	 * Set the relationship roles selected in the UI. Each map entry is a pair <K,V>: Key is the relationship role. Value is the oid(key)
+	 * attribute related with the role
+	 * 
+	 * @param relshipsSelected
+	 *            : Map with the relationship roles selected
+	 */
 	public void setRelshipsSelected(Map<IRelationshipRole, IAttribute> relshipsSelected) {
 		this.relshipsSelected = relshipsSelected;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.elements.WebRatioElement#generate(java.util.Map)
+	 */
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement parent = createdElements.get(this.parentId);
@@ -46,6 +86,13 @@ public class EntryUnit extends Unit {
 
 	}
 
+	/**
+	 * Creates the fields to the EntryUnit given by parameter. The fields correspond to the previously selected entity (No derived
+	 * attributes)
+	 * 
+	 * @param element
+	 *            : the entry unit
+	 */
 	private void setFields(IMFElement element) {
 		CompositeMFCommand cmd = new CompositeMFCommand(element.getRootElement());
 		String name;
@@ -113,6 +160,9 @@ public class EntryUnit extends Unit {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.elements.WebRatioElement#getCopy()
+	 */
 	@Override
 	public WebRatioElement getCopy() {
 		return new EntryUnit(this.id, this.name, this.parentId, this.type, String.valueOf(this.position.x),

@@ -1,10 +1,11 @@
 /**
- * PROYECTO FIN DE CARRERA:
- * 		- T�tulo: Generaci�n autom�tica de la arquitectura de una aplicaci�n web en WebML a partir de la
- *		  		  especificaci�n de requisitos
- * REALIZADO POR:
- * 		- CARLOS AGUADO FUENTES, DNI: 76036306P
- * 		- INGENIERIA INFORMATICA: 2012/2013, CONVOCATORIA DE JUNIO 
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
  */
 package org.homeria.webratioassistant.webratioaux;
 
@@ -32,6 +33,9 @@ import com.webratio.ide.ui.commands.AbstractAddWebMLConnectorCommand;
 import com.webratio.ide.ui.viewers.WebMLElementLabelProvider;
 import com.webratio.ide.units.core.IUnitType;
 
+/**
+ * Manages the creation of a LinkCommand using WebRatio library calls. This is used to create a new Link
+ */
 @SuppressWarnings("restriction")
 public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 	private ILink newLink;
@@ -72,8 +76,7 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 		return canComplete(this.sourceModel, this.getTargetModel());
 	}
 
-	public static final boolean canComplete(IMFElement sourceModel,
-			IMFElement targetModel) {
+	public static final boolean canComplete(IMFElement sourceModel, IMFElement targetModel) {
 		if (sourceModel == targetModel)
 			return false;
 		if ((targetModel instanceof IPage))
@@ -96,11 +99,8 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 		this.setRootElement(this.sourceModel.getRootElement());
 		IMFElement targetModel = this.getTargetModel();
 		this.newLink = ((ILink) this.createElement(ILink.class, this.getModelId()));
-		Pair id = this.sourceModel
-				.getRootElement()
-				.getIdProvider()
-				.getFirstFreeId(this.sourceModel.valueOf("@id"), ILink.class,
-						null, true);
+		Pair id = this.sourceModel.getRootElement().getIdProvider()
+				.getFirstFreeId(this.sourceModel.valueOf("@id"), ILink.class, null, true);
 		this.setAttribute(this.newLink, "id", (String) id.first);
 		this.setAttribute(this.newLink, "name", "Link" + id.second);
 		this.setAttribute(this.newLink, "to", targetModel.valueOf("@id"));
@@ -120,45 +120,38 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 		try {
 			int[] bendpointValues = this.computeBendpoint();
 			if (bendpointValues != null)
-				this.setAttribute(this.newLink, "gr:bendpoints", StringUtils.join(
-						ArrayUtils.toObject(bendpointValues), ","));
+				this.setAttribute(this.newLink, "gr:bendpoints", StringUtils.join(ArrayUtils.toObject(bendpointValues), ","));
 		} catch (Throwable localThrowable) {
 		}
 		this.addChild(this.newLink, this.sourceModel, null);
 
 		this.oldValue = this.newLink.getParentElement().valueOf("@linkOrder");
-		String newValue = OperationHelper.getNewOrderAttribute(
-				this.newLink.getParentElement(), "linkOrder",
-				this.newLink.valueOf("@id"), true);
+		String newValue = OperationHelper.getNewOrderAttribute(this.newLink.getParentElement(), "linkOrder", this.newLink.valueOf("@id"),
+				true);
 		this.setAttribute(this.newLink.getParentElement(), "linkOrder", newValue);
 
 		if ((this.sourceModel instanceof IContentUnit)) {
-			MFUpdater updater = this.sourceModel.getRootElement()
-					.getModelUpdater();
+			MFUpdater updater = this.sourceModel.getRootElement().getModelUpdater();
 			updater.added(this.newLink);
 			this.postOperations = updater.update();
 		}
 		this.endOperationSession();
-		this.setLabel("Add "
-				+ WebMLElementLabelProvider.INSTANCE.getText(this.newLink));
+		this.setLabel("Add " + WebMLElementLabelProvider.INSTANCE.getText(this.newLink));
 		if (("normal".equals(type)) || ("automatic".equals(type)))
 			this.directEdit(this.newLink);
 		else
 			this.select(this.newLink);
 	}
 
-	private String getLinkType(IMFElement sourceModel, IMFElement targetModel,
-			IUnitType unitType) {
+	private String getLinkType(IMFElement sourceModel, IMFElement targetModel, IUnitType unitType) {
 		if ((sourceModel instanceof IOperationUnit)) {
 			return "transport";
 		}
 		if ((targetModel instanceof IOperationUnit))
 			return unitType.getDefaultTowardsOperationLinkType();
 		if ((targetModel instanceof IContentUnit)) {
-			IAbstractPage page1 = WebModelHelper
-					.getTopLevelAbstractPageWithoutContentPageTest(sourceModel);
-			IAbstractPage page2 = WebModelHelper
-					.getTopLevelAbstractPageWithoutContentPageTest(targetModel);
+			IAbstractPage page1 = WebModelHelper.getTopLevelAbstractPageWithoutContentPageTest(sourceModel);
+			IAbstractPage page2 = WebModelHelper.getTopLevelAbstractPageWithoutContentPageTest(targetModel);
 			if ((page1 != null) && (page1 == page2)) {
 				return unitType.getDefaultIntraPageLinkType();
 			}
@@ -173,8 +166,7 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 		if (this.postOperations != null) {
 			this.executeOperations(this.postOperations.second);
 		}
-		this.setAttribute(this.newLink.getParentElement(), "linkOrder",
-				this.oldValue);
+		this.setAttribute(this.newLink.getParentElement(), "linkOrder", this.oldValue);
 		this.delete(this.newLink);
 		this.endOperationSession();
 		this.select(this.sourceModel);
@@ -183,9 +175,8 @@ public class AddLinkCommand extends AbstractAddWebMLConnectorCommand {
 	@Override
 	public void redo() {
 		this.addChild(this.newLink, this.sourceModel, null);
-		String newValue = OperationHelper.getNewOrderAttribute(
-				this.newLink.getParentElement(), "linkOrder",
-				this.newLink.valueOf("@id"), true);
+		String newValue = OperationHelper.getNewOrderAttribute(this.newLink.getParentElement(), "linkOrder", this.newLink.valueOf("@id"),
+				true);
 		this.setAttribute(this.newLink.getParentElement(), "linkOrder", newValue);
 		if (this.postOperations != null) {
 			this.executeOperations(this.postOperations.first);

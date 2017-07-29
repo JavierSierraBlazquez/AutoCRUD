@@ -1,3 +1,12 @@
+/**
+ * WebRatio Assistant v3.0
+ * 
+ * University of Extremadura (Spain) www.unex.es
+ * 
+ * Developers:
+ * 	- Carlos Aguado Fuentes (v2)
+ * 	- Javier Sierra Blázquez (v3.0)
+ * */
 package org.homeria.webratioassistant.elements;
 
 import java.util.HashMap;
@@ -20,11 +29,33 @@ import com.webratio.ide.model.IOperationUnit;
 import com.webratio.ide.model.IRelationshipRole;
 import com.webratio.ide.model.IUnit;
 
+/**
+ * This class contains the data previously parsed. It is needed to create the NormalNavigationFlow in the WebRatio Model using generate
+ * method.
+ */
 public class NormalNavigationFlow extends Link {
 	private IEntity entity;
 	private Map<IRelationshipRole, IAttribute> relshipsSelected;
 	private boolean validate;
 
+	/**
+	 * Creates a new instance with the given data.
+	 * 
+	 * @param id
+	 *            : used to uniquely identify the element.
+	 * @param name
+	 *            : the element name to display.
+	 * @param sourceId
+	 *            : the element's id that is the source of the flow
+	 * @param targetId
+	 *            : the element's id that is the target of the flow
+	 * @param type
+	 *            : specifies the type of coupling to do.
+	 * @param validate
+	 *            : used to check the attribute "validate" in the Flow. Only "true" or "false" values are allowed. Default value is "true".
+	 * @param entity
+	 *            : the entity to associate to this unit
+	 */
 	public NormalNavigationFlow(String id, String name, String sourceId, String targetId, String type, String validate, IEntity entity) {
 		super(id, name, sourceId, targetId, type);
 		this.entity = entity;
@@ -35,17 +66,27 @@ public class NormalNavigationFlow extends Link {
 			this.validate = true;
 	}
 
+	/**
+	 * Set the relationship roles selected in the UI. Each map entry is a pair <K,V>: Key is the relationship role. Value is the oid(key)
+	 * attribute related with the role
+	 * 
+	 * @param relshipsSelected
+	 *            : Map with the relationship roles selected
+	 */
 	public void setRelshipsSelected(Map<IRelationshipRole, IAttribute> relshipsSelected) {
 		this.relshipsSelected = relshipsSelected;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.elements.WebRatioElement#generate(java.util.Map)
+	 */
 	@Override
 	public IMFElement generate(Map<String, IMFElement> createdElements) {
 		IMFElement source = createdElements.get(this.sourceId);
 		IMFElement target = createdElements.get(this.targetId);
 
-		WebRatioCalls evento = new NewLink(this.name, source, target, "normal");
-		IMFElement link = evento.execute();
+		WebRatioCalls newLinkWRCall = new NewLink(this.name, source, target, "normal");
+		IMFElement link = newLinkWRCall.execute();
 
 		if (this.type.equals(ElementTypes.FLOW_ENTRY_TO_CREATE) || this.type.equals(ElementTypes.FLOW_ENTRY_TO_UPDATE)) {
 			this.removeAutomaticCoupling(link);
@@ -54,6 +95,7 @@ public class NormalNavigationFlow extends Link {
 		} else if (this.type.equals(ElementTypes.NORMALFLOW_FIXED_VALUE)) {
 			this.removeAutomaticCoupling(link);
 			this.guessCouplingFixedValue(this.entity, target, link, String.valueOf(0));
+			
 		} else if (this.type.equals(ElementTypes.NORMALFLOW_IS_NOT_NULL)) {
 			IMFElement oidField = ProjectParameters.entryKeyfieldMap.get(source);
 
@@ -67,8 +109,12 @@ public class NormalNavigationFlow extends Link {
 	}
 
 	/**
-	 * Parameter de Link desde origen a destino para una keycondition en la cual en el mapeo el origen va a ser un valor fijo.
+	 * LinkParameter for a keycondition in which in the mapping the origin is going to be a fixed value.
 	 * 
+	 * @param sourceEntity
+	 * @param target
+	 * @param link
+	 * @param value
 	 */
 	private void guessCouplingFixedValue(IEntity sourceEntity, IMFElement target, IMFElement link, String value) {
 
@@ -81,7 +127,7 @@ public class NormalNavigationFlow extends Link {
 		IAttribute attribute;
 		String fieldName;
 		IMFElement linkParameter;
-		String keyAtributo;
+		String keyAttribute;
 
 		try {
 			// Get list of source entity attributes
@@ -93,8 +139,8 @@ public class NormalNavigationFlow extends Link {
 			for (Iterator<IAttribute> iter = attList.iterator(); iter.hasNext();) {
 				attribute = iter.next();
 
-				keyAtributo = Utilities.getAttribute(attribute, "key");
-				if (keyAtributo.equals("true")) {
+				keyAttribute = Utilities.getAttribute(attribute, "key");
+				if (keyAttribute.equals("true")) {
 					attMap.put(Utilities.getAttribute(attribute, "name"), attribute);
 				}
 			}
@@ -105,9 +151,9 @@ public class NormalNavigationFlow extends Link {
 					attribute = attMap.get(fieldName);
 					// If it returns an attribute is a coupling by attribute
 					if (attribute != null) {
-						keyAtributo = Utilities.getAttribute(attribute, "key");
-						if (keyAtributo.equals("true")) {
-							linkParameter = this.createParameterField2AttValor(attribute, target, value, link, true);
+						keyAttribute = Utilities.getAttribute(attribute, "key");
+						if (keyAttribute.equals("true")) {
+							linkParameter = this.createParameterField2AttValue(attribute, target, value, link, true);
 							((MFElement) link).addChild(linkParameter, null);
 						}
 					}
@@ -118,12 +164,22 @@ public class NormalNavigationFlow extends Link {
 		}
 	}
 
-	private IMFElement createParameterField2AttValor(IAttribute attribute, IMFElement targetUnit, String value, IMFElement link, boolean key) {
+	/**
+	 * Creates the linkParameter
+	 * 
+	 * @param attribute
+	 * @param targetUnit
+	 * @param value
+	 * @param link
+	 * @param key
+	 * @return the linkParameter created
+	 */
+	private IMFElement createParameterField2AttValue(IAttribute attribute, IMFElement targetUnit, String value, IMFElement link, boolean key) {
 
 		IMFElement linkParameter;
 		String idAtt = Utilities.getAttribute(attribute, "id");
 
-		linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
@@ -146,23 +202,23 @@ public class NormalNavigationFlow extends Link {
 	}
 
 	/**
-	 * Nombre: putCoupling Funcion: Pone un coupling entre dos unidades, especialmente se usa para las unidades isNotNullUnit
+	 * This method puts a coupling between two units, especially used for isNotNullUnit
 	 * 
 	 * @param oidField
-	 *            : campo del formulario/entidad que se usa para el copling
+	 *            : Field of the form / entity used for coupling
 	 * @param target
-	 *            : unidad de destino (isNotNullUnit)
-	 * @param tipo
-	 *            : tipo de coupling (por ejemplo isnotnull)
+	 *            : Target unit (isNotNullUnit)
+	 * @param type
+	 *            : Type of coupling (eg isnotnull)
 	 * @param link
-	 *            : link en el que se crea el coupling
+	 *            : Link in which the coupling is created
 	 */
-	private void putCoupling(IMFElement oidField, IUnit target, String tipo, IMFElement link) {
+	private void putCoupling(IMFElement oidField, IUnit target, String type, IMFElement link) {
 		// The automaticCoupling of the link is removed, to do it manually
 		Utilities.setAttribute(link, "automaticCoupling", null);
 		String name = Utilities.getAttribute(oidField, "name").toLowerCase();
 
-		ILinkParameter linkParameter = Utilities.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
+		ILinkParameter linkParameter = this.createLinkParameter(link.getModelId(), ProjectParameters.getWebProject().getIdProvider(),
 				link.getFinalId());
 		new SetAttributeMFOperation(linkParameter, "id", this.cleanIds(link.getIdsByFinalId().toString()) + "#"
 				+ linkParameter.getFinalId(), link.getRootElement()).execute();
@@ -170,12 +226,15 @@ public class NormalNavigationFlow extends Link {
 
 		new SetAttributeMFOperation(linkParameter, "source", this.cleanIds(oidField.getIdsByFinalId().toString()), link.getRootElement())
 				.execute();
-		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(target.getIdsByFinalId().toString()) + "." + tipo,
+		new SetAttributeMFOperation(linkParameter, "target", this.cleanIds(target.getIdsByFinalId().toString()) + "." + type,
 				link.getRootElement()).execute();
 
 		((MFElement) link).addChild(linkParameter, null);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.homeria.webratioassistant.elements.WebRatioElement#getCopy()
+	 */
 	@Override
 	public WebRatioElement getCopy() {
 		return new NormalNavigationFlow(this.id, this.name, this.sourceId, this.targetId, this.type, String.valueOf(this.validate),
