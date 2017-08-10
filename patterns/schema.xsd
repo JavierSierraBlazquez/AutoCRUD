@@ -132,12 +132,20 @@
 	<xs:complexType name="pageType">
 		<xs:choice minOccurs="0" maxOccurs="unbounded">
    			<xs:element ref="page"/>
-   			<xs:element name="xor" type="pageType"/>
+   			<xs:element name="xor" type="xorType"/>
 			<xs:group ref="contentUnits"/>
 		</xs:choice>
 		<xs:attributeGroup ref="stdUnitAttributes"/>
 		<xs:attribute name="landmark" type="xs:boolean"/>
 		<xs:attribute name="default" type="xs:boolean"/>
+	</xs:complexType>
+
+	<xs:complexType name="xorType">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+   			<xs:element ref="page"/>
+			<xs:group ref="contentUnits"/>
+		</xs:choice>
+		<xs:attributeGroup ref="stdUnitAttributes"/>
 	</xs:complexType>
 
 	<xs:complexType name="outsideunitsType">
