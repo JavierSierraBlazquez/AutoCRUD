@@ -7,7 +7,7 @@
  * 	- Carlos Aguado Fuentes (v2)
  * 	- Javier Sierra Blázquez (v3.0)
  * */
-package org.homeria.webratioassistant.handlers;
+package org.homeria.webratioassistant;
 
 import java.util.List;
 import java.util.Map;
@@ -40,11 +40,11 @@ import com.webratio.ide.model.IAttribute;
 import com.webratio.ide.model.IRelationshipRole;
 
 /** Master Class where all plugin life-cycle occurs */
-public class lanzarCRUD extends AbstractHandler {
+public class Launcher extends AbstractHandler {
 	/** The size of the Main Dialog */
 	private static final Point DIALOGSIZE = new Point(650, 400);
 
-	public lanzarCRUD() {
+	public Launcher() {
 	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {

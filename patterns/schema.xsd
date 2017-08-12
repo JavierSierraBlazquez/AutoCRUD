@@ -189,7 +189,7 @@
 	<xs:complexType name="relationsType">
 		<xs:sequence>
 			<xs:element name="ALL" type="relSubsectionType" minOccurs="0"/>
-			<xs:element name="LAST" type="relSubsectionType" minOccurs="0"/>
+			<xs:element name="LAST" type="linksType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
