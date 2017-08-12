@@ -627,16 +627,16 @@ public class PatternParser {
 	 * @return: true if the relationship is N:M, false otherwise
 	 */
 	private boolean isNtoN(IRelationshipRole role, IEntity entity) {
-		IEntity entidad1 = entity;
-		List<IRelationship> lista = entidad1.getOutgoingRelationshipList();
-		lista.addAll(entidad1.getIncomingRelationshipList());
-		IRelationship relacion = (IRelationship) role.getParentElement();
+		IEntity entity1 = entity;
+		List<IRelationship> list = entity1.getOutgoingRelationshipList();
+		list.addAll(entity1.getIncomingRelationshipList());
+		IRelationship relation = (IRelationship) role.getParentElement();
 		IRelationshipRole role1;
 		IRelationshipRole role2;
 		String maxCard1;
 		String maxCard2;
-		role1 = relacion.getRelationshipRole1();
-		role2 = relacion.getRelationshipRole2();
+		role1 = relation.getRelationshipRole1();
+		role2 = relation.getRelationshipRole2();
 		maxCard1 = Utilities.getAttribute(role1, "maxCard");
 		maxCard2 = Utilities.getAttribute(role2, "maxCard");
 		// Si ambos cardinales son N se retorna la relación

@@ -407,10 +407,10 @@ public class DataFlow extends Link {
 		IMFElement linkParameter;
 		String roleName = Utilities.getAttribute(role, "name");
 		// Get field list
-		List<ISubUnit> listaFields = ((IUnit) target).getSubUnitList();
+		List<ISubUnit> fieldList = ((IUnit) target).getSubUnitList();
 
 		// init hashMap
-		for (Iterator<ISubUnit> iter = listaFields.iterator(); iter.hasNext();) {
+		for (Iterator<ISubUnit> iter = fieldList.iterator(); iter.hasNext();) {
 			field = iter.next();
 			fieldName = Utilities.getAttribute(field, "name");
 			if (fieldName.contains(roleName)) {

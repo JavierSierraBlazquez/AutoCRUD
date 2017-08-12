@@ -10,7 +10,7 @@
 			<entryUnit id="entryUnit" name="EntryUnit" type="preloaded" x="200" y="200"/>
 			<powerIndexUnit id="powerIndexUnit" name="PowerIndexUnit" x="0" y="0"/>
 			<multiMessageUnit id="multiMessageUnit" name="MultiMessageUnit" x="150" y="300"/>
-			<selectorUnit id="selectorEntidad" name="selector" type="keyCondition" x="200" y="0"/>
+			<selectorUnit id="selectorEntity" name="selector" type="keyCondition" x="200" y="0"/>
 		</page>
 	</PAGES>		
 
@@ -23,9 +23,9 @@
 
 	<!-- LINKS SECTION -->
 	<LINKS>
-		<normalNavigationFlow id="nnfUpdate" name="Modify" sourceId="powerIndexUnit" targetId="selectorEntidad" />
+		<normalNavigationFlow id="nnfUpdate" name="Modify" sourceId="powerIndexUnit" targetId="selectorEntity" />
 		<normalNavigationFlow id="nnfEntryUpdate" name="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
-		<dataFlow id="dfSelectorEntry" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
+		<dataFlow id="dfSelectorEntry" name="Load" sourceId="selectorEntity" targetId="entryUnit" type="unitToEntry"/>
 		<koLink id="koUpdate" sourceId="updateUnit" targetId="multiMessageUnit" message="Failed modifying data"/>
 	</LINKS>
 
@@ -48,7 +48,7 @@
 			<dataFlow id="flowSelectorForm #" name="Load" sourceId="selector #" targetId="entryUnit" type="preload"/>
 
 			<selectorUnit id="selectorNM%" name="selectorNM%" parentId="UpdatePage" type="roleCondition" x="0" y="150%"/>
-			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>
+			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntity" targetId="selectorNM%"/>
 			<dataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="entryUnit" type="unitToEntryRole"/>
 
 			<reconnectUnit id="reconnect%" name="reconnect%" x="500" y="300%"/>

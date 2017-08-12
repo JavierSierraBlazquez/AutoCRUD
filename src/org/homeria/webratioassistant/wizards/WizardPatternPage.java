@@ -102,8 +102,7 @@ public class WizardPatternPage extends WizardPage {
 	private List<CCombo> listCombosRelations;
 
 	private List<String> patternFileList;
-	private List<IAttribute> listaAtributosEntidad;
-	private List<IAttribute> listaAtributosSinDerivados;
+	private List<IAttribute> entityAttributesList;
 	private List<IEntity> entityList;
 	private List<IRelationshipRole> relatedEntities;
 
@@ -123,8 +122,7 @@ public class WizardPatternPage extends WizardPage {
 
 		this.patternFileList = new ArrayList<String>();
 		this.entityList = new ArrayList<IEntity>();
-		this.listaAtributosEntidad = new ArrayList<IAttribute>();
-		this.listaAtributosSinDerivados = new ArrayList<IAttribute>();
+		this.entityAttributesList = new ArrayList<IAttribute>();
 		this.listCombosRelations = new ArrayList<CCombo>();
 		this.relationAttributes = new HashMap<String, IAttribute>();
 
@@ -362,7 +360,7 @@ public class WizardPatternPage extends WizardPage {
 
 				this.addRelationRolesToTable(this.tableRelations, this.listCombosRelations);
 
-				// Sólo va a haber una tabla para elegir las relaciones:
+				// break because there is only one table to select Relations:
 				break;
 			}
 		}
@@ -396,15 +394,15 @@ public class WizardPatternPage extends WizardPage {
 				buttonSelectPower.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent e) {
 						if (null != table && null != table.getItems() && table.getItems().length > 0) {
-							boolean hayCheckeados = false;
+							boolean areChecked = false;
 
 							for (int i = 0; i < table.getItems().length; i++) {
 								if (table.getItems()[i].getChecked()) {
-									hayCheckeados = true;
+									areChecked = true;
 								}
 							}
 
-							if (hayCheckeados) {
+							if (areChecked) {
 								// If there are selected items: deselect all
 								for (int i = 0; i < table.getItems().length; i++) {
 									table.getItems()[i].setChecked(false);
@@ -422,7 +420,7 @@ public class WizardPatternPage extends WizardPage {
 				composite.setVisible(true);
 
 				// Fills the table with the entity attributes
-				for (IAttribute attribute : this.listaAtributosEntidad)
+				for (IAttribute attribute : this.entityAttributesList)
 					new TableItem(table, SWT.NONE).setText(Utilities.getAttribute(attribute, "name") + " (" + attribute.getFinalId() + ")");
 
 				if (unit instanceof PowerIndexUnit)
@@ -439,15 +437,7 @@ public class WizardPatternPage extends WizardPage {
 	private void entitySelectionListener() throws SAXException, IOException, ParserConfigurationException {
 		this.entitySelected = this.entityList.get(this.entityCombo.getSelectionIndex());
 
-		this.listaAtributosEntidad = this.entitySelected.getAllAttributeList();
-		Iterator<IAttribute> iteratorAtributos = this.listaAtributosEntidad.iterator();
-		IAttribute atributo;
-		while (iteratorAtributos.hasNext()) {
-			atributo = iteratorAtributos.next();
-			if (Utilities.getAttribute(atributo, "derivationQuery").equals("") && !Utilities.getAttribute(atributo, "key").equals("true")) {
-				this.listaAtributosSinDerivados.add(atributo);
-			}
-		}
+		this.entityAttributesList = this.entitySelected.getAllAttributeList();
 
 		if (this.patternCombo.getSelectionIndex() != -1) {
 			this.patternSelectionListener();
@@ -462,10 +452,10 @@ public class WizardPatternPage extends WizardPage {
 	 * @param svAreasTree
 	 */
 	private void buildSvAreasTree(Tree svAreasTree) {
-		List<ISiteView> listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
+		List<ISiteView> siteViewsList = ProjectParameters.getWebModel().getSiteViewList();
 
-		if (null != listaSiteViews) {
-			for (ISiteView siteView : listaSiteViews) {
+		if (null != siteViewsList) {
+			for (ISiteView siteView : siteViewsList) {
 				if (null != siteView) {
 					TreeItem treeItem = new TreeItem(svAreasTree, 0);
 
@@ -556,40 +546,40 @@ public class WizardPatternPage extends WizardPage {
 	/**
 	 * Returns a list of all relationship roles of the entity provided
 	 * 
-	 * @param entidad
+	 * @param entity
 	 *            : the entity
 	 * @return the list of all relationship roles
 	 */
-	private List<IRelationshipRole> getRelationshipRoles(IEntity entidad) {
-		List<IRelationship> lista = entidad.getOutgoingRelationshipList();
-		lista.addAll(entidad.getIncomingRelationshipList());
-		Iterator<IRelationship> iteratorRelacion = lista.iterator();
-		IRelationship relacion;
+	private List<IRelationshipRole> getRelationshipRoles(IEntity entity) {
+		List<IRelationship> list = entity.getOutgoingRelationshipList();
+		list.addAll(entity.getIncomingRelationshipList());
+		Iterator<IRelationship> iteratorRelation = list.iterator();
+		IRelationship relation;
 		IRelationshipRole role1, role2;
 		String maxCard;
 		List<IRelationshipRole> relatedEnt = new ArrayList<IRelationshipRole>();
 
-		while (iteratorRelacion.hasNext()) {
-			relacion = iteratorRelacion.next();
-			if (relacion.getSourceEntity() == entidad) {
-				role1 = relacion.getRelationshipRole1();
+		while (iteratorRelation.hasNext()) {
+			relation = iteratorRelation.next();
+			if (relation.getSourceEntity() == entity) {
+				role1 = relation.getRelationshipRole1();
 				maxCard = Utilities.getAttribute(role1, "maxCard");
 				if (maxCard.equals("1")) {
 					relatedEnt.add(role1);
 				} else {
-					role2 = relacion.getRelationshipRole2();
+					role2 = relation.getRelationshipRole2();
 					maxCard = Utilities.getAttribute(role2, "maxCard");
 					if (maxCard.equals("N")) {
 						relatedEnt.add(role1);
 					}
 				}
 			} else {
-				role1 = relacion.getRelationshipRole2();
+				role1 = relation.getRelationshipRole2();
 				maxCard = Utilities.getAttribute(role1, "maxCard");
 				if (maxCard.equals("1")) {
 					relatedEnt.add(role1);
 				} else {
-					role2 = relacion.getRelationshipRole1();
+					role2 = relation.getRelationshipRole1();
 					maxCard = Utilities.getAttribute(role2, "maxCard");
 					if (maxCard.equals("N")) {
 						relatedEnt.add(role1);
@@ -602,20 +592,20 @@ public class WizardPatternPage extends WizardPage {
 	}
 
 	private CCombo addAtributesToCombo(CCombo combo, IRelationshipRole role, TableEditor editor) {
-		IEntity entidad;
+		IEntity entity;
 		IRelationship relation = (IRelationship) role.getParentElement();
 		if (relation.getTargetEntity() == this.entitySelected) {
-			entidad = relation.getSourceEntity();
+			entity = relation.getSourceEntity();
 		} else
-			entidad = relation.getTargetEntity();
+			entity = relation.getTargetEntity();
 
-		List<IAttribute> atributos = entidad.getAllAttributeList();
+		List<IAttribute> attributes = entity.getAllAttributeList();
 
-		String texto;
-		for (IAttribute atributo : atributos) {
-			texto = Utilities.getAttribute(atributo, "name") + " (" + Utilities.getAttribute(role, "name") + ")";
-			combo.add(Utilities.getAttribute(atributo, "name"));
-			this.relationAttributes.put(texto, atributo);
+		String text;
+		for (IAttribute attribute : attributes) {
+			text = Utilities.getAttribute(attribute, "name") + " (" + Utilities.getAttribute(role, "name") + ")";
+			combo.add(Utilities.getAttribute(attribute, "name"));
+			this.relationAttributes.put(text, attribute);
 		}
 
 		return combo;
@@ -673,7 +663,7 @@ public class WizardPatternPage extends WizardPage {
 	 * @return a Map with the relationship roles selected
 	 */
 	public Map<IRelationshipRole, IAttribute> getRelationshipsSelected() {
-		Map<IRelationshipRole, IAttribute> mapaRelaciones = new HashMap<IRelationshipRole, IAttribute>();
+		Map<IRelationshipRole, IAttribute> relationsMap = new HashMap<IRelationshipRole, IAttribute>();
 		String key;
 		try {
 			for (int i = 0; i < this.listCombosRelations.size(); i++) {
@@ -681,13 +671,13 @@ public class WizardPatternPage extends WizardPage {
 					// this.tableIndexCreate.getItems()[i].checked
 					key = this.listCombosRelations.get(i).getItem(this.listCombosRelations.get(i).getSelectionIndex()) + " ("
 							+ Utilities.getAttribute(this.relatedEntities.get(i), "name") + ")";
-					mapaRelaciones.put(this.relatedEntities.get(i), this.relationAttributes.get(key));
+					relationsMap.put(this.relatedEntities.get(i), this.relationAttributes.get(key));
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return mapaRelaciones;
+		return relationsMap;
 	}
 
 	/**

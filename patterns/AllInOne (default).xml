@@ -20,7 +20,7 @@
 
 				<page id="FormPage" name="Form" landmark="true" x="5" y="300">
 					<entryUnit id="entryUnit" name="EntryUnit" x="200" y="150"/>	
-					<selectorUnit id="selectorEntidad" name="Selector" type="keyCondition" x="100" y="5"/>			
+					<selectorUnit id="selectorEntity" name="Selector" type="keyCondition" x="100" y="5"/>			
 				</page>
 			</xor>
 		</page>
@@ -40,9 +40,9 @@
 	<LINKS>
 		<normalNavigationFlow id= "nnf1" name="Close" sourceId="dataUnit" targetId="multiMessageUnit"/>
 		<normalNavigationFlow id= "nnf2" name="Cancel" sourceId="entryUnit" targetId="multiMessageUnit" validate="false"/>
-		<normalNavigationFlow id= "nnf3" name="New" sourceId="noOpContentUnit" targetId="selectorEntidad" type="fixedValue"/>
+		<normalNavigationFlow id= "nnf3" name="New" sourceId="noOpContentUnit" targetId="selectorEntity" type="fixedValue"/>
 		<normalNavigationFlow id= "nnf4" name="View" sourceId="powerIndexUnit" targetId="dataUnit"/>
-		<normalNavigationFlow id= "nnf5" name="Modify" sourceId="powerIndexUnit" targetId="selectorEntidad"/>
+		<normalNavigationFlow id= "nnf5" name="Modify" sourceId="powerIndexUnit" targetId="selectorEntity"/>
 		<normalNavigationFlow id= "nnf6" name="Delete" sourceId="powerIndexUnit" targetId="deleteUnit"/>
 		<normalNavigationFlow id= "nnf7" name="Accept" sourceId="entryUnit" targetId="isNotNullUnit" type="isNotNull"/>
 
@@ -55,7 +55,7 @@
 		<koLink id="koNN" sourceId="isNotNullUnit" targetId="createUnit"/>
 
 
-		<dataFlow id="df1" name="Load" sourceId="selectorEntidad" targetId="entryUnit" type="unitToEntry"/>
+		<dataFlow id="df1" name="Load" sourceId="selectorEntity" targetId="entryUnit" type="unitToEntry"/>
 		<dataFlow id="df2" name="Load" sourceId="entryUnit" targetId="createUnit" type="entryToCreate"/>
 		<dataFlow id="df3" name="Load" sourceId="entryUnit" targetId="updateUnit" type="entryToUpdate"/>
 	</LINKS>
@@ -80,7 +80,7 @@
 			<dataFlow id="flowSelectorForm-#" name="Load" sourceId="selector-#" targetId="entryUnit" type="preload"/>
 			
 			<selectorUnit id="selectorNM%" name="selectorNM%" parentId="FormPage" type="roleCondition" x="0" y="130%"/>
-			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntidad" targetId="selectorNM%"/>
+			<dataFlow id="flowSelectSelect%" name="Load" sourceId="selectorEntity" targetId="selectorNM%"/>
 			<dataFlow id="flowSelectEntry%" name="Load" sourceId="selectorNM%" targetId="entryUnit" type="unitToEntryRole"/>
 
 			<connectUnit id="connect%" name="connect%" x="850%" y="500"/>

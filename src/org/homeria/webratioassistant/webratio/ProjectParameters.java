@@ -170,36 +170,30 @@ public abstract class ProjectParameters {
 	 * Fill "Map<ISiteView, MFGraphEditor> siteViews" variable with the SiteViews
 	 */
 	public static void initSiteViews() {
-		// Iniciamos la estructura que albergar� los siteviews
 		ProjectParameters.siteViews = new HashMap<ISiteView, MFGraphEditor>();
-		// Obtenemos la lista de editores, en los que estan creados los
-		// siteviews entre muchos mas elementos
+		// We get the list of editors, in which siteviews are created among many more elements
 		List<MFGraphEditor> multiEditors = MFUIPlugin.getActiveMultiEditor().getGraphEditorList();
-		Iterator<MFGraphEditor> iterador = multiEditors.iterator();
-		Iterator<ISiteView> iteradorSiteView;
+		Iterator<MFGraphEditor> iterator = multiEditors.iterator();
+		Iterator<ISiteView> iteratorSiteView;
 		MFGraphEditor editor;
 		String XML, idSiteView;
 		ISiteView siteView;
-		// Obtenemos la lista con los nombres de los siteviews
-		List<ISiteView> listaSiteViews = ProjectParameters.getWebModel().getSiteViewList();
-		iterador.next();
-		iterador.next();
-		// Recorremos los editores gr�ficos que tiene en ese momento WebRatio
-		while (iterador.hasNext()) {
-			editor = iterador.next();
-			// Obtenemos la estructura XML de un elemento del editor grafico,
-			// podr� ser un siteview o cualquier otro elemento
+		List<ISiteView> siteViewsList = ProjectParameters.getWebModel().getSiteViewList();
+		iterator.next();
+		iterator.next();
+		// We go through the graphic editors that WebRatio has at that moment
+		while (iterator.hasNext()) {
+			editor = iterator.next();
+			// Obtain the XML structure of an element of the graphic editor, it can be a site or any other element
 			XML = editor.getEditorInput().getName();
-			iteradorSiteView = listaSiteViews.iterator();
-			while (iteradorSiteView.hasNext()) {
-				// Ahora es necesario crear un patron de busqueda con todos los
-				// nombre de siteviews, para ver cual esta incluido en el XML
-				siteView = iteradorSiteView.next();
+			iteratorSiteView = siteViewsList.iterator();
+			while (iteratorSiteView.hasNext()) {
+				// Now it is necessary to create a search pattern with all the names of siteviews, to see what is included in the XML
+				siteView = iteratorSiteView.next();
 				idSiteView = Utilities.getAttribute(siteView, "id");
-				// Si el XML contiene el patron creado se tratar� de ese
-				// siteview en concreto
+				// If the XML contains the created pattern it is about that specific siteview
 				if (XML.contains(" id=\"" + idSiteView + "\"")) {
-					// y en ese caso lo almacenamos en el HashMap
+					// And in that case we store it in the HashMap
 					ProjectParameters.siteViews.put(siteView, editor);
 				}
 			}
